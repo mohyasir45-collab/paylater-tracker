@@ -302,6 +302,60 @@
   }
   .foot-note{ text-align:center; font-size:10px; letter-spacing:.15em; padding-bottom:18px; color:var(--ink-mid-light); }
   body.dark .foot-note{ color:var(--ink-mid-dark); }
+
+  .toolbar-actions{ display:flex; align-items:center; gap:6px; }
+  .backup-btn{
+    width:26px; height:26px; display:flex; align-items:center; justify-content:center;
+    font-size:13px; line-height:1; cursor:pointer; border-radius:50%;
+    background:transparent; color:inherit; border:1px solid var(--ink-mid-light);
+    opacity:.6; transition:opacity .2s ease, transform .15s ease;
+    padding:0;
+  }
+  body.dark .backup-btn{ border-color:var(--ink-mid-dark); }
+  .backup-btn:active{ opacity:.9; transform:scale(.92); }
+
+  #syncBtn{ position:relative; }
+  .sync-dot{
+    position:absolute; top:-2px; right:-2px; width:8px; height:8px; border-radius:50%;
+    background:#b5b0a0; border:1.5px solid var(--paper-light); transition:background .2s ease;
+  }
+  body.dark .sync-dot{ border-color:var(--paper-dark); }
+  .sync-dot.on{ background:#4caf7d; }
+  .sync-dot.err{ background:#d9694f; }
+
+  .sync-overlay{
+    display:none; position:fixed; inset:0; background:rgba(20,17,10,.55);
+    z-index:50; align-items:flex-start; justify-content:center; padding:40px 16px; overflow-y:auto;
+  }
+  .sync-overlay.open{ display:flex; }
+  .sync-modal{
+    background:var(--paper-light); color:var(--ink-light); width:100%; max-width:380px;
+    border-radius:14px; padding:20px; box-shadow:0 20px 50px rgba(0,0,0,.4);
+    font-size:12.5px; line-height:1.5;
+  }
+  body.dark .sync-modal{ background:var(--paper-dark); color:var(--ink-dark); }
+  .sync-modal h3{ font-size:14px; letter-spacing:.05em; margin:0 0 10px; }
+  .sync-modal label{ display:block; font-size:10px; letter-spacing:.08em; color:var(--ink-mid-light); margin:12px 0 4px; }
+  body.dark .sync-modal label{ color:var(--ink-mid-dark); }
+  .sync-modal textarea, .sync-modal input[type=text]{
+    width:100%; box-sizing:border-box; border:1px solid var(--ink-mid-light); border-radius:8px;
+    background:transparent; color:inherit; padding:8px; font-family:inherit; font-size:12px;
+  }
+  body.dark .sync-modal textarea, body.dark .sync-modal input[type=text]{ border-color:var(--ink-mid-dark); }
+  .sync-modal textarea{ min-height:90px; resize:vertical; }
+  .sync-status-line{ margin-top:12px; padding:8px; border-radius:8px; background:rgba(139,131,117,.12); font-size:11px; }
+  .sync-btn-row{ display:flex; gap:8px; margin-top:16px; }
+  .sync-btn-row button{
+    flex:1; padding:9px; border-radius:8px; border:1px solid var(--ink-light); background:var(--ink-light);
+    color:var(--paper-light); font-family:inherit; font-size:11.5px; letter-spacing:.05em; cursor:pointer;
+  }
+  body.dark .sync-btn-row button{ border-color:var(--accent-dark); background:var(--accent-dark); color:#fff; }
+  .sync-btn-row button.secondary{ background:transparent; color:var(--ink-light); }
+  body.dark .sync-btn-row button.secondary{ color:var(--ink-dark); }
+  .sync-close{ float:right; cursor:pointer; opacity:.6; font-size:16px; line-height:1; }
+  .sync-help{ margin-top:14px; font-size:11px; color:var(--ink-mid-light); }
+  body.dark .sync-help{ color:var(--ink-mid-dark); }
+  .sync-help a{ color:inherit; }
 </style>
 </head>
 <body>
@@ -309,8 +363,14 @@
 <div class="wrap">
   <div class="toolbar">
     <span class="brandmark">CATATAN CICILAN</span>
-    <div class="theme-toggle" id="themeToggle">
-      <span id="lightLabel">TERANG</span><span id="darkLabel">GELAP</span>
+    <div class="toolbar-actions">
+      <button class="backup-btn" id="syncBtn" title="Sinkronisasi antar perangkat">☁<span class="sync-dot" id="syncDot"></span></button>
+      <button class="backup-btn" id="exportBtn" title="Export backup (.json)">⬇</button>
+      <button class="backup-btn" id="importBtn" title="Import backup (.json)">⬆</button>
+      <input type="file" id="importFile" accept="application/json,.json" style="display:none">
+      <div class="theme-toggle" id="themeToggle">
+        <span id="lightLabel">TERANG</span><span id="darkLabel">GELAP</span>
+      </div>
     </div>
   </div>
 
@@ -386,6 +446,35 @@
       <div class="foot-note">SIMPAN STRUK INI SEBAGAI BUKTI</div>
     </div>
     <div class="zig bottom"></div>
+  </div>
+</div>
+
+<div class="sync-overlay" id="syncOverlay">
+  <div class="sync-modal">
+    <span class="sync-close" id="syncClose">✕</span>
+    <h3>☁ SINKRONISASI ANTAR PERANGKAT</h3>
+    <div id="syncFormArea">
+      <label for="syncConfigInput">Firebase Config (dari Firebase Console)</label>
+      <textarea id="syncConfigInput" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
+      <label for="syncCodeInput">Kode Sinkron (bebas, contoh: budi-cicilan-2026)</label>
+      <input type="text" id="syncCodeInput" placeholder="kode-rahasia-anda">
+      <div class="sync-btn-row">
+        <button id="syncConnectBtn">Hubungkan</button>
+        <button class="secondary" id="syncCancelBtn">Batal</button>
+      </div>
+    </div>
+    <div id="syncConnectedArea" style="display:none">
+      <div class="sync-status-line" id="syncStatusLine">Terhubung</div>
+      <div class="sync-btn-row">
+        <button class="secondary" id="syncDisconnectBtn">Putuskan Sinkronisasi</button>
+      </div>
+    </div>
+    <div class="sync-help">
+      Pakai <b>Firebase Firestore</b> (gratis) dari Google sebagai penyimpanan bersama.
+      Masukkan Firebase Config yang sama dan Kode Sinkron yang sama di setiap HP/browser
+      agar datanya nyambung otomatis. Tanya Claude "gimana caranya" kalau butuh
+      panduan bikin akun Firebase gratis dari nol.
+    </div>
   </div>
 </div>
 
@@ -473,9 +562,11 @@ async function saveWithRetry(key, value){
 }
 async function saveEntries(){
   await saveWithRetry('paylater-entries', JSON.stringify(entries));
+  pushToCloud();
 }
 async function saveTheme(){
   await saveWithRetry('paylater-theme', theme);
+  pushToCloud();
 }
 async function loadProviders(){
   try{
@@ -487,7 +578,271 @@ async function loadProviders(){
 }
 async function saveProviders(){
   await saveWithRetry('paylater-providers', JSON.stringify(providers));
+  pushToCloud();
 }
+
+function exportBackup(){
+  const backup = {
+    app: 'paylater-tracker',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    entries,
+    theme,
+    providers
+  };
+  const blob = new Blob([JSON.stringify(backup, null, 2)], { type:'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `paylater-backup-${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function readFileAsText(file){
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsText(file);
+  });
+}
+
+async function importBackup(file){
+  let data;
+  try{
+    const text = await readFileAsText(file);
+    data = JSON.parse(text);
+  }catch(err){
+    alert('File backup tidak bisa dibaca. Pastikan file .json yang benar.');
+    return;
+  }
+  if(!data || !Array.isArray(data.entries)){
+    alert('Format file backup tidak valid.');
+    return;
+  }
+  const ok = confirm('Memulihkan backup ini akan MENIMPA semua data yang ada sekarang di struk ini. Lanjutkan?');
+  if(!ok) return;
+
+  entries = data.entries;
+  theme = (data.theme === 'dark' || data.theme === 'light') ? data.theme : theme;
+  providers = (Array.isArray(data.providers) && data.providers.length) ? data.providers : DEFAULT_PROVIDERS.slice();
+  rebuildProvidersMap();
+
+  await saveEntries();
+  await saveTheme();
+  await saveProviders();
+
+  applyTheme();
+  renderProviderSelect();
+  renderProviderManage();
+  render();
+  alert('Backup berhasil dipulihkan.');
+}
+
+document.getElementById('exportBtn').addEventListener('click', exportBackup);
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFile').click();
+});
+document.getElementById('importFile').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  if(file) await importBackup(file);
+  e.target.value = '';
+});
+
+/* ===================== SINKRONISASI (Firebase Firestore, gratis) ===================== */
+let syncConfig = null;
+let syncCode = null;
+let firestoreDb = null;
+let syncDocRef = null;
+let syncUnsub = null;
+let suppressPush = false;
+let pushTimer = null;
+let firebaseLoadPromise = null;
+
+async function loadSyncConfig(){
+  try{
+    const s = await appStorage.get('paylater-sync-config');
+    if(s && s.value){
+      const parsed = JSON.parse(s.value);
+      syncConfig = parsed.config || null;
+      syncCode = parsed.code || null;
+    }
+  }catch(err){ syncConfig = null; syncCode = null; }
+}
+async function saveSyncConfigLocal(){
+  await saveWithRetry('paylater-sync-config', JSON.stringify({ config:syncConfig, code:syncCode }));
+}
+
+function loadFirebaseScripts(){
+  if(firebaseLoadPromise) return firebaseLoadPromise;
+  firebaseLoadPromise = new Promise((resolve, reject) => {
+    if(window.firebase && window.firebase.firestore){ resolve(); return; }
+    const s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js';
+    s1.onload = () => {
+      const s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js';
+      s2.onload = resolve;
+      s2.onerror = () => reject(new Error('Gagal memuat firebase-firestore-compat.js'));
+      document.head.appendChild(s2);
+    };
+    s1.onerror = () => reject(new Error('Gagal memuat firebase-app-compat.js'));
+    document.head.appendChild(s1);
+  });
+  return firebaseLoadPromise;
+}
+
+function updateSyncStatus(msg, kind){
+  const dot = document.getElementById('syncDot');
+  const line = document.getElementById('syncStatusLine');
+  if(dot){
+    dot.classList.remove('on','err');
+    if(kind === 'on') dot.classList.add('on');
+    if(kind === 'err') dot.classList.add('err');
+  }
+  if(line) line.textContent = msg;
+}
+
+function setSyncModalConnectedView(connected){
+  document.getElementById('syncFormArea').style.display = connected ? 'none' : 'block';
+  document.getElementById('syncConnectedArea').style.display = connected ? 'block' : 'none';
+}
+
+async function connectSync(config, code, isSilentReconnect){
+  try{
+    await loadFirebaseScripts();
+  }catch(err){
+    updateSyncStatus('Gagal memuat pustaka sinkronisasi. Cek koneksi internet.', 'err');
+    return false;
+  }
+  try{
+    const app = window.firebase.apps && window.firebase.apps.length
+      ? window.firebase.app()
+      : window.firebase.initializeApp(config);
+    firestoreDb = window.firebase.firestore(app);
+    syncDocRef = firestoreDb.collection('paylater-sync').doc(code);
+
+    if(syncUnsub) syncUnsub();
+    syncUnsub = syncDocRef.onSnapshot(async (snap) => {
+      if(snap.metadata.hasPendingWrites) return;
+      const data = snap.data();
+      if(!data){
+        await pushToCloud(true);
+        return;
+      }
+      suppressPush = true;
+      entries = Array.isArray(data.entries) ? data.entries : entries;
+      theme = (data.theme === 'dark' || data.theme === 'light') ? data.theme : theme;
+      providers = (Array.isArray(data.providers) && data.providers.length) ? data.providers : providers;
+      noteTemplates = (Array.isArray(data.noteTemplates) && data.noteTemplates.length) ? data.noteTemplates : noteTemplates;
+      rebuildProvidersMap();
+      applyTheme();
+      renderProviderSelect();
+      renderProviderManage();
+      if(typeof renderChips === 'function') renderChips();
+      render();
+      await saveWithRetry('paylater-entries', JSON.stringify(entries));
+      await saveWithRetry('paylater-theme', theme);
+      await saveWithRetry('paylater-providers', JSON.stringify(providers));
+      await saveWithRetry('paylater-note-templates', JSON.stringify(noteTemplates));
+      suppressPush = false;
+      updateSyncStatus('Tersinkron • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+    }, (err) => {
+      console.warn('sync error', err);
+      updateSyncStatus('Gagal sinkron: ' + err.message, 'err');
+    });
+
+    syncConfig = config;
+    syncCode = code;
+    await saveSyncConfigLocal();
+    updateSyncStatus('Terhubung, menunggu data...', 'on');
+    setSyncModalConnectedView(true);
+    return true;
+  }catch(err){
+    console.warn(err);
+    updateSyncStatus('Gagal terhubung: ' + err.message, 'err');
+    return false;
+  }
+}
+
+function disconnectSync(){
+  if(syncUnsub) syncUnsub();
+  syncUnsub = null;
+  syncDocRef = null;
+  syncConfig = null;
+  syncCode = null;
+  saveSyncConfigLocal();
+  updateSyncStatus('Tidak aktif', null);
+  setSyncModalConnectedView(false);
+}
+
+function pushToCloud(immediate){
+  if(!syncDocRef || suppressPush || !window.firebase) return;
+  if(pushTimer) clearTimeout(pushTimer);
+  const doPush = async () => {
+    try{
+      await syncDocRef.set({
+        entries, theme, providers, noteTemplates,
+        updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
+      });
+      updateSyncStatus('Tersinkron • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+    }catch(err){
+      console.warn(err);
+      updateSyncStatus('Gagal mengirim data: ' + err.message, 'err');
+    }
+  };
+  if(immediate) return doPush();
+  pushTimer = setTimeout(doPush, 800);
+}
+
+async function initSyncOnLoad(){
+  await loadSyncConfig();
+  if(syncConfig && syncCode){
+    setSyncModalConnectedView(true);
+    updateSyncStatus('Menghubungkan ulang...', null);
+    await connectSync(syncConfig, syncCode, true);
+  }
+}
+
+document.getElementById('syncBtn').addEventListener('click', () => {
+  document.getElementById('syncOverlay').classList.add('open');
+  if(syncConfig){
+    document.getElementById('syncConfigInput').value = JSON.stringify(syncConfig, null, 2);
+  }
+  if(syncCode) document.getElementById('syncCodeInput').value = syncCode;
+  setSyncModalConnectedView(!!syncDocRef);
+});
+document.getElementById('syncClose').addEventListener('click', () => {
+  document.getElementById('syncOverlay').classList.remove('open');
+});
+document.getElementById('syncCancelBtn').addEventListener('click', () => {
+  document.getElementById('syncOverlay').classList.remove('open');
+});
+document.getElementById('syncConnectBtn').addEventListener('click', async () => {
+  const raw = document.getElementById('syncConfigInput').value.trim();
+  const code = document.getElementById('syncCodeInput').value.trim();
+  if(!raw || !code){
+    alert('Isi dulu Firebase Config dan Kode Sinkron.');
+    return;
+  }
+  let config;
+  try{
+    config = JSON.parse(raw);
+  }catch(err){
+    alert('Firebase Config harus berupa JSON yang valid. Salin persis dari Firebase Console.');
+    return;
+  }
+  updateSyncStatus('Menghubungkan...', null);
+  const ok = await connectSync(config, code);
+  if(ok) alert('Berhasil terhubung! Buka struk ini di HP/browser lain, masukkan Config dan Kode Sinkron yang sama untuk menyamakan data.');
+});
+document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
+  const ok = confirm('Putuskan sinkronisasi? Data di perangkat ini tetap tersimpan lokal, tapi tidak akan update otomatis lagi.');
+  if(ok) disconnectSync();
+});
 
 function applyTheme(){
   document.body.classList.toggle('dark', theme === 'dark');
@@ -534,6 +889,7 @@ async function loadTemplates(){
 }
 async function saveTemplates(){
   await saveWithRetry('paylater-note-templates', JSON.stringify(noteTemplates));
+  pushToCloud();
 }
 
 let dragEl = null;
@@ -874,6 +1230,7 @@ Promise.all([loadState(), loadTemplates(), loadProviders()]).then(() => {
   renderProviderSelect();
   renderProviderManage();
   render();
+  initSyncOnLoad();
 });
 </script>
 </body>
