@@ -181,6 +181,20 @@
   body.dark .chip-edit-toggle{ color:var(--ink-mid-dark); }
   .chip-edit-toggle:hover{ color:var(--ink-light); }
   body.dark .chip-edit-toggle:hover{ color:var(--ink-dark); }
+
+  .prov-manage-row{ display:flex; justify-content:flex-end; margin-top:4px; }
+  .prov-manage{ max-height:0; opacity:0; overflow:hidden; transition:max-height .35s ease, opacity .3s ease, margin-top .35s ease; }
+  .prov-manage.open{ max-height:300px; opacity:1; margin-top:8px; }
+  .prov-list{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
+  .prov-list .chip{ opacity:1; border:none; }
+  .prov-add-row{ display:flex; gap:6px; align-items:center; }
+  .prov-add-row input[type="text"]{ flex:1; }
+  .prov-add-row input[type="color"]{
+    width:30px; height:26px; padding:0; border:1px solid var(--ink-mid-light);
+    background:transparent; cursor:pointer; border-radius:4px;
+  }
+  body.dark .prov-add-row input[type="color"]{ border-color:var(--ink-mid-dark); }
+
   label{ font-size:9.5px; letter-spacing:.08em; color:var(--ink-mid-light); text-transform:uppercase; }
   body.dark label{ color:var(--ink-mid-dark); }
   select,input{
@@ -311,11 +325,10 @@
         <div class="form-grid">
           <div class="field">
             <label>Layanan</label>
-            <select id="fProvider">
-              <option value="spaylater">SPaylater</option>
-              <option value="kredivo">Kredivo</option>
-              <option value="indodana">Indodana</option>
-            </select>
+            <select id="fProvider"></select>
+            <div class="prov-manage-row">
+              <button type="button" class="chip-edit-toggle" id="provEditToggle">✎ atur layanan</button>
+            </div>
           </div>
           <div class="field">
             <label>Jumlah (Rp)</label>
@@ -334,6 +347,17 @@
             </div>
           </div>
         </div>
+
+        <div class="prov-manage" id="provManageWrap">
+          <label>Kelola Layanan</label>
+          <div class="prov-list" id="provList"></div>
+          <div class="prov-add-row">
+            <input type="text" id="provNewLabel" placeholder="Nama layanan baru" maxlength="20">
+            <input type="color" id="provNewColor" value="#6E8FC9">
+            <button type="button" class="chip add-chip" id="provAddBtn">+ tambah</button>
+          </div>
+        </div>
+
         <div class="form-actions">
           <button class="save-btn" id="saveBtn">SIMPAN</button>
           <button class="cancel-btn" id="cancelBtn">BATAL</button>
@@ -352,11 +376,18 @@
 </div>
 
 <script>
-const PROVIDERS = {
-  spaylater: { label:'SPAYLATER', color:'#C15B34' },
-  kredivo:   { label:'KREDIVO',   color:'#3F5E96' },
-  indodana:  { label:'INDODANA',  color:'#3C7D5A' }
-};
+const DEFAULT_PROVIDERS = [
+  { key:'spaylater', label:'SPAYLATER', color:'#C15B34' },
+  { key:'kredivo',   label:'KREDIVO',   color:'#3F5E96' },
+  { key:'indodana',  label:'INDODANA',  color:'#3C7D5A' }
+];
+let providers = DEFAULT_PROVIDERS.slice();
+let PROVIDERS = {};
+function rebuildProvidersMap(){
+  PROVIDERS = {};
+  providers.forEach(p => { PROVIDERS[p.key] = { label:p.label, color:p.color }; });
+}
+rebuildProvidersMap();
 
 let entries = [];
 let theme = 'light';
@@ -403,6 +434,17 @@ async function saveEntries(){
 }
 async function saveTheme(){
   await saveWithRetry('paylater-theme', theme);
+}
+async function loadProviders(){
+  try{
+    const p = await window.storage.get('paylater-providers', false);
+    providers = p ? JSON.parse(p.value) : DEFAULT_PROVIDERS.slice();
+    if(!Array.isArray(providers) || providers.length === 0) providers = DEFAULT_PROVIDERS.slice();
+  }catch(err){ providers = DEFAULT_PROVIDERS.slice(); }
+  rebuildProvidersMap();
+}
+async function saveProviders(){
+  await saveWithRetry('paylater-providers', JSON.stringify(providers));
 }
 
 function applyTheme(){
@@ -550,13 +592,13 @@ fNoteEl.addEventListener('input', () => {
 
 function renderTabs(){
   const tabsEl = document.getElementById('tabs');
-  const defs = [['semua','SEMUA'], ['spaylater','SPAYLATER'], ['kredivo','KREDIVO'], ['indodana','INDODANA']];
+  const defs = [['semua','SEMUA'], ...providers.map(p => [p.key, p.label])];
   tabsEl.innerHTML = '';
   defs.forEach(([key,label]) => {
     const b = document.createElement('button');
     b.className = 'tab' + (activeTab===key ? ' active' : '');
     b.textContent = label;
-    if(activeTab===key && key!=='semua'){
+    if(activeTab===key && key!=='semua' && PROVIDERS[key]){
       b.style.background = PROVIDERS[key].color;
       b.style.borderColor = PROVIDERS[key].color;
       b.style.color = '#fff';
@@ -565,6 +607,86 @@ function renderTabs(){
     tabsEl.appendChild(b);
   });
 }
+
+const fProviderEl = document.getElementById('fProvider');
+function renderProviderSelect(){
+  const current = fProviderEl.value;
+  fProviderEl.innerHTML = '';
+  providers.forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.key;
+    opt.textContent = p.label;
+    fProviderEl.appendChild(opt);
+  });
+  if(providers.some(p => p.key === current)) fProviderEl.value = current;
+}
+
+function renderProviderManage(){
+  const wrap = document.getElementById('provList');
+  wrap.innerHTML = '';
+  providers.forEach((p, idx) => {
+    const cw = document.createElement('span');
+    cw.className = 'chip-wrap';
+    const chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.style.background = p.color;
+    chip.style.color = '#fff';
+    chip.style.borderColor = p.color;
+    chip.textContent = p.label;
+    cw.appendChild(chip);
+    if(providers.length > 1){
+      const rm = document.createElement('span');
+      rm.className = 'chip-remove';
+      rm.textContent = '×';
+      rm.addEventListener('click', () => removeProvider(idx));
+      cw.appendChild(rm);
+    }
+    wrap.appendChild(cw);
+  });
+}
+
+async function removeProvider(idx){
+  const p = providers[idx];
+  if(!p) return;
+  if(providers.length <= 1){ alert('Minimal harus ada satu layanan.'); return; }
+  const count = entries.filter(e => e.provider === p.key).length;
+  let msg = 'Hapus layanan "' + p.label + '"?';
+  if(count > 0) msg += ' ' + count + ' tagihan pada layanan ini akan ikut terhapus.';
+  if(!confirm(msg)) return;
+  providers.splice(idx, 1);
+  entries = entries.filter(e => e.provider !== p.key);
+  rebuildProvidersMap();
+  await saveProviders();
+  await saveEntries();
+  if(activeTab === p.key) activeTab = 'semua';
+  renderProviderSelect();
+  renderProviderManage();
+  render();
+}
+
+document.getElementById('provEditToggle').addEventListener('click', () => {
+  document.getElementById('provManageWrap').classList.toggle('open');
+});
+
+document.getElementById('provAddBtn').addEventListener('click', async () => {
+  const labelInput = document.getElementById('provNewLabel');
+  const colorInput = document.getElementById('provNewColor');
+  const label = labelInput.value.trim();
+  if(!label){ alert('Isi nama layanan terlebih dahulu.'); return; }
+  if(providers.some(p => p.label.toLowerCase() === label.toLowerCase())){
+    alert('Layanan dengan nama itu sudah ada.');
+    return;
+  }
+  const key = 'prov_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+  providers.push({ key, label: label.toUpperCase(), color: colorInput.value });
+  rebuildProvidersMap();
+  await saveProviders();
+  labelInput.value = '';
+  colorInput.value = '#6E8FC9';
+  renderProviderSelect();
+  renderProviderManage();
+  render();
+});
 
 function daysDiff(dueStr, todayStr){
   const due = new Date(dueStr+'T00:00:00');
@@ -595,7 +717,7 @@ function renderList(){
   listEl.innerHTML = '';
   const today = todayStr();
   items.forEach(e => {
-    const prov = PROVIDERS[e.provider];
+    const prov = PROVIDERS[e.provider] || { label:'?', color:'#8B8375' };
     const overdue = !e.paid && e.due && e.due < today;
     const div = document.createElement('div');
     div.className = 'item item-enter' + (e.paid ? ' paid' : '');
@@ -644,9 +766,8 @@ function escapeHtml(s){
 function renderSummary(){
   let grandUnpaid = 0;
   let bd = '';
-  Object.keys(PROVIDERS).forEach(key => {
-    const prov = PROVIDERS[key];
-    const sum = entries.filter(e => e.provider===key && !e.paid).reduce((s,e)=>s+Number(e.amount||0),0);
+  providers.forEach(prov => {
+    const sum = entries.filter(e => e.provider===prov.key && !e.paid).reduce((s,e)=>s+Number(e.amount||0),0);
     grandUnpaid += sum;
     const nice = prov.label.charAt(0) + prov.label.slice(1).toLowerCase();
     bd += '<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + prov.color + '"></span>' + nice + ' ' + formatRupiah(sum) + '</span>';
@@ -697,7 +818,12 @@ document.getElementById('dateNow').textContent = new Date().toLocaleDateString('
   weekday:'long', day:'2-digit', month:'long', year:'numeric'
 });
 
-Promise.all([loadState(), loadTemplates()]).then(() => { renderChips(); render(); });
+Promise.all([loadState(), loadTemplates(), loadProviders()]).then(() => {
+  renderChips();
+  renderProviderSelect();
+  renderProviderManage();
+  render();
+});
 </script>
 </body>
 </html>
