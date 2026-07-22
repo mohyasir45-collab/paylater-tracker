@@ -420,13 +420,41 @@ function todayStr(){
   return t.toISOString().slice(0,10);
 }
 
+const appStorage = (() => {
+  const hasCloudStorage = typeof window.storage !== 'undefined' && window.storage;
+  return {
+    async get(key){
+      if(hasCloudStorage){
+        try{ return await window.storage.get(key, false); }
+        catch(err){ /* fall through to localStorage below */ }
+      }
+      try{
+        const raw = localStorage.getItem(key);
+        return raw === null ? null : { key, value: raw, shared:false };
+      }catch(err){ return null; }
+    },
+    async set(key, value){
+      if(hasCloudStorage){
+        try{
+          const result = await window.storage.set(key, value, false);
+          if(result) return result;
+        }catch(err){ /* fall through to localStorage below */ }
+      }
+      try{
+        localStorage.setItem(key, value);
+        return { key, value, shared:false };
+      }catch(err){ return null; }
+    }
+  };
+})();
+
 async function loadState(){
   try{
-    const e = await window.storage.get('paylater-entries', false);
+    const e = await appStorage.get('paylater-entries');
     entries = e ? JSON.parse(e.value) : [];
   }catch(err){ entries = []; }
   try{
-    const t = await window.storage.get('paylater-theme', false);
+    const t = await appStorage.get('paylater-theme');
     theme = t ? t.value : 'light';
   }catch(err){ theme = 'light'; }
   applyTheme();
@@ -434,7 +462,7 @@ async function loadState(){
 async function saveWithRetry(key, value){
   for(let attempt=0; attempt<2; attempt++){
     try{
-      const result = await window.storage.set(key, value, false);
+      const result = await appStorage.set(key, value);
       if(result) return true;
     }catch(err){
       if(attempt===1) console.warn('penyimpanan "' + key + '" sempat gagal, tapi tampilan tetap berjalan normal.');
@@ -451,7 +479,7 @@ async function saveTheme(){
 }
 async function loadProviders(){
   try{
-    const p = await window.storage.get('paylater-providers', false);
+    const p = await appStorage.get('paylater-providers');
     providers = p ? JSON.parse(p.value) : DEFAULT_PROVIDERS.slice();
     if(!Array.isArray(providers) || providers.length === 0) providers = DEFAULT_PROVIDERS.slice();
   }catch(err){ providers = DEFAULT_PROVIDERS.slice(); }
@@ -500,7 +528,7 @@ const chipEditToggle = document.getElementById('chipEditToggle');
 
 async function loadTemplates(){
   try{
-    const t = await window.storage.get('paylater-note-templates', false);
+    const t = await appStorage.get('paylater-note-templates');
     noteTemplates = t ? JSON.parse(t.value) : DEFAULT_NOTE_TEMPLATES.slice();
   }catch(err){ noteTemplates = DEFAULT_NOTE_TEMPLATES.slice(); }
 }
