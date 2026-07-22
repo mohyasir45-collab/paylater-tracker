@@ -128,6 +128,9 @@
   .summary-amount{ font-size:26px; font-weight:700; font-family:'Space Mono',monospace; margin:2px 0 10px; }
   .summary-breakdown{ display:flex; justify-content:center; gap:14px; font-size:10px; flex-wrap:wrap; }
   .summary-breakdown span{ display:inline-flex; align-items:center; gap:4px; }
+  .dot{ display:inline-block; width:7px; height:7px; border-radius:50%; }
+  .dot.blink{ animation: dotBlink 1s ease-in-out infinite; }
+  @keyframes dotBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.15; } }
 
   .tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
   .tab{
@@ -776,12 +779,21 @@ function escapeHtml(s){
 
 function renderSummary(){
   let grandUnpaid = 0;
+  const sums = providers.map(prov => ({
+    prov,
+    sum: entries.filter(e => e.provider===prov.key && !e.paid).reduce((s,e)=>s+Number(e.amount||0),0)
+  }));
+  sums.forEach(s => { grandUnpaid += s.sum; });
+
+  const maxSum = Math.max(0, ...sums.map(s => s.sum));
+  const leadersCount = sums.filter(s => s.sum === maxSum && maxSum > 0).length;
+
   let bd = '';
-  providers.forEach(prov => {
-    const sum = entries.filter(e => e.provider===prov.key && !e.paid).reduce((s,e)=>s+Number(e.amount||0),0);
-    grandUnpaid += sum;
+  sums.forEach(({prov, sum}) => {
     const nice = prov.label.charAt(0) + prov.label.slice(1).toLowerCase();
-    bd += '<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + prov.color + '"></span>' + nice + ' ' + formatRupiah(sum) + '</span>';
+    const isLeader = maxSum > 0 && sum === maxSum && leadersCount === 1;
+    const dotClass = 'dot' + (isLeader ? ' blink' : '');
+    bd += '<span><span class="' + dotClass + '" style="background:' + prov.color + '"></span>' + nice + ' ' + formatRupiah(sum) + '</span>';
   });
   document.getElementById('grandTotal').textContent = formatRupiah(grandUnpaid);
   document.getElementById('summaryBreakdown').innerHTML = bd;
