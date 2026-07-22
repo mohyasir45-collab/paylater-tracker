@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Struk Paylater</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --desk-light:#DCD7CC;
+    --paper-light:#FBF6E7;
+    --ink-light:#2A2620;
+    --ink-mid-light:#8B8375;
+    --paper-shadow-light: rgba(40,35,25,0.25);
+
+    --desk-dark:#0A0D1C;
+    --paper-dark:#141833;
+    --ink-dark:#EDEFF7;
+    --ink-mid-dark:#7A84AA;
+    --accent-dark:#6E8FC9;
+    --paper-shadow-dark: rgba(0,0,0,0.55);
+
+    --spay:#C15B34;
+    --kred:#3F5E96;
+    --indo:#3C7D5A;
+    --ok:#4C8560;
+    --late:#AD4034;
+  }
+  *{box-sizing:border-box;}
+  html{ scroll-behavior:smooth; }
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    background:var(--desk-light);
+    font-family:'JetBrains Mono','Space Mono','Courier New',monospace;
+    color:var(--ink-light);
+    display:flex;
+    justify-content:center;
+    padding:36px 14px 60px;
+    transition:background .35s ease, color .35s ease;
+    color-scheme: light;
+    -webkit-overflow-scrolling: touch;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0, transparent 45%),
+      radial-gradient(circle at 80% 85%, rgba(0,0,0,0.05) 0, transparent 45%);
+  }
+  body.dark{
+    background:var(--desk-dark);
+    color:var(--ink-dark);
+    color-scheme: dark;
+    background-image:
+      radial-gradient(circle at 20% 15%, rgba(255,255,255,0.03) 0, transparent 45%),
+      radial-gradient(circle at 80% 85%, rgba(0,0,0,0.4) 0, transparent 45%);
+  }
+
+  .wrap{ width:100%; max-width:420px; }
+
+  .toolbar{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:10px; padding:0 6px;
+    font-size:11px; letter-spacing:.08em;
+  }
+  .toolbar .brandmark{ opacity:.55; }
+  .theme-toggle{
+    display:flex; border:1px solid var(--ink-mid-light); border-radius:20px; overflow:hidden;
+    font-size:11px; cursor:pointer; user-select:none;
+  }
+  body.dark .theme-toggle{ border-color:var(--ink-mid-dark); }
+  .theme-toggle span{ padding:5px 10px; transition:background .2s ease, color .2s ease; }
+  .theme-toggle .on{ background:var(--ink-light); color:var(--paper-light); }
+  body.dark .theme-toggle .on{ background:var(--accent-dark); color:#fff; }
+
+  .receipt-shadow{
+    filter: drop-shadow(0 18px 30px var(--paper-shadow-light));
+    transition:filter .35s ease;
+  }
+  body.dark .receipt-shadow{ filter: drop-shadow(0 18px 34px var(--paper-shadow-dark)); }
+
+  .zig{
+    height:12px;
+    background-image:
+      linear-gradient(-45deg, var(--paper-light) 6px, transparent 6px),
+      linear-gradient(45deg, var(--paper-light) 6px, transparent 6px);
+    background-position:0 0;
+    background-size:12px 12px;
+    background-repeat:repeat-x;
+  }
+  .zig.bottom{ transform:scaleY(-1); }
+  body.dark .zig{
+    background-image:
+      linear-gradient(-45deg, var(--paper-dark) 6px, transparent 6px),
+      linear-gradient(45deg, var(--paper-dark) 6px, transparent 6px);
+  }
+
+  .paper{
+    background:var(--paper-light);
+    padding:26px 22px 8px;
+    position:relative;
+    background-image: repeating-radial-gradient(circle at 0 0, rgba(0,0,0,0.015) 0 1px, transparent 1px 3px);
+    transition:background .35s ease;
+  }
+  body.dark .paper{ background:var(--paper-dark);
+    background-image: repeating-radial-gradient(circle at 0 0, rgba(255,255,255,0.02) 0 1px, transparent 1px 3px);
+  }
+
+  .center{ text-align:center; }
+  .title{ font-family:'Space Mono',monospace; font-weight:700; font-size:19px; letter-spacing:.12em; }
+  .subtitle{ font-size:10.5px; color:var(--ink-mid-light); margin-top:4px; letter-spacing:.05em; }
+  body.dark .subtitle{ color:var(--ink-mid-dark); }
+
+  .dash{ border:0; border-top:1.5px dashed var(--ink-mid-light); margin:14px 0; }
+  body.dark .dash{ border-top-color:var(--ink-mid-dark); }
+
+  .summary{ text-align:center; padding:6px 0 2px; }
+  .summary-label{ font-size:10px; letter-spacing:.14em; color:var(--ink-mid-light); }
+  body.dark .summary-label{ color:var(--ink-mid-dark); }
+  .summary-amount{ font-size:26px; font-weight:700; font-family:'Space Mono',monospace; margin:2px 0 10px; }
+  .summary-breakdown{ display:flex; justify-content:center; gap:14px; font-size:10px; flex-wrap:wrap; }
+  .summary-breakdown span{ display:inline-flex; align-items:center; gap:4px; }
+
+  .tabs{ display:flex; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+  .tab{
+    flex:1; min-width:70px; text-align:center; padding:6px 4px; font-size:10.5px;
+    border:1px solid var(--ink-mid-light); cursor:pointer; letter-spacing:.04em;
+    background:transparent; color:inherit; font-family:inherit;
+    transition:background .2s ease, color .2s ease, border-color .2s ease, transform .15s ease;
+  }
+  body.dark .tab{ border-color:var(--ink-mid-dark); }
+  .tab.active{ background:var(--ink-light); color:var(--paper-light); border-color:var(--ink-light); }
+  body.dark .tab.active{ background:var(--accent-dark); color:#fff; border-color:var(--accent-dark); }
+  .tab:active{ transform:scale(.95); }
+
+  .add-toggle{
+    width:100%; padding:9px; font-family:inherit; font-weight:700;
+    font-size:12px; letter-spacing:.12em; background:transparent; color:inherit;
+    border:1.5px dashed var(--ink-mid-light); cursor:pointer;
+    transition:opacity .2s ease, transform .15s ease, border-color .2s ease;
+  }
+  body.dark .add-toggle{ border-color:var(--ink-mid-dark); }
+  .add-toggle:active{ opacity:.6; transform:scale(.98); }
+
+  .add-form{ max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:max-height .35s ease, opacity .3s ease, margin-top .35s ease; }
+  .add-form.open{ max-height:600px; opacity:1; margin-top:12px; }
+
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:4px; }
+  .field{ display:flex; flex-direction:column; gap:3px; margin-bottom:8px; }
+  .field.full{ grid-column:1/-1; }
+  .note-chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .chip{
+    font-family:inherit; font-size:9.5px; letter-spacing:.02em; padding:4px 9px;
+    border:1px solid var(--ink-mid-light); border-radius:12px; background:transparent;
+    color:inherit; cursor:pointer; opacity:.85;
+    transition:background .2s ease, color .2s ease, border-color .2s ease, opacity .2s ease, transform .15s ease;
+  }
+  body.dark .chip{ border-color:var(--ink-mid-dark); }
+  .chip:hover{ opacity:1; border-color:var(--ink-light); }
+  body.dark .chip:hover{ border-color:var(--ink-dark); }
+  .chip:active{ transform:scale(.95); }
+  .chip.chosen{ background:var(--ink-light); color:var(--paper-light); border-color:var(--ink-light); opacity:1; }
+  body.dark .chip.chosen{ background:var(--accent-dark); color:#fff; border-color:var(--accent-dark); }
+  .chip-wrap{ position:relative; display:inline-flex; }
+  .chip-remove{
+    position:absolute; top:-6px; right:-6px; width:14px; height:14px; line-height:14px;
+    text-align:center; font-size:9px; font-weight:700; border-radius:50%; cursor:pointer;
+    background:var(--late); color:#fff; border:1px solid var(--paper-light);
+  }
+  body.dark .chip-remove{ border-color:var(--paper-dark); }
+  .chip-wrap.chip-draggable{ cursor:grab; touch-action:none; }
+  .chip-wrap.dragging{ opacity:.4; }
+  .chip-wrap.drag-over .chip{ border-color:var(--ink-light); }
+  body.dark .chip-wrap.drag-over .chip{ border-color:var(--ink-dark); }
+  .chip.add-chip{ border-style:dashed; opacity:.7; }
+  .chip.add-chip:hover{ opacity:1; }
+  .chips-manage{
+    display:flex; justify-content:flex-end; margin-top:5px;
+  }
+  .chip-edit-toggle{
+    font-family:inherit; font-size:9px; letter-spacing:.06em; background:none; border:none;
+    color:var(--ink-mid-light); cursor:pointer; text-decoration:underline; padding:2px 0;
+  }
+  body.dark .chip-edit-toggle{ color:var(--ink-mid-dark); }
+  .chip-edit-toggle:hover{ color:var(--ink-light); }
+  body.dark .chip-edit-toggle:hover{ color:var(--ink-dark); }
+  label{ font-size:9.5px; letter-spacing:.08em; color:var(--ink-mid-light); text-transform:uppercase; }
+  body.dark label{ color:var(--ink-mid-dark); }
+  select,input{
+    font-family:inherit; font-size:12.5px; background:transparent; color:inherit;
+    border:none; border-bottom:1px solid var(--ink-mid-light); padding:5px 2px;
+    outline:none;
+  }
+  body.dark select, body.dark input{ border-bottom-color:var(--ink-mid-dark); }
+  select:focus, input:focus{ border-bottom:1.5px solid var(--ink-light); }
+  body.dark select:focus, body.dark input:focus{ border-bottom-color:var(--accent-dark); }
+  select option{ background:var(--paper-light); color:var(--ink-light); }
+  body.dark select option{ background:var(--paper-dark); color:var(--ink-dark); }
+
+  .form-actions{ display:flex; gap:8px; margin-top:4px; }
+  .save-btn, .cancel-btn{
+    font-family:inherit; font-weight:700; font-size:12px; letter-spacing:.1em;
+    padding:9px; cursor:pointer; border:none;
+    transition:opacity .2s ease, transform .15s ease, border-color .2s ease;
+  }
+  .save-btn{ flex:2; background:var(--ink-light); color:var(--paper-light); }
+  body.dark .save-btn{ background:var(--accent-dark); color:#fff; }
+  .cancel-btn{ flex:1; background:transparent; color:inherit; border:1px solid var(--ink-mid-light); }
+  body.dark .cancel-btn{ border-color:var(--ink-mid-dark); }
+  .save-btn:active, .cancel-btn:active{ opacity:.7; transform:scale(.97); }
+
+  .list{ margin-top:6px; }
+  .empty{ text-align:center; font-size:11px; color:var(--ink-mid-light); padding:22px 0 10px; letter-spacing:.04em; }
+  body.dark .empty{ color:var(--ink-mid-dark); }
+
+  .item{ position:relative; padding:10px 0 10px 10px; border-left:4px solid var(--item-color, var(--ink-mid-light)); transition:opacity .3s ease, transform .3s ease, border-left-color .3s ease; }
+  .item.item-enter{ opacity:0; transform:translateY(6px); }
+  .item + .item{ border-top:1px dashed var(--ink-mid-light); margin-top:2px; }
+  body.dark .item + .item{ border-top-color:var(--ink-mid-dark); }
+  .item.paid{ border-left-color:var(--ink-mid-light) !important; opacity:.75; }
+  body.dark .item.paid{ border-left-color:var(--ink-mid-dark) !important; }
+
+  .item-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
+  .item-main{ flex:1; min-width:0; }
+  .prov-tag{
+    display:inline-block; font-size:9.5px; font-weight:700; letter-spacing:.06em;
+    padding:2px 6px; margin-bottom:4px; color:#fff;
+  }
+  .item-note{ font-size:11.5px; opacity:.85; word-break:break-word; }
+  .item-due{ font-size:10px; color:var(--ink-mid-light); margin-top:4px; }
+  body.dark .item-due{ color:var(--ink-mid-dark); }
+  .item-right{ display:flex; flex-direction:column; align-items:flex-end; gap:5px; }
+  .countdown{
+    display:inline-block; font-weight:800; letter-spacing:.02em; font-size:8px;
+    padding:1.5px 5px; border-radius:2px; text-transform:uppercase; white-space:nowrap;
+  }
+  .countdown.soon{ background:var(--late); color:#fff; }
+  .countdown.warn{ background:var(--late); color:#fff; }
+  .countdown.ok{ background:var(--ok); color:#fff; opacity:1; }
+  body.dark .countdown.ok{ background:#5FAE79; }
+  .item-amount{ font-size:14.5px; font-weight:700; white-space:nowrap; text-align:right; }
+  .item.paid .item-note, .item.paid .item-amount, .item.paid .item-due{ text-decoration:line-through; opacity:.45; }
+
+  .item-actions{ display:flex; gap:8px; margin-top:6px; font-size:10px; }
+  .action-btn{
+    background:none; border:1px solid var(--ink-mid-light); color:inherit; font-family:inherit;
+    font-size:9.5px; padding:3px 7px; cursor:pointer; letter-spacing:.04em;
+    transition:border-color .2s ease, opacity .2s ease, transform .15s ease;
+  }
+  body.dark .action-btn{ border-color:var(--ink-mid-dark); }
+  .action-btn:hover{ border-color:var(--ink-light); }
+  body.dark .action-btn:hover{ border-color:var(--ink-dark); }
+  .action-btn:active{ opacity:.6; transform:scale(.95); }
+
+  .stamp{
+    position:absolute; bottom:9px; right:0; font-weight:700; font-size:11px; letter-spacing:.1em;
+    padding:3px 8px; border:2px solid; border-radius:3px; transform:rotate(-11deg);
+    mix-blend-mode:multiply; pointer-events:none; opacity:.88;
+  }
+  body.dark .stamp{ mix-blend-mode:normal; }
+  .stamp.lunas{ color:var(--ok); border-color:var(--ok); }
+  .stamp.telat{ color:var(--late); border-color:var(--late); }
+
+  .barcode{
+    height:34px; margin:16px 0 10px;
+    background: repeating-linear-gradient(90deg,
+      var(--ink-light) 0 2px, transparent 2px 5px,
+      var(--ink-light) 5px 6px, transparent 6px 10px,
+      var(--ink-light) 10px 13px, transparent 13px 15px);
+    opacity:.85;
+  }
+  body.dark .barcode{
+    background: repeating-linear-gradient(90deg,
+      var(--ink-dark) 0 2px, transparent 2px 5px,
+      var(--ink-dark) 5px 6px, transparent 6px 10px,
+      var(--ink-dark) 10px 13px, transparent 13px 15px);
+  }
+  .foot-note{ text-align:center; font-size:10px; letter-spacing:.15em; padding-bottom:18px; color:var(--ink-mid-light); }
+  body.dark .foot-note{ color:var(--ink-mid-dark); }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="toolbar">
+    <span class="brandmark">CATATAN CICILAN</span>
+    <div class="theme-toggle" id="themeToggle">
+      <span id="lightLabel">TERANG</span><span id="darkLabel">GELAP</span>
+    </div>
+  </div>
+
+  <div class="receipt-shadow">
+    <div class="zig"></div>
+    <div class="paper">
+      <div class="center">
+        <div class="title">STRUK PAYLATER</div>
+        <div class="subtitle" id="dateNow"></div>
+      </div>
+
+      <hr class="dash">
+
+      <div class="summary">
+        <div class="summary-label">TOTAL TAGIHAN BELUM DIBAYAR</div>
+        <div class="summary-amount" id="grandTotal">Rp0</div>
+        <div class="summary-breakdown" id="summaryBreakdown"></div>
+      </div>
+
+      <hr class="dash">
+
+      <div class="tabs" id="tabs"></div>
+
+      <button class="add-toggle" id="addToggle">+ TAMBAH TAGIHAN</button>
+      <div class="add-form" id="addForm">
+        <div class="form-grid">
+          <div class="field">
+            <label>Layanan</label>
+            <select id="fProvider">
+              <option value="spaylater">SPaylater</option>
+              <option value="kredivo">Kredivo</option>
+              <option value="indodana">Indodana</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Jumlah (Rp)</label>
+            <input type="number" id="fAmount" placeholder="150000" min="0">
+          </div>
+          <div class="field">
+            <label>Jatuh tempo</label>
+            <input type="date" id="fDue">
+          </div>
+          <div class="field full">
+            <label>Catatan</label>
+            <input type="text" id="fNote" placeholder="cicilan HP, dll" maxlength="40">
+            <div class="note-chips" id="noteChips"></div>
+            <div class="chips-manage">
+              <button type="button" class="chip-edit-toggle" id="chipEditToggle">✎ atur template</button>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="save-btn" id="saveBtn">SIMPAN</button>
+          <button class="cancel-btn" id="cancelBtn">BATAL</button>
+        </div>
+      </div>
+
+      <hr class="dash">
+
+      <div class="list" id="list"></div>
+
+      <div class="barcode"></div>
+      <div class="foot-note">SIMPAN STRUK INI SEBAGAI BUKTI</div>
+    </div>
+    <div class="zig bottom"></div>
+  </div>
+</div>
+
+<script>
+const PROVIDERS = {
+  spaylater: { label:'SPAYLATER', color:'#C15B34' },
+  kredivo:   { label:'KREDIVO',   color:'#3F5E96' },
+  indodana:  { label:'INDODANA',  color:'#3C7D5A' }
+};
+
+let entries = [];
+let theme = 'light';
+let activeTab = 'semua';
+
+function formatRupiah(n){
+  return 'Rp' + Number(n||0).toLocaleString('id-ID');
+}
+function formatDate(d){
+  if(!d) return '-';
+  const dt = new Date(d+'T00:00:00');
+  return dt.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+}
+function todayStr(){
+  const t = new Date();
+  return t.toISOString().slice(0,10);
+}
+
+async function loadState(){
+  try{
+    const e = await window.storage.get('paylater-entries', false);
+    entries = e ? JSON.parse(e.value) : [];
+  }catch(err){ entries = []; }
+  try{
+    const t = await window.storage.get('paylater-theme', false);
+    theme = t ? t.value : 'light';
+  }catch(err){ theme = 'light'; }
+  applyTheme();
+}
+async function saveWithRetry(key, value){
+  for(let attempt=0; attempt<2; attempt++){
+    try{
+      const result = await window.storage.set(key, value, false);
+      if(result) return true;
+    }catch(err){
+      if(attempt===1) console.warn('penyimpanan "' + key + '" sempat gagal, tapi tampilan tetap berjalan normal.');
+    }
+    await new Promise(r => setTimeout(r, 250));
+  }
+  return false;
+}
+async function saveEntries(){
+  await saveWithRetry('paylater-entries', JSON.stringify(entries));
+}
+async function saveTheme(){
+  await saveWithRetry('paylater-theme', theme);
+}
+
+function applyTheme(){
+  document.body.classList.toggle('dark', theme === 'dark');
+  document.getElementById('lightLabel').className = theme==='light' ? 'on' : '';
+  document.getElementById('darkLabel').className = theme==='dark' ? 'on' : '';
+}
+
+document.getElementById('themeToggle').addEventListener('click', () => {
+  theme = theme === 'light' ? 'dark' : 'light';
+  applyTheme();
+  saveTheme();
+});
+
+const addForm = document.getElementById('addForm');
+const addToggle = document.getElementById('addToggle');
+addToggle.addEventListener('click', () => {
+  addForm.classList.add('open');
+  addToggle.style.display = 'none';
+});
+document.getElementById('cancelBtn').addEventListener('click', () => {
+  addForm.classList.remove('open');
+  addToggle.style.display = 'block';
+  clearForm();
+});
+function clearForm(){
+  document.getElementById('fAmount').value = '';
+  document.getElementById('fDue').value = '';
+  document.getElementById('fNote').value = '';
+  document.querySelectorAll('.chip.chosen').forEach(c => c.classList.remove('chosen'));
+}
+
+const DEFAULT_NOTE_TEMPLATES = ['Cicilan HP', 'Belanja online', 'Elektronik', 'Kebutuhan rumah', 'Top up game', 'Bayar tagihan'];
+let noteTemplates = DEFAULT_NOTE_TEMPLATES.slice();
+let chipsEditMode = false;
+const noteChipsEl = document.getElementById('noteChips');
+const fNoteEl = document.getElementById('fNote');
+const chipEditToggle = document.getElementById('chipEditToggle');
+
+async function loadTemplates(){
+  try{
+    const t = await window.storage.get('paylater-note-templates', false);
+    noteTemplates = t ? JSON.parse(t.value) : DEFAULT_NOTE_TEMPLATES.slice();
+  }catch(err){ noteTemplates = DEFAULT_NOTE_TEMPLATES.slice(); }
+}
+async function saveTemplates(){
+  await saveWithRetry('paylater-note-templates', JSON.stringify(noteTemplates));
+}
+
+let dragEl = null;
+function commitDragOrder(){
+  const newOrder = Array.from(noteChipsEl.querySelectorAll('.chip-wrap'))
+    .map(w => noteTemplates[Number(w.dataset.tplIdx)]);
+  noteTemplates = newOrder;
+  saveTemplates();
+}
+
+function renderChips(){
+  noteChipsEl.innerHTML = '';
+  noteTemplates.forEach((tpl, idx) => {
+    const wrap = document.createElement('span');
+    wrap.className = 'chip-wrap';
+    wrap.dataset.tplIdx = idx;
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip' + (fNoteEl.value === tpl ? ' chosen' : '');
+    chip.textContent = tpl;
+    chip.addEventListener('click', () => {
+      if(chipsEditMode) return;
+      fNoteEl.value = tpl;
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('chosen'));
+      chip.classList.add('chosen');
+    });
+    wrap.appendChild(chip);
+    if(chipsEditMode){
+      wrap.classList.add('chip-draggable');
+
+      wrap.addEventListener('pointerdown', (e) => {
+        if(e.button !== undefined && e.button !== 0) return;
+        dragEl = wrap;
+        wrap.classList.add('dragging');
+        wrap.setPointerCapture(e.pointerId);
+      });
+      wrap.addEventListener('pointermove', (e) => {
+        if(dragEl !== wrap) return;
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const target = el && el.closest('.chip-wrap');
+        noteChipsEl.querySelectorAll('.chip-wrap.drag-over').forEach(w => w.classList.remove('drag-over'));
+        if(target && target !== dragEl && target.parentElement === noteChipsEl){
+          target.classList.add('drag-over');
+          const rect = target.getBoundingClientRect();
+          const before = (e.clientX - rect.left) < rect.width / 2;
+          noteChipsEl.insertBefore(dragEl, before ? target : target.nextSibling);
+        }
+      });
+      const endDrag = () => {
+        if(dragEl !== wrap) return;
+        wrap.classList.remove('dragging');
+        noteChipsEl.querySelectorAll('.chip-wrap.drag-over').forEach(w => w.classList.remove('drag-over'));
+        dragEl = null;
+        commitDragOrder();
+      };
+      wrap.addEventListener('pointerup', endDrag);
+      wrap.addEventListener('pointercancel', endDrag);
+
+      const rm = document.createElement('span');
+      rm.className = 'chip-remove';
+      rm.textContent = '×';
+      rm.addEventListener('click', async () => {
+        noteTemplates.splice(idx, 1);
+        await saveTemplates();
+        renderChips();
+      });
+      wrap.appendChild(rm);
+    }
+    noteChipsEl.appendChild(wrap);
+  });
+  if(chipsEditMode){
+    const addChip = document.createElement('button');
+    addChip.type = 'button';
+    addChip.className = 'chip add-chip';
+    addChip.textContent = '+ template baru';
+    addChip.addEventListener('click', async () => {
+      const val = prompt('Nama template baru (mis. Cicilan laptop):', '');
+      const trimmed = (val || '').trim();
+      if(!trimmed) return;
+      if(noteTemplates.includes(trimmed)) return;
+      noteTemplates.push(trimmed);
+      await saveTemplates();
+      renderChips();
+    });
+    noteChipsEl.appendChild(addChip);
+  }
+}
+
+chipEditToggle.addEventListener('click', () => {
+  chipsEditMode = !chipsEditMode;
+  chipEditToggle.textContent = chipsEditMode ? '✓ selesai' : '✎ atur template';
+  renderChips();
+});
+
+fNoteEl.addEventListener('input', () => {
+  document.querySelectorAll('.chip').forEach(c => c.classList.toggle('chosen', c.textContent === fNoteEl.value));
+});
+
+function renderTabs(){
+  const tabsEl = document.getElementById('tabs');
+  const defs = [['semua','SEMUA'], ['spaylater','SPAYLATER'], ['kredivo','KREDIVO'], ['indodana','INDODANA']];
+  tabsEl.innerHTML = '';
+  defs.forEach(([key,label]) => {
+    const b = document.createElement('button');
+    b.className = 'tab' + (activeTab===key ? ' active' : '');
+    b.textContent = label;
+    if(activeTab===key && key!=='semua'){
+      b.style.background = PROVIDERS[key].color;
+      b.style.borderColor = PROVIDERS[key].color;
+      b.style.color = '#fff';
+    }
+    b.addEventListener('click', () => { activeTab = key; render(); });
+    tabsEl.appendChild(b);
+  });
+}
+
+function daysDiff(dueStr, todayStr){
+  const due = new Date(dueStr+'T00:00:00');
+  const now = new Date(todayStr+'T00:00:00');
+  return Math.round((due - now) / 86400000);
+}
+function countdownLabel(diff){
+  if(diff < 0) return { text: 'terlambat ' + Math.abs(diff) + ' hari', cls:'soon' };
+  if(diff === 0) return { text: 'jatuh tempo hari ini', cls:'soon' };
+  if(diff === 1) return { text: 'besok', cls:'warn' };
+  if(diff <= 3) return { text: diff + ' hari lagi', cls:'warn' };
+  return { text: diff + ' hari lagi', cls:'ok' };
+}
+
+function renderList(){
+  const listEl = document.getElementById('list');
+  let items = entries.filter(e => activeTab==='semua' || e.provider===activeTab);
+  items = items.slice().sort((a,b) => {
+    if(a.paid !== b.paid) return a.paid ? 1 : -1;
+    return (a.due||'').localeCompare(b.due||'');
+  });
+
+  if(items.length===0){
+    listEl.innerHTML = '<div class="empty">— belum ada tagihan tercatat —</div>';
+    return;
+  }
+
+  listEl.innerHTML = '';
+  const today = todayStr();
+  items.forEach(e => {
+    const prov = PROVIDERS[e.provider];
+    const overdue = !e.paid && e.due && e.due < today;
+    const div = document.createElement('div');
+    div.className = 'item item-enter' + (e.paid ? ' paid' : '');
+    div.style.setProperty('--item-color', prov.color);
+    let countdownHtml = '';
+    if(!e.paid && e.due){
+      const cd = countdownLabel(daysDiff(e.due, today));
+      countdownHtml = '<span class="countdown ' + cd.cls + '">' + cd.text + '</span>';
+    }
+    div.innerHTML = `
+      <div class="item-row">
+        <div class="item-main">
+          <span class="prov-tag" style="background:${prov.color}">${prov.label}</span>
+          <div class="item-note">${e.note ? escapeHtml(e.note) : '(tanpa catatan)'}</div>
+          <div class="item-due">jatuh tempo: ${formatDate(e.due)}</div>
+        </div>
+        <div class="item-right">
+          <div class="item-amount">${formatRupiah(e.amount)}</div>
+          ${countdownHtml}
+        </div>
+      </div>
+      <div class="item-actions">
+        <button class="action-btn" data-act="paid" data-id="${e.id}">${e.paid ? 'BATAL LUNAS' : 'TANDAI LUNAS'}</button>
+        <button class="action-btn" data-act="del" data-id="${e.id}">HAPUS</button>
+      </div>
+      ${e.paid ? '<div class="stamp lunas">LUNAS</div>' : (overdue ? '<div class="stamp telat">TELAT</div>' : '')}
+    `;
+    listEl.appendChild(div);
+  });
+  requestAnimationFrame(() => {
+    listEl.querySelectorAll('.item.item-enter').forEach(el => el.classList.remove('item-enter'));
+  });
+
+  listEl.querySelectorAll('[data-act="paid"]').forEach(btn => {
+    btn.addEventListener('click', () => togglePaid(btn.dataset.id));
+  });
+  listEl.querySelectorAll('[data-act="del"]').forEach(btn => {
+    btn.addEventListener('click', () => deleteEntry(btn.dataset.id));
+  });
+}
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function renderSummary(){
+  let grandUnpaid = 0;
+  let bd = '';
+  Object.keys(PROVIDERS).forEach(key => {
+    const prov = PROVIDERS[key];
+    const sum = entries.filter(e => e.provider===key && !e.paid).reduce((s,e)=>s+Number(e.amount||0),0);
+    grandUnpaid += sum;
+    const nice = prov.label.charAt(0) + prov.label.slice(1).toLowerCase();
+    bd += '<span><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:' + prov.color + '"></span>' + nice + ' ' + formatRupiah(sum) + '</span>';
+  });
+  document.getElementById('grandTotal').textContent = formatRupiah(grandUnpaid);
+  document.getElementById('summaryBreakdown').innerHTML = bd;
+}
+
+function render(){
+  renderTabs();
+  renderList();
+  renderSummary();
+}
+
+async function togglePaid(id){
+  const e = entries.find(x => x.id === id);
+  if(e){ e.paid = !e.paid; await saveEntries(); render(); }
+}
+async function deleteEntry(id){
+  entries = entries.filter(x => x.id !== id);
+  await saveEntries(); render();
+}
+
+document.getElementById('saveBtn').addEventListener('click', async () => {
+  const provider = document.getElementById('fProvider').value;
+  const amount = document.getElementById('fAmount').value;
+  const due = document.getElementById('fDue').value;
+  const note = document.getElementById('fNote').value.trim();
+
+  if(!amount || Number(amount) <= 0 || !due){
+    alert('Isi jumlah dan tanggal jatuh tempo terlebih dahulu.');
+    return;
+  }
+
+  entries.push({
+    id: 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
+    provider, amount: Number(amount), due, note, paid:false
+  });
+  await saveEntries();
+
+  clearForm();
+  addForm.classList.remove('open');
+  addToggle.style.display = 'block';
+  render();
+});
+
+document.getElementById('dateNow').textContent = new Date().toLocaleDateString('id-ID', {
+  weekday:'long', day:'2-digit', month:'long', year:'numeric'
+});
+
+Promise.all([loadState(), loadTemplates()]).then(() => { renderChips(); render(); });
+</script>
+</body>
+</html>
