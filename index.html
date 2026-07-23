@@ -1074,15 +1074,12 @@ function applyTheme(){
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if(metaTheme) metaTheme.setAttribute('content', themeColors[theme] || themeColors.light);
   render();
-  // paksa repaint kecil supaya background & backdrop-filter (tema modern) langsung
-  // tampil benar di browser mobile, tanpa perlu scroll dulu
-  requestAnimationFrame(() => {
-    document.body.style.transform = 'translateZ(0)';
-    void document.body.offsetHeight;
-    window.scrollBy(0, 1);
-    window.scrollBy(0, -1);
-    document.body.style.transform = '';
-  });
+  // repaint ringan (tanpa menggerakkan scroll) supaya backdrop-filter tema modern
+  // langsung tampil benar di browser mobile
+  if(theme === 'modern'){
+    document.body.style.willChange = 'transform';
+    requestAnimationFrame(() => { document.body.style.willChange = ''; });
+  }
 }
 
 document.getElementById('lightLabel').addEventListener('click', () => {
