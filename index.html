@@ -150,10 +150,45 @@
   .summary{ text-align:center; padding:6px 0 2px; }
   .summary-label{ font-size:10px; letter-spacing:.14em; color:var(--ink-mid-light); }
   body.dark .summary-label{ color:var(--ink-mid-dark); }
-  .summary-amount{ font-size:26px; font-weight:700; font-family:'Space Mono',monospace; margin:2px 0 10px; }
-  .summary-breakdown{ display:flex; justify-content:center; gap:14px; font-size:10px; flex-wrap:wrap; }
-  .summary-breakdown span{ display:inline-flex; align-items:center; gap:4px; }
-  .dot{ display:inline-block; width:7px; height:7px; border-radius:50%; }
+  .summary-amount{ font-size:38px; font-weight:700; font-family:'Space Mono',monospace; margin:4px 0 14px; line-height:1.1; letter-spacing:.01em; transition:text-shadow .25s ease, color .25s ease; }
+  .summary-amount.matrix-anim{ color:#00ff41 !important; text-shadow:0 0 4px rgba(0,255,65,.85), 0 0 12px rgba(0,255,65,.5), 0 0 22px rgba(0,255,65,.25); }
+  .matrix-char{ display:inline-block; }
+  .matrix-char.spin{ animation:slotSpin .11s linear infinite; filter:blur(1.2px); }
+  .matrix-char.settled{ animation:slotStop .22s cubic-bezier(.22,.68,.32,1.4); filter:none; }
+  @keyframes slotSpin{
+    0%{ transform:translateY(-7px); }
+    50%{ transform:translateY(7px); }
+    100%{ transform:translateY(-7px); }
+  }
+  @keyframes slotStop{
+    0%{ transform:translateY(-9px); opacity:.5; }
+    70%{ transform:translateY(2px); opacity:1; }
+    100%{ transform:translateY(0); opacity:1; }
+  }
+  .summary-breakdown{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(96px, 1fr));
+    gap:6px;
+    font-size:10.5px;
+    padding:2px 0 0;
+  }
+  .summary-breakdown span{
+    display:flex; align-items:center; gap:5px;
+    justify-content:center;
+    padding:6px 8px;
+    border:1px solid var(--ink-mid-light);
+    border-radius:8px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  body.dark .summary-breakdown span{ border-color:var(--ink-mid-dark); }
+  body.modern .summary-breakdown span{
+    border-color:var(--modern-border);
+    background:rgba(255,255,255,0.03);
+    border-radius:10px;
+  }
+  .dot{ display:inline-block; width:7px; height:7px; border-radius:50%; flex-shrink:0; }
   .dot.blink{ animation: dotBlink 1s ease-in-out infinite; }
   @keyframes dotBlink{ 0%,100%{ opacity:1; } 50%{ opacity:.15; } }
 
@@ -1496,6 +1531,59 @@ function maskAmount(){
   return 'Rp' + '•'.repeat(8);
 }
 
+let matrixAnimSeq = 0;
+const SLOT_SPIN_CHARS = '0123456789';
+function matrixRevealText(el, finalText){
+  matrixAnimSeq++;
+  const myId = matrixAnimSeq;
+  el.classList.add('matrix-anim');
+  el.innerHTML = '';
+  const chars = finalText.split('');
+  const spans = chars.map(ch => {
+    const span = document.createElement('span');
+    span.className = 'matrix-char';
+    span.textContent = ch === ' ' ? '\u00A0' : ch;
+    el.appendChild(span);
+    return span;
+  });
+
+  let pending = 0;
+  chars.forEach((ch, i) => {
+    if(!/[0-9]/.test(ch)){
+      // karakter tetap (Rp, titik pemisah, dsb) langsung muncul, tanpa berputar
+      return;
+    }
+    pending++;
+    const span = spans[i];
+    span.classList.add('spin');
+    const spinTicks = 8 + i * 2 + Math.floor(Math.random() * 5); // reel lebih kanan berhenti lebih belakangan
+    let tick = 0;
+    const interval = setInterval(() => {
+      if(myId !== matrixAnimSeq){ clearInterval(interval); return; }
+      tick++;
+      if(tick >= spinTicks){
+        clearInterval(interval);
+        span.textContent = ch;
+        span.classList.remove('spin');
+        span.classList.add('settled');
+        pending--;
+        if(pending === 0 && myId === matrixAnimSeq){
+          setTimeout(() => { if(myId === matrixAnimSeq) el.classList.remove('matrix-anim'); }, 250);
+        }
+      } else {
+        span.textContent = SLOT_SPIN_CHARS[Math.floor(Math.random() * SLOT_SPIN_CHARS.length)];
+      }
+    }, 55);
+  });
+
+  if(pending === 0){
+    el.classList.remove('matrix-anim');
+  }
+}
+
+let prevGrandUnpaid = null;
+let prevHideTotalForAnim = null;
+
 function renderSummary(){
   let grandUnpaid = 0;
   const sums = providers.map(prov => ({
@@ -1517,7 +1605,20 @@ function renderSummary(){
     bd += '<span><span class="' + dotClass + '" style="background:' + provColor(prov.key, prov.color) + '"></span>' + nice + ' ' + amountText + '</span>';
   });
   const grandTotalEl = document.getElementById('grandTotal');
-  grandTotalEl.textContent = hideTotal ? maskAmount() : formatRupiah(grandUnpaid);
+  const grandTotalText = hideTotal ? maskAmount() : formatRupiah(grandUnpaid);
+
+  const isFirstRender = prevGrandUnpaid === null;
+  const justUnhid = prevHideTotalForAnim === true && hideTotal === false;
+  const changedWhileVisible = !hideTotal && !justUnhid && prevGrandUnpaid !== null && prevGrandUnpaid !== grandUnpaid;
+
+  if(!isFirstRender && (justUnhid || changedWhileVisible)){
+    matrixRevealText(grandTotalEl, grandTotalText);
+  } else {
+    grandTotalEl.textContent = grandTotalText;
+  }
+  prevGrandUnpaid = grandUnpaid;
+  prevHideTotalForAnim = hideTotal;
+
   if(document.body.classList.contains('modern') && leader){
     const c = provColor(leader.prov.key, leader.prov.color);
     grandTotalEl.style.color = c;
