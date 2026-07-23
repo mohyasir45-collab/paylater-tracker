@@ -49,20 +49,24 @@
     --modern-shadow: rgba(0,0,0,0.75);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  button, .tab, .chip{ -webkit-tap-highlight-color:transparent; outline:none; }
-  html{ scroll-behavior:smooth; }
+  button, .tab, .chip{ -webkit-tap-highlight-color:transparent; outline:none; touch-action:manipulation; }
+  html{ scroll-behavior:smooth; -webkit-text-size-adjust:100%; text-size-adjust:100%; height:100%; }
   html,body{margin:0;padding:0;}
   body{
     min-height:100vh;
+    min-height:100dvh;
     background:var(--desk-light);
     font-family:'JetBrains Mono','Space Mono','Courier New',monospace;
     color:var(--ink-light);
     display:flex;
     justify-content:center;
-    padding:36px 14px 60px;
+    padding:calc(36px + env(safe-area-inset-top)) calc(14px + env(safe-area-inset-right)) calc(60px + env(safe-area-inset-bottom)) calc(14px + env(safe-area-inset-left));
     transition:background .35s ease, color .35s ease;
     color-scheme: light;
     -webkit-overflow-scrolling: touch;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overscroll-behavior-y: none;
     background-image:
       radial-gradient(circle at 20% 15%, rgba(255,255,255,0.35) 0, transparent 45%),
       radial-gradient(circle at 80% 85%, rgba(0,0,0,0.05) 0, transparent 45%);
@@ -242,9 +246,9 @@
   label{ font-size:9.5px; letter-spacing:.08em; color:var(--ink-mid-light); text-transform:uppercase; }
   body.dark label{ color:var(--ink-mid-dark); }
   select,input{
-    font-family:inherit; font-size:12.5px; background:transparent; color:inherit;
+    font-family:inherit; font-size:16px; background:transparent; color:inherit;
     border:none; border-bottom:1px solid var(--ink-mid-light); padding:5px 2px;
-    outline:none;
+    outline:none; -webkit-appearance:none; appearance:none; border-radius:0;
   }
   body.dark select, body.dark input{ border-bottom-color:var(--ink-mid-dark); }
   select:focus, input:focus{ border-bottom:1.5px solid var(--ink-light); }
@@ -396,7 +400,8 @@
   body.dark .sync-modal label{ color:var(--ink-mid-dark); }
   .sync-modal textarea, .sync-modal input[type=text]{
     width:100%; box-sizing:border-box; border:1px solid var(--ink-mid-light); border-radius:8px;
-    background:transparent; color:inherit; padding:8px; font-family:inherit; font-size:12px;
+    background:transparent; color:inherit; padding:8px; font-family:inherit; font-size:16px;
+    -webkit-appearance:none; appearance:none;
   }
   body.dark .sync-modal textarea, body.dark .sync-modal input[type=text]{ border-color:var(--ink-mid-dark); }
   .sync-modal textarea{ min-height:90px; resize:vertical; }
@@ -488,6 +493,7 @@
   body.modern select, body.modern input{
     font-family:'Plus Jakarta Sans',sans-serif; border:1px solid var(--modern-border); border-radius:10px;
     background:rgba(255,255,255,0.04); color:var(--modern-ink); padding:9px 10px;
+    -webkit-appearance:none; appearance:none;
   }
   body.modern select:focus, body.modern input:focus{
     border:1.5px solid var(--modern-accent); box-shadow:0 0 10px rgba(60,190,242,0.35);
@@ -1054,6 +1060,9 @@ function applyTheme(){
   document.getElementById('lightLabel').className = theme==='light' ? 'on' : '';
   document.getElementById('darkLabel').className = theme==='dark' ? 'on' : '';
   document.getElementById('modernLabel').className = theme==='modern' ? 'on' : '';
+  const themeColors = { light:'#DCD7CC', dark:'#041420', modern:'#020103' };
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if(metaTheme) metaTheme.setAttribute('content', themeColors[theme] || themeColors.light);
   render();
 }
 
