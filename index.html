@@ -15,7 +15,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --desk-light:#DCD7CC;
@@ -37,6 +37,16 @@
     --indo:#3C7D5A;
     --ok:#4C8560;
     --late:#AD4034;
+
+    --modern-bg:#0A0A14;
+    --modern-card:rgba(255,255,255,0.055);
+    --modern-card-solid:#15151F;
+    --modern-ink:#F2F3FF;
+    --modern-ink-mid:#9296C2;
+    --modern-border:rgba(255,255,255,0.14);
+    --modern-accent:#00F0FF;
+    --modern-accent2:#FF3EC9;
+    --modern-shadow: rgba(0,0,0,0.55);
   }
   *{box-sizing:border-box;}
   html{ scroll-behavior:smooth; }
@@ -75,10 +85,10 @@
   .toolbar .brandmark{ opacity:.55; }
   .theme-toggle{
     display:flex; border:1px solid var(--ink-mid-light); border-radius:20px; overflow:hidden;
-    font-size:11px; cursor:pointer; user-select:none;
+    font-size:9.5px; cursor:pointer; user-select:none;
   }
   body.dark .theme-toggle{ border-color:var(--ink-mid-dark); }
-  .theme-toggle span{ padding:5px 10px; transition:background .2s ease, color .2s ease; }
+  .theme-toggle span{ padding:5px 7px; transition:background .2s ease, color .2s ease; white-space:nowrap; }
   .theme-toggle .on{ background:var(--ink-light); color:var(--paper-light); }
   body.dark .theme-toggle .on{ background:var(--toggle-accent-dark); color:#fff; }
 
@@ -401,6 +411,162 @@
   .sync-help{ margin-top:14px; font-size:11px; color:var(--ink-mid-light); }
   body.dark .sync-help{ color:var(--ink-mid-dark); }
   .sync-help a{ color:inherit; }
+
+  /* ===== MODERN THEME: DARK NEON GLASSMORPHISM ===== */
+  body.modern{
+    background:var(--modern-bg);
+    color:var(--modern-ink);
+    font-family:'Plus Jakarta Sans','JetBrains Mono',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    background-image:
+      radial-gradient(circle at 12% 8%, rgba(0,240,255,0.16) 0, transparent 42%),
+      radial-gradient(circle at 90% 15%, rgba(255,62,201,0.14) 0, transparent 40%),
+      radial-gradient(circle at 25% 90%, rgba(157,78,255,0.14) 0, transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(0,240,255,0.08) 0, transparent 40%);
+    background-attachment:fixed;
+  }
+  body.modern .theme-toggle{ border-color:var(--modern-border); border-radius:14px; backdrop-filter:blur(10px); background:rgba(255,255,255,0.03); }
+  body.modern .theme-toggle span{ border-radius:10px; }
+  body.modern .theme-toggle .on{
+    background:linear-gradient(135deg, #7DD4FF, #0B5FCC); color:#fff;
+    box-shadow:0 0 14px rgba(125,212,255,0.5), 0 0 26px rgba(11,95,204,0.3); font-weight:700;
+  }
+  body.modern .toolbar .brandmark{ font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; letter-spacing:.06em; opacity:.75; }
+  body.modern .backup-btn, body.modern .hide-toggle{
+    border-color:var(--modern-border); border-radius:10px;
+    background:rgba(255,255,255,0.04); backdrop-filter:blur(8px); color:var(--modern-accent);
+  }
+  body.modern .backup-btn:hover, body.modern .hide-toggle:hover{ border-color:var(--modern-accent); }
+  body.modern .chip-remove{ border-color:var(--modern-card-solid); }
+  body.modern .sync-dot{ border-color:var(--modern-card-solid); }
+  body.modern .sync-dot.on{ background:#39FF88; box-shadow:0 0 8px #39FF88; }
+  body.modern .sync-dot.err{ background:#FF3E64; box-shadow:0 0 8px #FF3E64; }
+
+  body.modern .receipt-shadow{ filter: drop-shadow(0 20px 45px var(--modern-shadow)); }
+  body.modern .zig{ display:none; }
+  body.modern .paper{
+    background:var(--modern-card); background-image:none;
+    backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px);
+    border-radius:24px; border:1px solid var(--modern-border);
+    box-shadow:0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
+    padding:26px 22px 18px;
+  }
+  body.modern .title{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:.02em; font-size:20px; }
+  body.modern .subtitle{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .dash{ border-top:1px solid var(--modern-border); margin:16px 0; }
+
+  body.modern .summary-label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; }
+  body.modern .summary-amount{
+    font-family:'Space Grotesk',sans-serif; font-weight:700;
+    background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2));
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+    filter:drop-shadow(0 0 18px rgba(0,240,255,0.35));
+  }
+
+  body.modern .tabs{ gap:8px; }
+  body.modern .tab{
+    border-radius:12px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600;
+    background:rgba(255,255,255,0.03); backdrop-filter:blur(8px);
+  }
+  body.modern .tab.active{
+    background:linear-gradient(135deg, #7DD4FF, #0B5FCC);
+    border-color:transparent; color:#fff;
+    box-shadow:0 0 16px rgba(125,212,255,0.45), 0 0 30px rgba(11,95,204,0.3);
+  }
+
+  body.modern .add-toggle{
+    border-radius:14px; border-style:solid; border-color:var(--modern-border);
+    font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.02em; color:var(--modern-accent);
+    background:rgba(0,240,255,0.04);
+  }
+  body.modern .add-toggle:hover, body.modern .add-toggle:active{ border-color:var(--modern-accent); }
+
+  body.modern label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; letter-spacing:.02em; }
+  body.modern select, body.modern input{
+    font-family:'Plus Jakarta Sans',sans-serif; border:1px solid var(--modern-border); border-radius:10px;
+    background:rgba(255,255,255,0.04); color:var(--modern-ink); padding:9px 10px;
+  }
+  body.modern select:focus, body.modern input:focus{
+    border:1.5px solid var(--modern-accent); box-shadow:0 0 10px rgba(0,240,255,0.35);
+  }
+  body.modern select option{ background:var(--modern-card-solid); color:var(--modern-ink); }
+  body.modern .checkbox-label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .checkbox-label input[type="checkbox"]{ accent-color:var(--modern-accent); }
+  body.modern .installment-sep{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+
+  body.modern .chip{
+    border-radius:999px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif;
+    background:rgba(255,255,255,0.03);
+  }
+  body.modern .chip.chosen{
+    background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2));
+    border-color:transparent; color:#08080F;
+    box-shadow:0 0 12px rgba(0,240,255,0.45);
+  }
+  body.modern .chip:hover{ border-color:var(--modern-accent); }
+  body.modern .chip-edit-toggle{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .prov-add-row input[type="color"]{ border-color:var(--modern-border); border-radius:8px; }
+
+  body.modern .save-btn, body.modern .cancel-btn{
+    border-radius:14px; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.02em;
+  }
+  body.modern .save-btn{
+    background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2)); color:#08080F;
+    box-shadow:0 0 18px rgba(0,240,255,0.4), 0 0 32px rgba(255,62,201,0.2);
+  }
+  body.modern .cancel-btn{ border-color:var(--modern-border); background:rgba(255,255,255,0.03); }
+
+  body.modern .empty{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .item{
+    border-radius:16px; border:1px solid var(--modern-border);
+    border-left:4px solid var(--item-color, var(--modern-ink-mid));
+    background:var(--modern-card); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    padding:14px 14px 14px 16px; margin-bottom:10px;
+    box-shadow:0 4px 20px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  body.modern .item + .item{ border-top:1px solid var(--modern-border); margin-top:0; }
+  body.modern .item.paid{ border-left-color:var(--modern-ink-mid) !important; }
+  body.modern .prov-tag{ border-radius:6px; font-family:'Plus Jakarta Sans',sans-serif; box-shadow:0 0 10px rgba(0,0,0,0.3); }
+  body.modern .item-note{ font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .item-due{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .item-excluded-tag{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .item-amount{ font-family:'Space Grotesk',sans-serif; font-weight:600; }
+  body.modern .countdown{ border-radius:6px; font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .countdown.ok{ background:#0F3A28; color:#39FF88; box-shadow:0 0 10px rgba(57,255,136,0.4); }
+  body.modern .countdown.soon, body.modern .countdown.warn{ background:#3A0F1E; color:#FF3E64; box-shadow:0 0 10px rgba(255,62,100,0.4); }
+
+  body.modern .action-btn{
+    border-radius:999px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif;
+    background:rgba(255,255,255,0.03);
+  }
+  body.modern .action-btn:hover{ border-color:var(--modern-accent); color:var(--modern-accent); box-shadow:0 0 10px rgba(0,240,255,0.3); }
+
+  body.modern .stamp{ mix-blend-mode:normal; border-radius:6px; font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .stamp.lunas{ color:#39FF88; border-color:#39FF88; text-shadow:0 0 8px rgba(57,255,136,0.5); }
+  body.modern .stamp.telat{ color:#FF3E64; border-color:#FF3E64; text-shadow:0 0 8px rgba(255,62,100,0.5); }
+
+  body.modern .barcode{ display:none; }
+  body.modern .foot-note{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+
+  body.modern .sync-modal{
+    border-radius:20px; font-family:'Plus Jakarta Sans',sans-serif;
+    background:var(--modern-card-solid); color:var(--modern-ink);
+    backdrop-filter:blur(22px); border:1px solid var(--modern-border);
+    box-shadow:0 20px 60px rgba(0,0,0,0.6);
+  }
+  body.modern .sync-modal textarea, body.modern .sync-modal input[type=text]{
+    border-color:var(--modern-border); border-radius:10px;
+    background:rgba(255,255,255,0.04); color:var(--modern-ink);
+  }
+  body.modern .sync-btn-row button{
+    border-radius:12px; border-color:transparent;
+    background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2)); color:#08080F;
+    box-shadow:0 0 16px rgba(0,240,255,0.35);
+  }
+  body.modern .sync-btn-row button.secondary{
+    background:transparent; color:var(--modern-accent); border:1px solid var(--modern-border); box-shadow:none;
+  }
+  body.modern .sync-help{ color:var(--modern-ink-mid); }
+
 </style>
 </head>
 <body>
@@ -411,7 +577,7 @@
     <div class="toolbar-actions">
       <button class="backup-btn" id="syncBtn" title="Sinkronisasi antar perangkat"><svg class="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5L14.5 9.5"></path><path d="M11 6.5L12.5 5C14.1569 3.34315 16.8431 3.34315 18.5 5C20.1569 6.65685 20.1569 9.34315 18.5 11L17 12.5"></path><path d="M13 17.5L11.5 19C9.84315 20.6569 7.15685 20.6569 5.5 19C3.84315 17.3431 3.84315 14.6569 5.5 13L7 11.5"></path></svg><span class="sync-dot" id="syncDot"></span></button>
       <div class="theme-toggle" id="themeToggle">
-        <span id="lightLabel">TERANG</span><span id="darkLabel">GELAP</span>
+        <span id="lightLabel">TERANG</span><span id="darkLabel">GELAP</span><span id="modernLabel">MODERN</span>
       </div>
     </div>
   </div>
@@ -871,12 +1037,14 @@ document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
 
 function applyTheme(){
   document.body.classList.toggle('dark', theme === 'dark');
+  document.body.classList.toggle('modern', theme === 'modern');
   document.getElementById('lightLabel').className = theme==='light' ? 'on' : '';
   document.getElementById('darkLabel').className = theme==='dark' ? 'on' : '';
+  document.getElementById('modernLabel').className = theme==='modern' ? 'on' : '';
 }
 
 document.getElementById('themeToggle').addEventListener('click', () => {
-  theme = theme === 'light' ? 'dark' : 'light';
+  theme = theme === 'light' ? 'dark' : (theme === 'dark' ? 'modern' : 'light');
   applyTheme();
   saveTheme();
 });
