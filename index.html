@@ -24,11 +24,12 @@
     --ink-mid-light:#8B8375;
     --paper-shadow-light: rgba(40,35,25,0.25);
 
-    --desk-dark:#0A0D1C;
-    --paper-dark:#141833;
+    --desk-dark:#041420;
+    --paper-dark:#042631;
     --ink-dark:#EDEFF7;
     --ink-mid-dark:#7A84AA;
     --accent-dark:#6E8FC9;
+    --toggle-accent-dark:#2C8CA6;
     --paper-shadow-dark: rgba(0,0,0,0.55);
 
     --spay:#C15B34;
@@ -79,7 +80,7 @@
   body.dark .theme-toggle{ border-color:var(--ink-mid-dark); }
   .theme-toggle span{ padding:5px 10px; transition:background .2s ease, color .2s ease; }
   .theme-toggle .on{ background:var(--ink-light); color:var(--paper-light); }
-  body.dark .theme-toggle .on{ background:var(--accent-dark); color:#fff; }
+  body.dark .theme-toggle .on{ background:var(--toggle-accent-dark); color:#fff; }
 
   .receipt-shadow{
     filter: drop-shadow(0 18px 30px var(--paper-shadow-light));
@@ -330,6 +331,7 @@
   }
   body.dark .hide-toggle{ border-color:var(--ink-mid-dark); }
   .hide-toggle:active{ opacity:.9; transform:scale(.92); }
+  .eye-icon{ display:block; }
   .hide-toggle.is-hidden::after{
     content:''; position:absolute; left:3px; right:3px; top:50%;
     border-top:1px solid currentColor; transform:rotate(-45deg);
@@ -406,7 +408,7 @@
       <div class="summary">
         <div class="summary-label-row">
           <div class="summary-label">TOTAL TAGIHAN BELUM DIBAYAR</div>
-          <button class="hide-toggle" id="hideTotalToggle" title="Sembunyikan total">👁</button>
+          <button class="hide-toggle" id="hideTotalToggle" title="Sembunyikan total"><svg class="eye-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12C1.5 12 5.5 5 12 5C18.5 5 22.5 12 22.5 12C22.5 12 18.5 19 12 19C5.5 19 1.5 12 1.5 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
         </div>
         <div class="summary-amount" id="grandTotal">Rp0</div>
         <div class="summary-breakdown" id="summaryBreakdown"></div>
