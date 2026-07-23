@@ -160,6 +160,19 @@
   .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:4px; }
   .field{ display:flex; flex-direction:column; gap:3px; margin-bottom:8px; }
   .field.full{ grid-column:1/-1; }
+  .checkbox-field{ margin-top:-2px; }
+  .checkbox-label{
+    display:flex; align-items:center; gap:7px; cursor:pointer;
+    font-size:11.5px; color:var(--ink-mid-light); user-select:none;
+  }
+  body.dark .checkbox-label{ color:var(--ink-mid-dark); }
+  .checkbox-label input[type="checkbox"]{
+    width:15px; height:15px; margin:0; cursor:pointer; accent-color:var(--accent-dark);
+  }
+  .item-excluded-tag{
+    font-size:9.5px; letter-spacing:.04em; opacity:.65; font-style:italic;
+    display:inline-block; margin-top:2px;
+  }
   .installment-row{ display:flex; align-items:center; gap:6px; }
   .installment-row input{ width:0; flex:1; text-align:center; }
   .installment-sep{ font-size:10.5px; letter-spacing:.04em; color:var(--ink-mid-light); white-space:nowrap; }
@@ -249,6 +262,10 @@
   body.dark .item + .item{ border-top-color:var(--ink-mid-dark); }
   .item.paid{ border-left-color:var(--ink-mid-light) !important; opacity:.75; }
   body.dark .item.paid{ border-left-color:var(--ink-mid-dark) !important; }
+  .item.excluded:not(.paid){ border-left-style:dashed; }
+  .item.excluded .item-amount{ opacity:.55; }
+  .item-excluded-tag{ color:var(--ink-mid-light); }
+  body.dark .item-excluded-tag{ color:var(--ink-mid-dark); }
 
   .item-row{ display:flex; justify-content:space-between; align-items:flex-start; gap:8px; }
   .item-main{ flex:1; min-width:0; }
@@ -430,7 +447,7 @@
           </div>
           <div class="field">
             <label>Jumlah (Rp)</label>
-            <input type="number" id="fAmount" placeholder="150000" min="0">
+            <input type="text" inputmode="numeric" id="fAmount" placeholder="150.000" autocomplete="off">
           </div>
           <div class="field">
             <label>Jatuh tempo</label>
@@ -451,6 +468,12 @@
             <div class="chips-manage">
               <button type="button" class="chip-edit-toggle" id="chipEditToggle">✎ atur template</button>
             </div>
+          </div>
+          <div class="field full checkbox-field">
+            <label class="checkbox-label">
+              <input type="checkbox" id="fExclude">
+              <span>Jangan hitung ke total</span>
+            </label>
           </div>
         </div>
 
@@ -532,6 +555,14 @@ let hideTotal = false;
 
 function formatRupiah(n){
   return 'Rp' + Number(n||0).toLocaleString('id-ID');
+}
+function formatThousands(digitsStr){
+  if(!digitsStr) return '';
+  return Number(digitsStr).toLocaleString('id-ID');
+}
+function parseAmountInput(str){
+  const digits = String(str||'').replace(/\D/g, '');
+  return digits ? Number(digits) : 0;
 }
 function formatDate(d){
   if(!d) return '-';
@@ -862,6 +893,11 @@ document.getElementById('hideTotalToggle').addEventListener('click', () => {
 });
 
 const addForm = document.getElementById('addForm');
+const fAmountEl = document.getElementById('fAmount');
+fAmountEl.addEventListener('input', () => {
+  const digits = fAmountEl.value.replace(/\D/g, '');
+  fAmountEl.value = formatThousands(digits);
+});
 const addToggle = document.getElementById('addToggle');
 let editingId = null;
 addToggle.addEventListener('click', () => {
@@ -880,6 +916,7 @@ function clearForm(){
   document.getElementById('fInstallNo').value = '';
   document.getElementById('fInstallTotal').value = '';
   document.getElementById('fNote').value = '';
+  document.getElementById('fExclude').checked = false;
   document.querySelectorAll('.chip.chosen').forEach(c => c.classList.remove('chosen'));
 }
 function exitEditMode(){
@@ -893,11 +930,12 @@ function startEditEntry(id){
   editingId = id;
   renderProviderSelect();
   document.getElementById('fProvider').value = e.provider;
-  document.getElementById('fAmount').value = e.amount;
+  document.getElementById('fAmount').value = formatThousands(String(e.amount));
   document.getElementById('fDue').value = e.due || '';
   document.getElementById('fInstallNo').value = e.installNo || '';
   document.getElementById('fInstallTotal').value = e.installTotal || '';
   document.getElementById('fNote').value = e.note || '';
+  document.getElementById('fExclude').checked = !!e.excluded;
   document.getElementById('saveBtn').textContent = 'SIMPAN PERUBAHAN';
   document.getElementById('editHint').style.display = 'block';
   addForm.classList.add('open');
@@ -1149,7 +1187,7 @@ function renderList(){
     const prov = PROVIDERS[e.provider] || { label:'?', color:'#8B8375' };
     const overdue = !e.paid && e.due && e.due < today;
     const div = document.createElement('div');
-    div.className = 'item item-enter' + (e.paid ? ' paid' : '');
+    div.className = 'item item-enter' + (e.paid ? ' paid' : '') + (e.excluded ? ' excluded' : '');
     div.style.setProperty('--item-color', prov.color);
     let countdownHtml = '';
     if(!e.paid && e.due){
@@ -1162,6 +1200,7 @@ function renderList(){
           <span class="prov-tag" style="background:${prov.color}">${prov.label}</span>
           <div class="item-note">${e.note ? escapeHtml(e.note) : '(tanpa catatan)'}${(e.installNo && e.installTotal) ? ' <span class="item-installment">· cicilan ke-' + e.installNo + ' dari ' + e.installTotal + '</span>' : ''}</div>
           <div class="item-due">jatuh tempo: ${formatDate(e.due)}</div>
+          ${e.excluded ? '<div class="item-excluded-tag">✕ tidak dihitung ke total</div>' : ''}
         </div>
         <div class="item-right">
           <div class="item-amount">${formatRupiah(e.amount)}</div>
@@ -1170,6 +1209,7 @@ function renderList(){
       </div>
       <div class="item-actions">
         <button class="action-btn" data-act="paid" data-id="${e.id}">${e.paid ? 'BATAL LUNAS' : 'TANDAI LUNAS'}</button>
+        <button class="action-btn" data-act="exclude" data-id="${e.id}">${e.excluded ? 'MASUKKAN KE TOTAL' : 'KECUALIKAN'}</button>
         <button class="action-btn" data-act="edit" data-id="${e.id}">UBAH</button>
         <button class="action-btn" data-act="del" data-id="${e.id}">HAPUS</button>
       </div>
@@ -1190,6 +1230,9 @@ function renderList(){
   listEl.querySelectorAll('[data-act="edit"]').forEach(btn => {
     btn.addEventListener('click', () => startEditEntry(btn.dataset.id));
   });
+  listEl.querySelectorAll('[data-act="exclude"]').forEach(btn => {
+    btn.addEventListener('click', () => toggleExcluded(btn.dataset.id));
+  });
 }
 
 function escapeHtml(s){
@@ -1204,7 +1247,7 @@ function renderSummary(){
   let grandUnpaid = 0;
   const sums = providers.map(prov => ({
     prov,
-    sum: entries.filter(e => e.provider===prov.key && !e.paid).reduce((s,e)=>s+Number(e.amount||0),0)
+    sum: entries.filter(e => e.provider===prov.key && !e.paid && !e.excluded).reduce((s,e)=>s+Number(e.amount||0),0)
   }));
   sums.forEach(s => { grandUnpaid += s.sum; });
 
@@ -1238,6 +1281,10 @@ async function togglePaid(id){
     await saveEntries(); render();
   }
 }
+async function toggleExcluded(id){
+  const e = entries.find(x => x.id === id);
+  if(e){ e.excluded = !e.excluded; await saveEntries(); render(); }
+}
 function createNextInstallmentIfNeeded(e){
   if(!e.installNo || !e.installTotal) return;
   if(e.installNo >= e.installTotal) return;
@@ -1265,13 +1312,14 @@ async function deleteEntry(id){
 
 document.getElementById('saveBtn').addEventListener('click', async () => {
   const provider = document.getElementById('fProvider').value;
-  const amount = document.getElementById('fAmount').value;
+  const amount = parseAmountInput(document.getElementById('fAmount').value);
   const due = document.getElementById('fDue').value;
   const installNoRaw = document.getElementById('fInstallNo').value;
   const installTotalRaw = document.getElementById('fInstallTotal').value;
   const note = document.getElementById('fNote').value.trim();
+  const excluded = document.getElementById('fExclude').checked;
 
-  if(!amount || Number(amount) <= 0 || !due){
+  if(!amount || amount <= 0 || !due){
     alert('Isi jumlah dan tanggal jatuh tempo terlebih dahulu.');
     return;
   }
@@ -1296,6 +1344,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
       e.note = note;
       e.installNo = installNo;
       e.installTotal = installTotal;
+      e.excluded = excluded;
       if(installNo && installTotal && !e.anchorDay) e.anchorDay = dayOfMonth(due);
       if(!installNo || !installTotal) e.anchorDay = null;
     }
@@ -1303,7 +1352,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
     entries.push({
       id: 'id_' + Date.now() + '_' + Math.random().toString(36).slice(2,7),
       provider, amount: Number(amount), due, note, paid:false,
-      installNo, installTotal,
+      installNo, installTotal, excluded,
       anchorDay: (installNo && installTotal) ? dayOfMonth(due) : null
     });
   }
