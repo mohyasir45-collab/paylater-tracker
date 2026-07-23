@@ -38,17 +38,18 @@
     --ok:#4C8560;
     --late:#AD4034;
 
-    --modern-bg:#0A0A14;
-    --modern-card:rgba(255,255,255,0.055);
-    --modern-card-solid:#15151F;
+    --modern-bg:#050508;
+    --modern-card:rgba(255,255,255,0.03);
+    --modern-card-solid:#0A0A10;
     --modern-ink:#F2F3FF;
     --modern-ink-mid:#9296C2;
-    --modern-border:rgba(255,255,255,0.14);
+    --modern-border:rgba(255,255,255,0.10);
     --modern-accent:#00F0FF;
     --modern-accent2:#FF3EC9;
-    --modern-shadow: rgba(0,0,0,0.55);
+    --modern-shadow: rgba(0,0,0,0.75);
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  button, .tab, .chip{ -webkit-tap-highlight-color:transparent; outline:none; }
   html{ scroll-behavior:smooth; }
   html,body{margin:0;padding:0;}
   body{
@@ -418,10 +419,10 @@
     color:var(--modern-ink);
     font-family:'Plus Jakarta Sans','JetBrains Mono',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     background-image:
-      radial-gradient(circle at 12% 8%, rgba(0,240,255,0.16) 0, transparent 42%),
-      radial-gradient(circle at 90% 15%, rgba(255,62,201,0.14) 0, transparent 40%),
-      radial-gradient(circle at 25% 90%, rgba(157,78,255,0.14) 0, transparent 45%),
-      radial-gradient(circle at 85% 85%, rgba(0,240,255,0.08) 0, transparent 40%);
+      radial-gradient(circle at 12% 8%, rgba(0,240,255,0.10) 0, transparent 42%),
+      radial-gradient(circle at 90% 15%, rgba(255,62,201,0.09) 0, transparent 40%),
+      radial-gradient(circle at 25% 90%, rgba(157,78,255,0.09) 0, transparent 45%),
+      radial-gradient(circle at 85% 85%, rgba(0,240,255,0.05) 0, transparent 40%);
     background-attachment:fixed;
   }
   body.modern .theme-toggle{ border-color:var(--modern-border); border-radius:14px; backdrop-filter:blur(10px); background:rgba(255,255,255,0.03); }
@@ -457,20 +458,22 @@
   body.modern .summary-label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; }
   body.modern .summary-amount{
     font-family:'Space Grotesk',sans-serif; font-weight:700;
-    background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2));
+    background:linear-gradient(135deg, #FFB6E6, #FF3EC9 45%, #B0009E);
     -webkit-background-clip:text; background-clip:text; color:transparent;
-    filter:drop-shadow(0 0 18px rgba(0,240,255,0.35));
+    filter:drop-shadow(0 0 18px rgba(255,62,201,0.4));
   }
 
   body.modern .tabs{ gap:8px; }
   body.modern .tab{
     border-radius:12px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600;
     background:rgba(255,255,255,0.03); backdrop-filter:blur(8px);
+    overflow:hidden; isolation:isolate;
   }
   body.modern .tab.active{
-    background:linear-gradient(135deg, #7DD4FF, #0B5FCC);
+    background:linear-gradient(135deg, #FFB6E6, #FF3EC9 45%, #B0009E);
     border-color:transparent; color:#fff;
-    box-shadow:0 0 16px rgba(125,212,255,0.45), 0 0 30px rgba(11,95,204,0.3);
+    box-shadow:0 0 16px rgba(255,62,201,0.45), 0 0 30px rgba(176,0,158,0.3);
+    backdrop-filter:none; -webkit-backdrop-filter:none;
   }
 
   body.modern .add-toggle{
@@ -1241,6 +1244,9 @@ function renderTabs(){
       b.style.background = PROVIDERS[key].color;
       b.style.borderColor = PROVIDERS[key].color;
       b.style.color = '#fff';
+      if(document.body.classList.contains('modern')){
+        b.style.boxShadow = '0 0 16px ' + PROVIDERS[key].color + '73, 0 0 30px ' + PROVIDERS[key].color + '4d';
+      }
     }
     b.addEventListener('click', () => { activeTab = key; render(); });
     tabsEl.appendChild(b);
