@@ -476,9 +476,9 @@
     overflow:hidden; isolation:isolate;
   }
   body.modern .tab.active{
-    background:linear-gradient(135deg, #F03971, #ED2C7B 45%, #A04EA0);
+    background:var(--modern-accent2);
     border-color:transparent; color:#fff;
-    box-shadow:0 0 16px rgba(237,44,123,0.45), 0 0 30px rgba(160,78,160,0.3);
+    box-shadow:0 0 16px rgba(237,44,123,0.45), 0 0 30px rgba(237,44,123,0.3);
     backdrop-filter:none; -webkit-backdrop-filter:none;
   }
 
@@ -724,7 +724,7 @@ let providers = DEFAULT_PROVIDERS.slice();
 let PROVIDERS = {};
 const MODERN_PROVIDER_COLORS = {
   spaylater: '#FB5607',
-  kredivo:   '#3A86FF',
+  kredivo:   '#7B2FF7',
   indodana:  '#70E000'
 };
 function provColor(key, baseColor){
