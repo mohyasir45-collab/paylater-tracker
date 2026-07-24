@@ -148,7 +148,8 @@
   body.dark .dash{ border-top-color:var(--ink-mid-dark); }
 
   .summary{ text-align:center; padding:6px 0 2px; }
-  .summary-label{ font-size:10px; letter-spacing:.14em; color:var(--ink-mid-light); }
+  .summary-inner{ display:inline-flex; flex-direction:column; align-items:flex-start; }
+  .summary-label{ font-size:10px; letter-spacing:.14em; color:var(--ink-mid-light); text-align:left; }
   body.dark .summary-label{ color:var(--ink-mid-dark); }
   .summary-amount{ font-size:38px; font-weight:700; font-family:'Space Mono',monospace; margin:4px 0 14px; line-height:1.1; letter-spacing:.01em; transition:text-shadow .25s ease, color .25s ease; }
   .summary-amount.matrix-anim{ color:inherit; transition:text-shadow .25s ease, color .25s ease; }
@@ -429,13 +430,13 @@
   .backup-btn:active{ opacity:.9; transform:scale(.92); }
 
   .summary{ position:relative; }
-  .summary-label-row{ display:flex; align-items:center; justify-content:center; gap:6px; }
+  .summary-amount-row{ display:flex; align-items:center; justify-content:flex-start; gap:8px; }
   .hide-toggle{
-    width:22px; height:22px; display:flex; align-items:center; justify-content:center;
+    width:18px; height:18px; display:flex; align-items:center; justify-content:center;
     font-size:12px; line-height:1; cursor:pointer; border-radius:50%;
     background:transparent; color:inherit; border:1px solid var(--ink-mid-light);
     opacity:.6; transition:opacity .2s ease, transform .15s ease;
-    padding:0; flex:0 0 auto; position:relative;
+    padding:0; flex:0 0 auto; position:relative; margin-top:-6px;
   }
   body.dark .hide-toggle{ border-color:var(--ink-mid-dark); }
   .hide-toggle:active{ opacity:.9; transform:scale(.92); }
@@ -681,11 +682,13 @@
       <hr class="dash">
 
       <div class="summary">
-        <div class="summary-label-row">
+        <div class="summary-inner">
           <div class="summary-label">TOTAL TAGIHAN</div>
-          <button class="hide-toggle" id="hideTotalToggle" title="Sembunyikan total"><svg class="eye-icon" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12C1.5 12 5.5 5 12 5C18.5 5 22.5 12 22.5 12C22.5 12 18.5 19 12 19C5.5 19 1.5 12 1.5 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          <div class="summary-amount-row">
+            <div class="summary-amount" id="grandTotal">Rp0</div>
+            <button class="hide-toggle" id="hideTotalToggle" title="Sembunyikan total"><svg class="eye-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12C1.5 12 5.5 5 12 5C18.5 5 22.5 12 22.5 12C22.5 12 18.5 19 12 19C5.5 19 1.5 12 1.5 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
+          </div>
         </div>
-        <div class="summary-amount" id="grandTotal">Rp0</div>
         <div class="summary-breakdown" id="summaryBreakdown"></div>
       </div>
 
