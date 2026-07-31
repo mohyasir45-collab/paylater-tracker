@@ -39,14 +39,14 @@
     --ok:#4C8560;
     --late:#AD4034;
 
-    --modern-bg:#08070D;
-    --modern-card:rgba(255,255,255,0.03);
-    --modern-card-solid:#0E0D14;
-    --modern-ink:#F2F3FF;
-    --modern-ink-mid:#8B8DA8;
-    --modern-border:rgba(255,255,255,0.08);
-    --modern-accent:#7C6CF6;
-    --modern-accent2:#C026D3;
+    --modern-bg:#0a0a0a;
+    --modern-card:rgba(23,23,23,0.55);
+    --modern-card-solid:#171717;
+    --modern-ink:#FAFAFA;
+    --modern-ink-mid:#a3a3a3;
+    --modern-border:rgba(38,38,38,0.9);
+    --modern-accent:#a3e635;
+    --modern-accent2:#84cc16;
     --modern-shadow: rgba(0,0,0,0.75);
   }
   /* saat pindah dari/ke tema modern, matikan semua transisi warna
@@ -128,6 +128,12 @@
       linear-gradient(-45deg, var(--paper-dark) 6px, transparent 6px),
       linear-gradient(45deg, var(--paper-dark) 6px, transparent 6px);
   }
+
+  /* bento-grid wrapper: invisible in light/dark receipt themes (children flow normally),
+     becomes an actual CSS grid of rounded cards in the modern theme */
+  .bento-grid{ display:contents; }
+  .bento-hero{ display:contents; }
+  .bento-full-dash{ }
 
   .paper{
     background:var(--paper-light);
@@ -509,14 +515,23 @@
     -webkit-transform:translateZ(0);
     will-change:transform;
     background-image:
-      radial-gradient(circle at 88% 6%, rgba(124,108,246,0.10) 0, transparent 38%),
-      radial-gradient(circle at 8% 12%, rgba(192,38,211,0.06) 0, transparent 35%),
-      radial-gradient(circle at 50% 100%, rgba(124,108,246,0.05) 0, transparent 45%);
+      radial-gradient(circle at 88% 6%, rgba(163,230,53,0.09) 0, transparent 38%),
+      radial-gradient(circle at 8% 12%, rgba(132,204,22,0.05) 0, transparent 35%),
+      radial-gradient(circle at 50% 100%, rgba(163,230,53,0.04) 0, transparent 45%);
+  }
+  body.modern .toolbar{
+    background:var(--modern-card);
+    backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
+    border:1px solid var(--modern-border);
+    border-radius:999px;
+    padding:8px 8px 8px 16px;
+    box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    margin-bottom:12px;
   }
   body.modern .theme-toggle{ border-color:var(--modern-border); }
   body.modern .theme-toggle .on{
-    background:var(--modern-accent); color:#fff;
-    box-shadow:0 0 14px rgba(124,108,246,0.5), 0 0 26px rgba(124,108,246,0.3); font-weight:700;
+    background:var(--modern-accent); color:#08080A;
+    box-shadow:0 0 14px rgba(163,230,53,0.5), 0 0 26px rgba(163,230,53,0.3); font-weight:700;
   }
   body.modern .toolbar .brandmark{ font-family:'Plus Jakarta Sans',sans-serif; font-weight:700; letter-spacing:.06em; opacity:.75; }
   body.modern .backup-btn, body.modern .hide-toggle{
@@ -529,24 +544,85 @@
   body.modern .sync-dot.on{ background:#71BF47; box-shadow:0 0 8px #71BF47; }
   body.modern .sync-dot.err{ background:#EE2724; box-shadow:0 0 8px #EE2724; }
 
-  body.modern .receipt-shadow{ filter: drop-shadow(0 20px 45px var(--modern-shadow)); }
+  body.modern .receipt-shadow{ filter:none; }
   body.modern .zig{ display:none; }
   body.modern .paper{
-    background:var(--modern-card); background-image:none;
-    backdrop-filter:blur(80px); -webkit-backdrop-filter:blur(80px);
-    border-radius:24px; border:1px solid var(--modern-border);
-    box-shadow:0 8px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.06);
-    padding:26px 22px 18px;
+    background:transparent; background-image:none;
+    backdrop-filter:none; -webkit-backdrop-filter:none;
+    border-radius:0; border:none;
+    box-shadow:none;
+    padding:0;
   }
   body.modern .title{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:.02em; font-size:20px; }
   body.modern .subtitle{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
   body.modern .dash{ border-top:1px solid rgba(255,255,255,0.04); margin:16px 0; }
+  body.modern .bento-full-dash{ display:none; }
+
+  /* ===== BENTO GRID: rounded card layout ===== */
+  body.modern .bento-grid{
+    display:grid;
+    grid-template-columns:2fr 1fr;
+    gap:12px;
+    margin-bottom:14px;
+  }
+  body.modern .bento-card{
+    background:var(--modern-card);
+    backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
+    border:1px solid var(--modern-border);
+    box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  body.modern .bento-hero{
+    display:block;
+    grid-column:1/-1;
+    border-radius:28px;
+    padding:26px 22px 20px;
+  }
+  body.modern .bento-hero .dash{ display:none; }
+  body.modern .bento-hero .summary{ padding-top:2px; }
+  body.modern .tabs{
+    grid-column:1/2;
+    border-radius:20px;
+    padding:10px;
+    margin-bottom:0;
+    align-content:flex-start;
+    background:var(--modern-card);
+    backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
+    border:1px solid var(--modern-border);
+    box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  body.modern .add-toggle{
+    grid-column:2/3;
+    height:auto;
+    display:flex; align-items:center; justify-content:center;
+    text-align:center;
+    border-radius:20px !important;
+    box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+  }
+  body.modern .add-form{
+    grid-column:1/-1;
+  }
+  body.modern .add-form.open{
+    background:var(--modern-card);
+    backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
+    border:1px solid var(--modern-border);
+    box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+    border-radius:20px;
+    padding:18px 16px 14px;
+  }
+  body.modern .list{
+    grid-column:1/-1;
+    border-radius:24px;
+    padding:14px;
+    min-height:60px;
+  }
+  body.modern .barcode{ display:none; }
+  body.modern .foot-note{ margin-top:16px; }
 
   body.modern .summary-label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; }
   body.modern .summary-amount{
     font-family:'Space Grotesk',sans-serif; font-weight:700;
-    color:#FF006E;
-    filter:drop-shadow(0 0 18px rgba(255,0,110,0.4));
+    color:var(--modern-accent);
+    filter:drop-shadow(0 0 18px rgba(163,230,53,0.4));
   }
 
   body.modern .tabs{ gap:8px; }
@@ -557,15 +633,15 @@
   }
   body.modern .tab.active{
     background:var(--modern-accent2);
-    border-color:transparent; color:#fff;
-    box-shadow:0 0 16px rgba(237,44,123,0.45), 0 0 30px rgba(237,44,123,0.3);
+    border-color:transparent; color:#08080A;
+    box-shadow:0 0 16px rgba(163,230,53,0.45), 0 0 30px rgba(163,230,53,0.3);
     backdrop-filter:none; -webkit-backdrop-filter:none;
   }
 
   body.modern .add-toggle{
     border-radius:14px; border-style:solid; border-color:var(--modern-border);
     font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.02em; color:var(--modern-accent);
-    background:rgba(60,190,242,0.04);
+    background:rgba(163,230,53,0.06);
   }
   body.modern .add-toggle:hover, body.modern .add-toggle:active{ border-color:var(--modern-accent); }
 
@@ -576,7 +652,7 @@
     -webkit-appearance:none; appearance:none;
   }
   body.modern select:focus, body.modern input:focus{
-    border:1.5px solid var(--modern-accent); box-shadow:0 0 10px rgba(60,190,242,0.35);
+    border:1.5px solid var(--modern-accent); box-shadow:0 0 10px rgba(163,230,53,0.35);
   }
   body.modern select option{ background:var(--modern-card-solid); color:var(--modern-ink); }
   body.modern .checkbox-label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
@@ -590,7 +666,7 @@
   body.modern .chip.chosen{
     background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2));
     border-color:transparent; color:#08080F;
-    box-shadow:0 0 12px rgba(60,190,242,0.45);
+    box-shadow:0 0 12px rgba(163,230,53,0.45);
   }
   body.modern .chip:hover{ border-color:var(--modern-accent); }
   body.modern .chip-edit-toggle{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
@@ -600,8 +676,8 @@
     border-radius:14px; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.02em;
   }
   body.modern .save-btn{
-    background:#1BE7FF; color:#08080F;
-    box-shadow:0 0 18px rgba(27,231,255,0.4), 0 0 32px rgba(27,231,255,0.2);
+    background:var(--modern-accent); color:#08080F;
+    box-shadow:0 0 18px rgba(163,230,53,0.4), 0 0 32px rgba(163,230,53,0.2);
   }
   body.modern .cancel-btn{ border-color:var(--modern-border); background:rgba(255,255,255,0.03); }
 
@@ -628,7 +704,7 @@
     border-radius:999px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif;
     background:rgba(255,255,255,0.03);
   }
-  body.modern .action-btn:hover{ border-color:var(--modern-accent); color:var(--modern-accent); box-shadow:0 0 10px rgba(60,190,242,0.3); }
+  body.modern .action-btn:hover{ border-color:var(--modern-accent); color:var(--modern-accent); box-shadow:0 0 10px rgba(163,230,53,0.3); }
 
   body.modern .stamp{ mix-blend-mode:normal; border-radius:6px; font-family:'Plus Jakarta Sans',sans-serif; }
   body.modern .stamp.lunas{ color:#71BF47; border-color:#71BF47; text-shadow:0 0 8px rgba(113,191,71,0.5); }
@@ -650,7 +726,7 @@
   body.modern .sync-btn-row button{
     border-radius:12px; border-color:transparent;
     background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2)); color:#08080F;
-    box-shadow:0 0 16px rgba(60,190,242,0.35);
+    box-shadow:0 0 16px rgba(163,230,53,0.35);
   }
   body.modern .sync-btn-row button.secondary{
     background:transparent; color:var(--modern-accent); border:1px solid var(--modern-border); box-shadow:none;
@@ -675,14 +751,16 @@
   <div class="receipt-shadow">
     <div class="zig"></div>
     <div class="paper">
-      <div class="center">
+     <div class="bento-grid" id="bentoGrid">
+      <div class="bento-card bento-hero">
+       <div class="center">
         <div class="title">PAYLATER TRACKER</div>
         <div class="subtitle" id="dateNow"></div>
-      </div>
+       </div>
 
-      <hr class="dash">
+       <hr class="dash">
 
-      <div class="summary">
+       <div class="summary">
         <div class="summary-inner">
           <div class="summary-label">TOTAL TAGIHAN</div>
           <div class="summary-amount-row">
@@ -691,9 +769,10 @@
           </div>
         </div>
         <div class="summary-breakdown" id="summaryBreakdown"></div>
+       </div>
       </div>
 
-      <hr class="dash">
+      <hr class="dash bento-full-dash">
 
       <div class="tabs" id="tabs"></div>
 
@@ -756,9 +835,11 @@
         <div class="field full" id="editHint" style="display:none; text-align:center; margin-top:6px; font-size:10.5px; opacity:.75; font-style:italic;">Sedang mengubah tagihan</div>
       </div>
 
-      <hr class="dash">
+      <hr class="dash bento-full-dash">
 
       <div class="list" id="list"></div>
+
+     </div>
 
       <div class="barcode"></div>
       <div class="foot-note">SIMPAN STRUK INI SEBAGAI BUKTI</div>
