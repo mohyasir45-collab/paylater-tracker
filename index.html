@@ -40,7 +40,7 @@
     --late:#AD4034;
 
     --modern-bg:#0a0a0a;
-    --modern-card:rgba(23,23,23,0.55);
+    --modern-card:rgba(23,23,23,0.10);
     --modern-card-solid:#171717;
     --modern-ink:#FAFAFA;
     --modern-ink-mid:#a3a3a3;
@@ -107,6 +107,24 @@
   .theme-toggle .on{ background:var(--ink-light); color:var(--paper-light); }
   body.dark .theme-toggle .on{ background:var(--toggle-accent-dark); color:#fff; }
 
+  .subtheme-row{
+    display:flex; justify-content:flex-start;
+    margin:-4px 6px 12px;
+    overflow:hidden;
+    max-height:40px; opacity:1;
+    transition:max-height .25s ease, opacity .2s ease, margin .25s ease;
+  }
+  .subtheme-row.hidden{
+    max-height:0; opacity:0; margin-top:-4px; margin-bottom:0;
+    pointer-events:none;
+  }
+  .subtheme-toggle{ opacity:.85; }
+  .subtheme-toggle span{
+    display:flex; align-items:center; justify-content:center;
+    padding:6px 9px;
+  }
+  .subtheme-toggle svg{ display:block; }
+
   .receipt-shadow{
     filter: drop-shadow(0 18px 30px var(--paper-shadow-light));
     transition:filter .35s ease;
@@ -160,8 +178,11 @@
   body.dark .summary-label{ color:var(--ink-mid-dark); }
   .summary-amount{ font-size:38px; font-weight:700; font-family:'Space Mono',monospace; margin:4px 0 14px; line-height:1.1; letter-spacing:.01em; transition:text-shadow .25s ease, color .25s ease; }
   .summary-amount.matrix-anim{ color:inherit; transition:text-shadow .25s ease, color .25s ease; }
-  body.dark .summary-amount.matrix-anim, body.modern .summary-amount.matrix-anim{
+  body.dark .summary-amount.matrix-anim{
     color:#00ff41 !important; text-shadow:0 0 4px rgba(0,255,65,.85), 0 0 12px rgba(0,255,65,.5), 0 0 22px rgba(0,255,65,.25);
+  }
+  body.modern .summary-amount.matrix-anim{
+    color:var(--modern-accent) !important; text-shadow:0 0 4px rgba(163,230,53,.85), 0 0 12px rgba(163,230,53,.5), 0 0 22px rgba(163,230,53,.25);
   }
   .matrix-char{ display:inline-block; }
   .matrix-char.spin{ animation:slotSpin .11s linear infinite; filter:blur(1.2px); }
@@ -519,6 +540,20 @@
       radial-gradient(circle at 8% 12%, rgba(132,204,22,0.05) 0, transparent 35%),
       radial-gradient(circle at 50% 100%, rgba(163,230,53,0.04) 0, transparent 45%);
   }
+  body.modern::after{
+    content:"";
+    position:fixed;
+    inset:0;
+    z-index:-1;
+    pointer-events:none;
+    transform:translateZ(0);
+    -webkit-transform:translateZ(0);
+    will-change:transform;
+    filter:blur(8px);
+    opacity:.55;
+    background-image:
+      radial-gradient(circle at 85% 8%, rgba(163,230,53,0.55) 0%, rgba(163,230,53,0) 35%);
+  }
   body.modern .toolbar{
     background:var(--modern-card);
     backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px);
@@ -553,8 +588,17 @@
     box-shadow:none;
     padding:0;
   }
+  body.modern .bento-hero .center{
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+    text-align:center;
+  }
   body.modern .title{ font-family:'Space Grotesk',sans-serif; font-weight:700; letter-spacing:.02em; font-size:20px; }
-  body.modern .subtitle{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .bento-hero .subtitle{
+    color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif;
+    margin-top:0; flex:0 0 auto; white-space:nowrap;
+    background:rgba(255,255,255,0.05); border:1px solid var(--modern-border);
+    border-radius:999px; padding:5px 12px; font-size:10.5px; letter-spacing:.02em;
+  }
   body.modern .dash{ border-top:1px solid rgba(255,255,255,0.04); margin:16px 0; }
   body.modern .bento-full-dash{ display:none; }
 
@@ -578,7 +622,7 @@
     padding:26px 22px 20px;
   }
   body.modern .bento-hero .dash{ display:none; }
-  body.modern .bento-hero .summary{ padding-top:2px; }
+  body.modern .bento-hero .summary{ padding-top:18px; }
   body.modern .tabs{
     grid-column:1/2;
     border-radius:20px;
@@ -612,8 +656,9 @@
   body.modern .list{
     grid-column:1/-1;
     border-radius:24px;
-    padding:14px;
+    padding:14px 0 0;
     min-height:60px;
+    margin-top:-16px;
   }
   body.modern .barcode{ display:none; }
   body.modern .foot-note{ margin-top:16px; }
@@ -624,6 +669,7 @@
     color:var(--modern-accent);
     filter:drop-shadow(0 0 18px rgba(163,230,53,0.4));
   }
+  body.modern .hide-toggle{ margin-top:0; }
 
   body.modern .tabs{ gap:8px; }
   body.modern .tab{
@@ -711,7 +757,7 @@
   body.modern .stamp.telat{ color:#EE2724; border-color:#EE2724; text-shadow:0 0 8px rgba(238,39,36,0.5); }
 
   body.modern .barcode{ display:none; }
-  body.modern .foot-note{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
+  body.modern .foot-note{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; display:none; }
 
   body.modern .sync-modal{
     border-radius:20px; font-family:'Plus Jakarta Sans',sans-serif;
@@ -743,8 +789,14 @@
     <div class="toolbar-actions">
       <button class="backup-btn" id="syncBtn" title="Sinkronisasi antar perangkat"><svg class="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5L14.5 9.5"></path><path d="M11 6.5L12.5 5C14.1569 3.34315 16.8431 3.34315 18.5 5C20.1569 6.65685 20.1569 9.34315 18.5 11L17 12.5"></path><path d="M13 17.5L11.5 19C9.84315 20.6569 7.15685 20.6569 5.5 19C3.84315 17.3431 3.84315 14.6569 5.5 13L7 11.5"></path></svg><span class="sync-dot" id="syncDot"></span></button>
       <div class="theme-toggle" id="themeToggle">
-        <span id="lightLabel">TERANG</span><span id="darkLabel">GELAP</span><span id="modernLabel">MODERN</span>
+        <span id="klasikLabel">KLASIK</span><span id="modernLabel">MODERN</span>
       </div>
+    </div>
+  </div>
+
+  <div class="subtheme-row" id="subThemeRow">
+    <div class="theme-toggle subtheme-toggle" id="subThemeToggle">
+      <span id="lightLabel" title="Terang"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5V5"></path><path d="M12 19V21.5"></path><path d="M4.2 4.2L6 6"></path><path d="M18 18L19.8 19.8"></path><path d="M2.5 12H5"></path><path d="M19 12H21.5"></path><path d="M4.2 19.8L6 18"></path><path d="M18 6L19.8 4.2"></path></svg></span><span id="darkLabel" title="Gelap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7Z"></path></svg></span>
     </div>
   </div>
 
@@ -902,6 +954,7 @@ rebuildProvidersMap();
 
 let entries = [];
 let theme = 'light';
+let modernSubTheme = 'dark'; // placeholder utk fitur light mode di tema modern (nanti belakangan)
 let activeTab = 'semua';
 let hideTotal = false;
 let listVisibleCount = 1;
@@ -998,6 +1051,11 @@ async function loadState(){
     const t = await appStorage.get('paylater-theme');
     theme = t ? t.value : 'light';
   }catch(err){ theme = 'light'; }
+  if(theme === 'light' || theme === 'dark') lastKlasikTheme = theme;
+  try{
+    const ms = await appStorage.get('paylater-modern-subtheme');
+    modernSubTheme = (ms && ms.value === 'light') ? 'light' : 'dark';
+  }catch(err){ modernSubTheme = 'dark'; }
   try{
     const h = await appStorage.get('paylater-hide-total');
     hideTotal = h ? h.value === '1' : false;
@@ -1024,6 +1082,9 @@ async function saveEntries(){
 async function saveTheme(){
   await saveWithRetry('paylater-theme', theme);
   pushToCloud();
+}
+async function saveModernSubTheme(){
+  await saveWithRetry('paylater-modern-subtheme', modernSubTheme);
 }
 async function saveHideTotal(){
   await saveWithRetry('paylater-hide-total', hideTotal ? '1' : '0');
@@ -1245,9 +1306,12 @@ function applyTheme(){
 
   document.body.classList.toggle('dark', theme === 'dark');
   document.body.classList.toggle('modern', theme === 'modern');
-  document.getElementById('lightLabel').className = theme==='light' ? 'on' : '';
-  document.getElementById('darkLabel').className = theme==='dark' ? 'on' : '';
+  document.getElementById('klasikLabel').className = theme!=='modern' ? 'on' : '';
   document.getElementById('modernLabel').className = theme==='modern' ? 'on' : '';
+  const subActive = theme==='modern' ? modernSubTheme : theme;
+  document.getElementById('lightLabel').className = subActive==='light' ? 'on' : '';
+  document.getElementById('darkLabel').className = subActive==='dark' ? 'on' : '';
+  document.body.classList.toggle('modern-light', theme==='modern' && modernSubTheme==='light');
   const themeColors = { light:'#DCD7CC', dark:'#041420', modern:'#020103' };
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if(metaTheme) metaTheme.setAttribute('content', themeColors[theme] || themeColors.light);
@@ -1272,18 +1336,44 @@ function applyTheme(){
   }
 }
 
+let lastKlasikTheme = 'light';
+
+document.getElementById('klasikLabel').addEventListener('click', () => {
+  if(theme === 'modern'){
+    theme = lastKlasikTheme || 'light';
+    applyTheme();
+    saveTheme();
+  }
+});
+document.getElementById('modernLabel').addEventListener('click', () => {
+  if(theme !== 'modern'){
+    lastKlasikTheme = theme;
+    theme = 'modern';
+    applyTheme();
+    saveTheme();
+  }
+});
 document.getElementById('lightLabel').addEventListener('click', () => {
+  if(theme === 'modern'){
+    modernSubTheme = 'light';
+    applyTheme();
+    saveModernSubTheme();
+    return;
+  }
+  lastKlasikTheme = 'light';
   theme = 'light';
   applyTheme();
   saveTheme();
 });
 document.getElementById('darkLabel').addEventListener('click', () => {
+  if(theme === 'modern'){
+    modernSubTheme = 'dark';
+    applyTheme();
+    saveModernSubTheme();
+    return;
+  }
+  lastKlasikTheme = 'dark';
   theme = 'dark';
-  applyTheme();
-  saveTheme();
-});
-document.getElementById('modernLabel').addEventListener('click', () => {
-  theme = 'modern';
   applyTheme();
   saveTheme();
 });
@@ -1784,14 +1874,8 @@ function renderSummary(){
   prevGrandUnpaid = grandUnpaid;
   prevHideTotalForAnim = hideTotal;
 
-  if(document.body.classList.contains('modern') && leader){
-    const c = provColor(leader.prov.key, leader.prov.color);
-    grandTotalEl.style.color = c;
-    grandTotalEl.style.filter = 'drop-shadow(0 0 18px ' + c + '66)';
-  } else {
-    grandTotalEl.style.color = '';
-    grandTotalEl.style.filter = '';
-  }
+  grandTotalEl.style.color = '';
+  grandTotalEl.style.filter = '';
   document.getElementById('summaryBreakdown').innerHTML = bd;
   applyHideTotal();
 }
