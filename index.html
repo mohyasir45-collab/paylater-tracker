@@ -245,44 +245,79 @@
   body.dark .tab.active{ background:var(--accent-dark); color:#fff; border-color:var(--accent-dark); }
   .tab:active{ transform:scale(.95); }
 
-  .add-toggle{
-    width:100%; padding:9px; font-family:inherit; font-weight:700;
-    font-size:12px; letter-spacing:.12em; background:transparent; color:inherit;
+  .add-row{
+    display:flex; gap:8px; margin-bottom:0; width:100%;
+  }
+  .add-toggle, .scan-toggle{
+    flex:1; padding:9px; font-family:inherit; font-weight:700;
+    font-size:12px; letter-spacing:.08em; background:transparent; color:inherit;
     border:1.5px dashed var(--ink-mid-light); cursor:pointer;
     transition:opacity .2s ease, transform .15s ease, border-color .2s ease;
   }
-  body.dark .add-toggle{ border-color:var(--ink-mid-dark); }
-  .add-toggle:active{ opacity:.6; transform:scale(.98); }
+  body.dark .add-toggle, body.dark .scan-toggle{ border-color:var(--ink-mid-dark); }
+  .add-toggle:active, .scan-toggle:active{ opacity:.6; transform:scale(.98); }
+  .scan-toggle{ display:flex; align-items:center; justify-content:center; gap:5px; }
 
-  .add-form{ max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:max-height .35s ease, opacity .3s ease, margin-top .35s ease; }
-  .add-form.open{ max-height:600px; opacity:1; margin-top:12px; }
+  .add-form{ max-height:0; opacity:0; overflow:hidden; margin-top:0; transition:max-height .4s ease, opacity .3s ease, margin-top .35s ease; }
+  .add-form.open{ max-height:2000px; opacity:1; margin-top:12px; }
 
-  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:4px; }
-  .field{ display:flex; flex-direction:column; gap:3px; margin-bottom:8px; }
+  .form-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px 10px; margin-bottom:4px; }
+  .field{ display:flex; flex-direction:column; gap:4px; margin-bottom:4px; min-width:0; }
   .field.full{ grid-column:1/-1; }
-  .checkbox-field{ margin-top:-2px; }
+  .checkbox-field{ margin-top:2px; }
   .checkbox-label{
     display:flex; align-items:center; gap:7px; cursor:pointer;
     font-size:11.5px; color:var(--ink-mid-light); user-select:none;
   }
   body.dark .checkbox-label{ color:var(--ink-mid-dark); }
+  /* native checkbox disembunyikan tapi tetap jadi sumber kebenaran (state, form value);
+     kotaknya digambar manual via .checkbox-box supaya render centang/uncentang konsisten
+     di semua browser (checkbox native + accent-color kadang nyangkut "tercentang" secara
+     visual di iOS Safari walau value-nya sudah ke-uncheck) */
   .checkbox-label input[type="checkbox"]{
-    width:15px; height:15px; margin:0; cursor:pointer; accent-color:var(--accent-dark);
+    position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+    overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0;
+  }
+  .checkbox-box{
+    position:relative;
+    display:inline-flex; align-items:center; justify-content:center;
+    width:15px; height:15px; flex:0 0 15px;
+    border:1.5px solid var(--ink-mid-light); border-radius:4px;
+    background:transparent;
+    transition:background .15s ease, border-color .15s ease;
+  }
+  body.dark .checkbox-box{ border-color:var(--ink-mid-dark); }
+  .checkbox-box::after{
+    content:'';
+    position:absolute; left:4px; top:1px;
+    width:4px; height:8px;
+    border:solid #fff; border-width:0 2px 2px 0;
+    transform:rotate(45deg);
+    opacity:0;
+    transition:opacity .1s ease;
+  }
+  .checkbox-label input[type="checkbox"]:checked + .checkbox-box{
+    background:var(--accent-dark); border-color:var(--accent-dark);
+  }
+  .checkbox-label input[type="checkbox"]:checked + .checkbox-box::after{ opacity:1; }
+  .checkbox-label input[type="checkbox"]:focus-visible + .checkbox-box{
+    outline:2px solid var(--accent-dark); outline-offset:2px;
   }
   .item-excluded-tag{
     font-size:9.5px; letter-spacing:.04em; opacity:.65; font-style:italic;
     display:inline-block; margin-top:2px;
   }
   .installment-row{ display:flex; align-items:center; gap:6px; }
-  .installment-row input{ width:0; flex:1; text-align:center; }
-  .installment-sep{ font-size:10.5px; letter-spacing:.04em; color:var(--ink-mid-light); white-space:nowrap; }
+  .installment-row input{ width:0; flex:1; text-align:center; min-height:42px; }
+  .installment-sep{ font-size:10.5px; letter-spacing:.04em; color:var(--ink-mid-light); white-space:nowrap; flex:0 0 auto; }
   body.dark .installment-sep{ color:var(--ink-mid-dark); }
-  .note-chips{ display:flex; flex-wrap:wrap; gap:5px; margin-top:6px; }
+  .note-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .chip{
-    font-family:inherit; font-size:8px; letter-spacing:.02em; padding:3px 7px;
-    border:1px solid var(--ink-mid-light); border-radius:10px; background:transparent;
-    color:inherit; cursor:pointer; opacity:.85;
+    font-family:inherit; font-size:11px; letter-spacing:.02em; padding:7px 11px;
+    border:1px solid var(--ink-mid-light); border-radius:12px; background:transparent;
+    color:inherit; cursor:pointer; opacity:.9;
     transition:background .2s ease, color .2s ease, border-color .2s ease, opacity .2s ease, transform .15s ease;
+    min-height:32px; display:inline-flex; align-items:center;
   }
   body.dark .chip{ border-color:var(--ink-mid-dark); }
   .chip:hover{ opacity:1; border-color:var(--ink-light); }
@@ -316,11 +351,13 @@
 
   .prov-manage-row{ display:flex; justify-content:flex-end; margin-top:4px; }
   .prov-manage{ max-height:0; opacity:0; overflow:hidden; transition:max-height .35s ease, opacity .3s ease, margin-top .35s ease; }
-  .prov-manage.open{ max-height:300px; opacity:1; margin-top:8px; }
+  .prov-manage.open{ max-height:420px; opacity:1; margin-top:8px; }
   .prov-list{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:8px; }
   .prov-list .chip{ opacity:1; border:none; }
   .prov-add-row{ display:flex; gap:6px; align-items:center; }
   .prov-add-row input[type="text"]{ flex:1; }
+  .chip-add-row{ display:inline-flex; gap:5px; align-items:center; width:100%; margin-top:2px; }
+  .chip-add-row input[type="text"]{ flex:1; min-width:0; }
   .prov-add-row input[type="color"]{
     width:30px; height:26px; padding:0; border:1px solid var(--ink-mid-light);
     background:transparent; cursor:pointer; border-radius:4px;
@@ -331,20 +368,30 @@
   body.dark label{ color:var(--ink-mid-dark); }
   select,input{
     font-family:inherit; font-size:16px; background:transparent; color:inherit;
-    border:none; border-bottom:1px solid var(--ink-mid-light); padding:5px 2px;
+    border:none; border-bottom:1px solid var(--ink-mid-light); padding:8px 2px;
     outline:none; -webkit-appearance:none; appearance:none; border-radius:0;
+    min-height:42px; width:100%;
   }
   body.dark select, body.dark input{ border-bottom-color:var(--ink-mid-dark); }
   select:focus, input:focus{ border-bottom:1.5px solid var(--ink-light); }
   body.dark select:focus, body.dark input:focus{ border-bottom-color:var(--accent-dark); }
   select option{ background:var(--paper-light); color:var(--ink-light); }
   body.dark select option{ background:var(--paper-dark); color:var(--ink-dark); }
+  /* date picker native di iOS/Android: pastikan tinggi & alignment konsisten */
+  input[type="date"]{
+    min-height:42px; line-height:1.2;
+  }
+  input[type="date"]::-webkit-date-and-time-value{ text-align:left; }
+  input[type="number"]{ -moz-appearance:textfield; }
+  input[type="number"]::-webkit-outer-spin-button,
+  input[type="number"]::-webkit-inner-spin-button{ -webkit-appearance:none; margin:0; }
 
-  .form-actions{ display:flex; gap:8px; margin-top:4px; }
+  .form-actions{ display:flex; gap:8px; margin-top:10px; }
   .save-btn, .cancel-btn{
-    font-family:inherit; font-weight:700; font-size:12px; letter-spacing:.1em;
-    padding:9px; cursor:pointer; border:none;
+    font-family:inherit; font-weight:700; font-size:13px; letter-spacing:.1em;
+    padding:12px 9px; cursor:pointer; border:none;
     transition:opacity .2s ease, transform .15s ease, border-color .2s ease;
+    min-height:46px;
   }
   .save-btn{ flex:2; background:var(--ink-light); color:var(--paper-light); }
   body.dark .save-btn{ background:var(--accent-dark); color:#fff; }
@@ -367,6 +414,7 @@
   body.dark .list-more-btn:hover{ border-color:var(--ink-dark); }
   .list-more-btn:active{ opacity:.6; transform:scale(.95); }
   .list-more-btn.hide-btn{ opacity:.6; border-style:dashed; }
+  .list-more-icon-btn{ padding:7px 10px; display:inline-flex; align-items:center; justify-content:center; line-height:0; }
   .list-more-counter{ font-size:9px; color:var(--ink-mid-light); letter-spacing:.04em; cursor:pointer; user-select:none; }
   body.dark .list-more-counter{ color:var(--ink-mid-dark); }
   .list-more-counter.counter-hidden{ visibility:hidden; }
@@ -423,9 +471,9 @@
   }
 
   .stamp{
-    position:absolute; bottom:9px; right:0; font-weight:700; font-size:11px; letter-spacing:.1em;
-    padding:3px 8px; border:2px solid; border-radius:3px; transform:rotate(-11deg);
-    mix-blend-mode:multiply; pointer-events:none; opacity:.88;
+    font-weight:700; font-size:11px; letter-spacing:.1em;
+    padding:3px 8px; border:2px solid; border-radius:3px; transform:rotate(-7deg);
+    mix-blend-mode:multiply; pointer-events:none; opacity:.88; margin-top:9px;
   }
   body.dark .stamp{ mix-blend-mode:normal; }
   .stamp.lunas{ color:var(--ok); border-color:var(--ok); }
@@ -636,12 +684,16 @@
     border:1px solid var(--modern-border);
     box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
   }
-  body.modern .add-toggle{
+  body.modern .add-row{
     grid-column:2/3;
+    display:flex; flex-direction:column; gap:8px;
     height:auto;
+  }
+  body.modern .add-toggle, body.modern .scan-toggle{
+    height:auto; flex:1;
     display:flex; align-items:center; justify-content:center;
     text-align:center;
-    border-radius:20px !important;
+    border-radius:16px !important;
     box-shadow:0 8px 30px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
   }
   body.modern .add-form{
@@ -686,12 +738,13 @@
     backdrop-filter:none; -webkit-backdrop-filter:none;
   }
 
-  body.modern .add-toggle{
+  body.modern .add-toggle, body.modern .scan-toggle{
     border-radius:14px; border-style:solid; border-color:var(--modern-border);
     font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:.02em; color:var(--modern-accent);
     background:rgba(163,230,53,0.06);
   }
-  body.modern .add-toggle:hover, body.modern .add-toggle:active{ border-color:var(--modern-accent); }
+  body.modern .add-toggle:hover, body.modern .add-toggle:active,
+  body.modern .scan-toggle:hover, body.modern .scan-toggle:active{ border-color:var(--modern-accent); }
 
   body.modern label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; letter-spacing:.02em; }
   body.modern select, body.modern input{
@@ -704,12 +757,15 @@
   }
   body.modern select option{ background:var(--modern-card-solid); color:var(--modern-ink); }
   body.modern .checkbox-label{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
-  body.modern .checkbox-label input[type="checkbox"]{ accent-color:var(--modern-accent); }
+  body.modern .checkbox-box{ border-color:var(--modern-border); }
+  body.modern .checkbox-label input[type="checkbox"]:checked + .checkbox-box{
+    background:var(--modern-accent); border-color:var(--modern-accent);
+  }
   body.modern .installment-sep{ color:var(--modern-ink-mid); font-family:'Plus Jakarta Sans',sans-serif; }
 
   body.modern .chip{
     border-radius:999px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif;
-    background:rgba(255,255,255,0.03);
+    background:rgba(255,255,255,0.03); font-size:11px; padding:7px 12px;
   }
   body.modern .chip.chosen{
     background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2));
@@ -781,15 +837,262 @@
   }
   body.modern .sync-help{ color:var(--modern-ink-mid); }
 
+  /* ===== MODERN THEME: LIGHT / SOFT VARIANT ===== */
+  body.modern.modern-light{
+    --modern-bg:#F5F2EA;
+    --modern-card:rgba(250,247,239,0.6);
+    --modern-card-solid:#FAF7EF;
+    --modern-ink:#2E2B22;
+    --modern-ink-mid:#8D8574;
+    --modern-border:rgba(46,43,34,0.12);
+    --modern-accent:#4A4A4A;
+    --modern-accent2:#5E5E5E;
+    --modern-shadow:rgba(60,50,30,0.09);
+  }
+  body.modern.modern-light::before{
+    background-image:none;
+  }
+  body.modern.modern-light::after{
+    background-image:none;
+  }
+  body.modern.modern-light .toolbar,
+  body.modern.modern-light .bento-card,
+  body.modern.modern-light .add-form.open,
+  body.modern.modern-light .tabs,
+  body.modern.modern-light .add-toggle,
+  body.modern.modern-light .scan-toggle{
+    box-shadow:0 2px 8px var(--modern-shadow), inset 0 1px 0 rgba(250,247,239,0.55);
+  }
+  body.modern.modern-light .theme-toggle .on{
+    color:#FFFFFF;
+    box-shadow:0 0 14px rgba(60,60,60,0.35), 0 0 26px rgba(60,60,60,0.18);
+  }
+  body.modern.modern-light .backup-btn,
+  body.modern.modern-light .hide-toggle{
+    background:rgba(46,43,34,0.045);
+  }
+  body.modern.modern-light .bento-hero .subtitle{
+    background:rgba(46,43,34,0.045);
+  }
+  body.modern.modern-light .dash{ border-top-color:rgba(46,43,34,0.08); }
+  body.modern.modern-light .summary-amount{
+    filter:drop-shadow(0 0 14px rgba(60,60,60,0.22));
+  }
+  body.modern.modern-light .summary-breakdown > span{ background:rgba(46,43,34,0.035); }
+  body.modern.modern-light .summary-amount.matrix-anim{
+    color:var(--modern-accent) !important;
+    text-shadow:0 0 4px rgba(60,60,60,.4), 0 0 10px rgba(60,60,60,.2);
+  }
+  body.modern.modern-light .tab{ background:rgba(46,43,34,0.035); }
+  body.modern.modern-light .tab.active{
+    color:#292929;
+    box-shadow:0 0 14px rgba(60,60,60,0.30), 0 0 26px rgba(60,60,60,0.16);
+  }
+  body.modern.modern-light .add-toggle,
+  body.modern.modern-light .scan-toggle{ background:rgba(60,60,60,0.08); }
+  body.modern.modern-light select,
+  body.modern.modern-light input{ background:rgba(46,43,34,0.04); }
+  body.modern.modern-light select:focus,
+  body.modern.modern-light input:focus{ box-shadow:0 0 10px rgba(60,60,60,0.22); }
+  body.modern.modern-light .chip{ background:rgba(46,43,34,0.035); }
+  body.modern.modern-light .chip.chosen{
+    color:#292929;
+    box-shadow:0 0 12px rgba(60,60,60,0.3);
+  }
+  body.modern.modern-light .save-btn{
+    color:#292929;
+    box-shadow:0 0 16px rgba(60,60,60,0.30), 0 0 28px rgba(60,60,60,0.14);
+  }
+  body.modern.modern-light .cancel-btn{ background:rgba(46,43,34,0.035); }
+  body.modern.modern-light .item{
+    box-shadow:0 2px 6px var(--modern-shadow), inset 0 1px 0 rgba(250,247,239,0.55);
+  }
+  body.modern.modern-light .item + .item{ border-top-color:rgba(46,43,34,0.07); }
+  body.modern.modern-light .prov-tag{ box-shadow:0 0 6px rgba(46,43,34,0.15); }
+  body.modern.modern-light .action-btn{ background:rgba(46,43,34,0.035); }
+  body.modern.modern-light .action-btn:hover{ box-shadow:0 0 8px rgba(60,60,60,0.22); }
+  body.modern.modern-light .sync-modal{ box-shadow:0 8px 24px var(--modern-shadow); }
+  body.modern.modern-light .sync-modal textarea,
+  body.modern.modern-light .sync-modal input[type=text]{ background:rgba(46,43,34,0.04); }
+  body.modern.modern-light .sync-btn-row button{
+    color:#292929;
+    box-shadow:0 0 14px rgba(60,60,60,0.26);
+  }
+
+  /* ===== MOBILE: form tambah tagihan ===== */
+  @media (max-width: 480px){
+    body{
+      padding-left:calc(10px + env(safe-area-inset-left));
+      padding-right:calc(10px + env(safe-area-inset-right));
+      padding-bottom:calc(28px + env(safe-area-inset-bottom));
+    }
+    .paper{ padding:20px 14px 6px; }
+    body.modern .bento-hero{ padding:20px 16px 16px; border-radius:22px; }
+    body.modern .add-form.open{ padding:16px 14px 12px; border-radius:18px; }
+
+    /* form: prioritas field penting full-width di layar sempit */
+    .form-grid{
+      grid-template-columns:1fr 1fr;
+      gap:12px 10px;
+    }
+    .field:nth-child(1),
+    .field:nth-child(2){
+      grid-column:1 / -1;
+    }
+    /* Layanan & Jumlah full width; Jatuh tempo + Cicilan tetap 2 kolom */
+    .field:nth-child(3),
+    .field:nth-child(4){
+      grid-column:auto;
+    }
+
+    select, input{
+      padding:10px 4px;
+      min-height:46px;
+    }
+    body.modern select, body.modern input{
+      padding:12px 12px;
+      min-height:48px;
+      border-radius:12px;
+    }
+
+    .installment-row input{ min-height:46px; }
+    .chip{
+      font-size:12px; padding:8px 12px; min-height:36px;
+    }
+    .chip-edit-toggle, .prov-manage-row .chip-edit-toggle{
+      font-size:11px; padding:6px 2px; min-height:32px;
+    }
+
+    /* tombol aksi lebih besar & sticky di atas keyboard area */
+    .form-actions{
+      position:sticky;
+      bottom:0;
+      z-index:5;
+      margin-top:14px;
+      margin-left:-4px;
+      margin-right:-4px;
+      padding:10px 4px calc(8px + env(safe-area-inset-bottom));
+      background:linear-gradient(to top, var(--paper-light) 70%, transparent);
+      gap:10px;
+    }
+    body.dark .form-actions{
+      background:linear-gradient(to top, var(--paper-dark) 70%, transparent);
+    }
+    body.modern .form-actions{
+      background:linear-gradient(to top, rgba(23,23,23,0.95) 65%, transparent);
+      backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+      margin-left:-8px; margin-right:-8px;
+      padding-left:8px; padding-right:8px;
+      border-radius:0 0 16px 16px;
+    }
+    body.modern.modern-light .form-actions{
+      background:linear-gradient(to top, rgba(250,247,239,0.96) 65%, transparent);
+    }
+    .save-btn, .cancel-btn{
+      padding:14px 10px;
+      min-height:50px;
+      font-size:14px;
+      border-radius:12px;
+    }
+    body.modern .save-btn, body.modern .cancel-btn{ border-radius:14px; }
+
+    .add-toggle, .scan-toggle{
+      padding:12px 8px;
+      min-height:46px;
+      font-size:12.5px;
+    }
+    body.modern .add-toggle, body.modern .scan-toggle{
+      min-height:48px; border-radius:14px !important;
+    }
+
+    .checkbox-label{ font-size:13px; gap:10px; padding:6px 0; }
+    .checkbox-box{ width:18px; height:18px; flex-basis:18px; }
+    .checkbox-box::after{ left:5px; top:2px; width:5px; height:9px; }
+
+    .tabs{ gap:6px; }
+    .tab{ padding:8px 4px; font-size:11px; min-height:38px; }
+
+    /* saat form terbuka, beri ruang scroll di bawah supaya sticky actions & keyboard tidak menutupi */
+    body.form-open{
+      padding-bottom:calc(120px + env(safe-area-inset-bottom));
+    }
+    body.form-open .list,
+    body.form-open .barcode,
+    body.form-open .foot-note{
+      opacity:.35;
+      pointer-events:none;
+      transition:opacity .25s ease;
+    }
+  }
+
+  /* ===== SCAN FOTO OCR ===== */
+  .scan-overlay{
+    display:none; position:fixed; inset:0; background:rgba(20,17,10,.65);
+    z-index:60; align-items:center; justify-content:center; padding:24px 16px;
+  }
+  .scan-overlay.open{ display:flex; }
+  .scan-modal{
+    background:var(--paper-light); color:var(--ink-light); width:100%; max-width:360px;
+    border-radius:14px; padding:22px 20px; box-shadow:0 20px 50px rgba(0,0,0,.4);
+    font-size:12.5px; line-height:1.5; text-align:center;
+  }
+  body.dark .scan-modal{ background:var(--paper-dark); color:var(--ink-dark); }
+  body.modern .scan-modal{
+    background:var(--modern-card-solid); color:var(--modern-ink);
+    border:1px solid var(--modern-border); border-radius:20px;
+    font-family:'Plus Jakarta Sans',sans-serif;
+  }
+  .scan-modal h3{ font-size:14px; letter-spacing:.05em; margin:0 0 12px; }
+  .scan-progress-wrap{
+    height:6px; border-radius:3px; background:rgba(139,131,117,.2); overflow:hidden; margin:14px 0 10px;
+  }
+  body.dark .scan-progress-wrap, body.modern .scan-progress-wrap{ background:rgba(255,255,255,.1); }
+  .scan-progress-bar{
+    height:100%; width:0%; border-radius:3px; background:var(--accent-dark);
+    transition:width .2s ease;
+  }
+  body.modern .scan-progress-bar{ background:var(--modern-accent); }
+  .scan-status{ font-size:11px; color:var(--ink-mid-light); min-height:1.4em; }
+  body.dark .scan-status{ color:var(--ink-mid-dark); }
+  body.modern .scan-status{ color:var(--modern-ink-mid); }
+  .scan-preview{
+    max-width:100%; max-height:140px; border-radius:8px; margin:10px auto 0; display:none;
+    object-fit:contain; border:1px solid var(--ink-mid-light);
+  }
+  body.dark .scan-preview{ border-color:var(--ink-mid-dark); }
+  body.modern .scan-preview{ border-color:var(--modern-border); }
+  .scan-result-preview{
+    text-align:left; font-size:11px; margin-top:12px; padding:10px;
+    background:rgba(139,131,117,.1); border-radius:8px; display:none;
+    max-height:120px; overflow-y:auto; white-space:pre-wrap; word-break:break-word;
+  }
+  body.dark .scan-result-preview, body.modern .scan-result-preview{ background:rgba(255,255,255,.06); }
+  .scan-btn-row{ display:flex; gap:8px; margin-top:16px; }
+  .scan-btn-row button{
+    flex:1; padding:9px; border-radius:8px; border:1px solid var(--ink-light); background:var(--ink-light);
+    color:var(--paper-light); font-family:inherit; font-size:11.5px; letter-spacing:.05em; cursor:pointer;
+  }
+  body.dark .scan-btn-row button{ border-color:var(--accent-dark); background:var(--accent-dark); color:#fff; }
+  body.modern .scan-btn-row button{
+    border-radius:12px; border-color:transparent;
+    background:linear-gradient(135deg, var(--modern-accent), var(--modern-accent2)); color:#08080F;
+  }
+  .scan-btn-row button.secondary{ background:transparent; color:var(--ink-light); }
+  body.dark .scan-btn-row button.secondary{ color:var(--ink-dark); }
+  body.modern .scan-btn-row button.secondary{
+    background:transparent; color:var(--modern-accent); border:1px solid var(--modern-border); box-shadow:none;
+  }
+
 </style>
 </head>
 <body>
 
 <div class="wrap">
   <div class="toolbar">
-    <span class="brandmark">CATATAN CICILAN</span>
+    <span class="brandmark">CATATAN TAGIHAN</span>
     <div class="toolbar-actions">
       <button class="backup-btn" id="syncBtn" title="Sinkronisasi antar perangkat"><svg class="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5L14.5 9.5"></path><path d="M11 6.5L12.5 5C14.1569 3.34315 16.8431 3.34315 18.5 5C20.1569 6.65685 20.1569 9.34315 18.5 11L17 12.5"></path><path d="M13 17.5L11.5 19C9.84315 20.6569 7.15685 20.6569 5.5 19C3.84315 17.3431 3.84315 14.6569 5.5 13L7 11.5"></path></svg><span class="sync-dot" id="syncDot"></span></button>
+      <button class="backup-btn" id="dataBtn" title="Ekspor / Impor Data"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"></path><path d="M7.5 10L12 14.5L16.5 10"></path><path d="M4 17.5V19.5C4 20.6 4.9 21.5 6 21.5H18C19.1 21.5 20 20.6 20 19.5V17.5"></path></svg></button>
       <div class="theme-toggle" id="themeToggle">
         <span id="klasikLabel">KLASIK</span><span id="modernLabel">MODERN</span>
       </div>
@@ -830,7 +1133,14 @@
 
       <div class="tabs" id="tabs"></div>
 
-      <button class="add-toggle" id="addToggle">+ TAMBAH TAGIHAN</button>
+      <div class="add-row" id="addRow">
+        <button class="add-toggle" id="addToggle">+ TAMBAH</button>
+        <button class="scan-toggle" id="scanToggle" title="Scan foto struk / notifikasi tagihan">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          SCAN
+        </button>
+      </div>
+      <input type="file" id="scanFileInput" accept="image/*" capture="environment" style="display:none">
       <div class="add-form" id="addForm">
         <div class="form-grid">
           <div class="field">
@@ -867,6 +1177,7 @@
           <div class="field full checkbox-field">
             <label class="checkbox-label">
               <input type="checkbox" id="fExclude">
+              <span class="checkbox-box"></span>
               <span>Jangan hitung ke total</span>
             </label>
           </div>
@@ -931,6 +1242,45 @@
   </div>
 </div>
 
+<div class="sync-overlay" id="dataOverlay">
+  <div class="sync-modal">
+    <span class="sync-close" id="dataClose">✕</span>
+    <h3>⇅ EKSPOR / IMPOR DATA</h3>
+
+    <label>Ekspor Data</label>
+    <div class="sync-help" style="margin-top:0">
+      Unduh seluruh data (tagihan, layanan, template catatan) sebagai file <b>.json</b> untuk cadangan atau dipindah ke perangkat lain.
+    </div>
+    <div class="sync-btn-row">
+      <button id="exportBtn">⬇ Unduh Backup</button>
+    </div>
+
+    <label style="margin-top:22px">Impor Data</label>
+    <div class="sync-help" style="margin-top:0">
+      Pilih file <b>.json</b> hasil ekspor sebelumnya. Ini akan <b>menimpa</b> semua tagihan, layanan, dan template catatan yang tersimpan saat ini di perangkat ini.
+    </div>
+    <input type="file" id="importFileInput" accept="application/json,.json" style="display:none">
+    <div class="sync-btn-row">
+      <button class="secondary" id="importBtn">⬆ Pilih File &amp; Impor</button>
+    </div>
+    <div class="sync-status-line" id="importStatusLine" style="display:none"></div>
+  </div>
+</div>
+
+<div class="scan-overlay" id="scanOverlay">
+  <div class="scan-modal">
+    <h3>📷 SCAN FOTO TAGIHAN</h3>
+    <img class="scan-preview" id="scanPreview" alt="Preview">
+    <div class="scan-progress-wrap"><div class="scan-progress-bar" id="scanProgressBar"></div></div>
+    <div class="scan-status" id="scanStatus">Menyiapkan OCR…</div>
+    <div class="scan-result-preview" id="scanResultPreview"></div>
+    <div class="scan-btn-row" id="scanBtnRow" style="display:none">
+      <button id="scanApplyBtn">Isi Form</button>
+      <button class="secondary" id="scanCancelBtn">Batal</button>
+    </div>
+  </div>
+</div>
+
 <script>
 const DEFAULT_PROVIDERS = [
   { key:'spaylater', label:'SPAYLATER', color:'#C15B34' },
@@ -956,7 +1306,7 @@ rebuildProvidersMap();
 
 let entries = [];
 let theme = 'light';
-let modernSubTheme = 'dark'; // placeholder utk fitur light mode di tema modern (nanti belakangan)
+let modernSubTheme = 'dark'; // 'dark' atau 'light' - subtema untuk tema modern
 let activeTab = 'semua';
 let hideTotal = false;
 let listVisibleCount = 1;
@@ -1296,6 +1646,87 @@ document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
   if(ok) disconnectSync();
 });
 
+/* ===================== EKSPOR / IMPOR DATA ===================== */
+const DATA_EXPORT_VERSION = 1;
+
+function exportData(){
+  const payload = {
+    app: 'paylater-tracker',
+    version: DATA_EXPORT_VERSION,
+    exportedAt: new Date().toISOString(),
+    entries,
+    providers,
+    noteTemplates
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `paylater-backup-${todayStr()}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function setImportStatus(msg, isError){
+  const el = document.getElementById('importStatusLine');
+  el.textContent = msg;
+  el.style.display = msg ? 'block' : 'none';
+  el.style.color = isError ? 'var(--late)' : '';
+}
+
+async function importDataFromFile(file){
+  if(!file) return;
+  let parsed;
+  try{
+    const text = await file.text();
+    parsed = JSON.parse(text);
+  }catch(err){
+    setImportStatus('Gagal membaca file. Pastikan file .json hasil ekspor yang valid.', true);
+    return;
+  }
+  if(!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.entries)){
+    setImportStatus('Format file tidak dikenali. Gunakan file hasil "Unduh Backup".', true);
+    return;
+  }
+  const ok = confirm('Impor data ini akan MENIMPA semua tagihan, layanan, dan template catatan yang ada saat ini di perangkat ini. Lanjutkan?');
+  if(!ok){ setImportStatus(''); return; }
+
+  entries = parsed.entries;
+  providers = (Array.isArray(parsed.providers) && parsed.providers.length) ? parsed.providers : DEFAULT_PROVIDERS.slice();
+  noteTemplates = (Array.isArray(parsed.noteTemplates) && parsed.noteTemplates.length) ? parsed.noteTemplates : DEFAULT_NOTE_TEMPLATES.slice();
+  rebuildProvidersMap();
+
+  await saveEntries();
+  await saveProviders();
+  await saveTemplates();
+
+  renderChips();
+  renderProviderSelect();
+  renderProviderManage();
+  render();
+
+  setImportStatus('Impor berhasil! Data sudah diperbarui.', false);
+}
+
+document.getElementById('dataBtn').addEventListener('click', () => {
+  document.getElementById('dataOverlay').classList.add('open');
+  setImportStatus('');
+});
+document.getElementById('dataClose').addEventListener('click', () => {
+  document.getElementById('dataOverlay').classList.remove('open');
+});
+document.getElementById('exportBtn').addEventListener('click', exportData);
+document.getElementById('importBtn').addEventListener('click', () => {
+  document.getElementById('importFileInput').click();
+});
+document.getElementById('importFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  await importDataFromFile(file);
+  e.target.value = '';
+});
+
 function applyTheme(){
   // kalau tema lama atau baru melibatkan 'modern', jarak warnanya terlalu jauh
   // untuk di-crossfade dengan enak (jadi kelihatan pudar/washed-out di tengah).
@@ -1314,7 +1745,7 @@ function applyTheme(){
   document.getElementById('lightLabel').className = subActive==='light' ? 'on' : '';
   document.getElementById('darkLabel').className = subActive==='dark' ? 'on' : '';
   document.body.classList.toggle('modern-light', theme==='modern' && modernSubTheme==='light');
-  const themeColors = { light:'#DCD7CC', dark:'#041420', modern:'#020103' };
+  const themeColors = { light:'#DCD7CC', dark:'#041420', modern: modernSubTheme==='light' ? '#F5F2EA' : '#020103' };
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if(metaTheme) metaTheme.setAttribute('content', themeColors[theme] || themeColors.light);
   render();
@@ -1402,17 +1833,28 @@ fAmountEl.addEventListener('input', () => {
   fAmountEl.value = formatThousands(digits);
 });
 const addToggle = document.getElementById('addToggle');
+const addRow = document.getElementById('addRow');
 let editingId = null;
-addToggle.addEventListener('click', () => {
+function openAddForm(){
   addForm.classList.add('open');
-  addToggle.style.display = 'none';
-});
-document.getElementById('cancelBtn').addEventListener('click', () => {
+  addRow.style.display = 'none';
+  document.body.classList.add('form-open');
+  // scroll form ke viewport, sedikit delay supaya max-height transition mulai dulu
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      addForm.scrollIntoView({ behavior:'smooth', block:'start' });
+    }, 80);
+  });
+}
+function closeAddForm(){
   addForm.classList.remove('open');
-  addToggle.style.display = 'block';
+  addRow.style.display = '';
+  document.body.classList.remove('form-open');
   clearForm();
   exitEditMode();
-});
+}
+addToggle.addEventListener('click', openAddForm);
+document.getElementById('cancelBtn').addEventListener('click', closeAddForm);
 function clearForm(){
   document.getElementById('fAmount').value = '';
   document.getElementById('fDue').value = '';
@@ -1441,9 +1883,7 @@ function startEditEntry(id){
   document.getElementById('fExclude').checked = !!e.excluded;
   document.getElementById('saveBtn').textContent = 'SIMPAN PERUBAHAN';
   document.getElementById('editHint').style.display = 'block';
-  addForm.classList.add('open');
-  addToggle.style.display = 'none';
-  addForm.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  openAddForm();
 }
 
 const DEFAULT_NOTE_TEMPLATES = ['Cicilan HP', 'Belanja online', 'Elektronik', 'Kebutuhan rumah', 'Top up game', 'Bayar tagihan'];
@@ -1523,7 +1963,9 @@ function renderChips(){
       const rm = document.createElement('span');
       rm.className = 'chip-remove';
       rm.textContent = '×';
-      rm.addEventListener('click', async () => {
+      rm.addEventListener('pointerdown', (e) => { e.stopPropagation(); });
+      rm.addEventListener('click', async (e) => {
+        e.stopPropagation();
         noteTemplates.splice(idx, 1);
         await saveTemplates();
         renderChips();
@@ -1533,20 +1975,32 @@ function renderChips(){
     noteChipsEl.appendChild(wrap);
   });
   if(chipsEditMode){
-    const addChip = document.createElement('button');
-    addChip.type = 'button';
-    addChip.className = 'chip add-chip';
-    addChip.textContent = '+ template baru';
-    addChip.addEventListener('click', async () => {
-      const val = prompt('Nama template baru (mis. Cicilan laptop):', '');
-      const trimmed = (val || '').trim();
+    const addWrap = document.createElement('span');
+    addWrap.className = 'chip-add-row';
+    const addInput = document.createElement('input');
+    addInput.type = 'text';
+    addInput.id = 'newTplInput';
+    addInput.placeholder = 'template baru';
+    addInput.maxLength = 40;
+    const addBtn = document.createElement('button');
+    addBtn.type = 'button';
+    addBtn.className = 'chip add-chip';
+    addBtn.textContent = '+ tambah';
+    const doAdd = async () => {
+      const trimmed = addInput.value.trim();
       if(!trimmed) return;
       if(noteTemplates.includes(trimmed)) return;
       noteTemplates.push(trimmed);
       await saveTemplates();
       renderChips();
+    };
+    addBtn.addEventListener('click', doAdd);
+    addInput.addEventListener('keydown', (e) => {
+      if(e.key === 'Enter'){ e.preventDefault(); doAdd(); }
     });
-    noteChipsEl.appendChild(addChip);
+    addWrap.appendChild(addInput);
+    addWrap.appendChild(addBtn);
+    noteChipsEl.appendChild(addWrap);
   }
 }
 
@@ -1707,6 +2161,7 @@ function renderList(){
       const cd = countdownLabel(daysDiff(e.due, today));
       countdownHtml = '<span class="countdown ' + cd.cls + '">' + cd.text + '</span>';
     }
+    const stampHtml = e.paid ? '<div class="stamp lunas">LUNAS</div>' : (overdue ? '<div class="stamp telat">TELAT</div>' : '');
     div.innerHTML = `
       <div class="item-row">
         <div class="item-main">
@@ -1718,6 +2173,7 @@ function renderList(){
         <div class="item-right">
           <div class="item-amount">${formatRupiah(e.amount)}</div>
           ${countdownHtml}
+          ${stampHtml}
         </div>
       </div>
       <div class="item-actions">
@@ -1726,7 +2182,6 @@ function renderList(){
         <button class="action-btn action-btn-icon" data-act="edit" data-id="${e.id}" title="Ubah"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
         <button class="action-btn action-btn-icon" data-act="del" data-id="${e.id}" title="Hapus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
       </div>
-      ${e.paid ? '<div class="stamp lunas">LUNAS</div>' : (overdue ? '<div class="stamp telat">TELAT</div>' : '')}
     `;
     listEl.appendChild(div);
   });
@@ -1755,7 +2210,8 @@ function renderList(){
 
     let html = '';
     if(remaining > 0){
-      html += `<button class="list-more-btn" id="listMoreBtn">Lihat lagi</button>`;
+      html += `<button class="list-more-btn list-more-icon-btn" id="listMoreBtn" title="Lihat lagi" aria-label="Lihat lagi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button>`;
+      html += `<button class="list-more-btn" id="listAllBtn">Lihat semua</button>`;
     }
     if(listVisibleCount > 1){
       html += `<button class="list-more-btn hide-btn" id="listHideBtn">Sembunyikan</button>`;
@@ -1767,6 +2223,13 @@ function renderList(){
     if(moreBtn){
       moreBtn.addEventListener('click', () => {
         listVisibleCount = Math.min(listVisibleCount + increment, totalItems);
+        renderList();
+      });
+    }
+    const allBtn = document.getElementById('listAllBtn');
+    if(allBtn){
+      allBtn.addEventListener('click', () => {
+        listVisibleCount = totalItems;
         renderList();
       });
     }
@@ -1917,10 +2380,7 @@ function createNextInstallmentIfNeeded(e){
 async function deleteEntry(id){
   entries = entries.filter(x => x.id !== id);
   if(editingId === id){
-    clearForm();
-    exitEditMode();
-    addForm.classList.remove('open');
-    addToggle.style.display = 'block';
+    closeAddForm();
   }
   await saveEntries(); render();
 }
@@ -1973,15 +2433,365 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   }
   await saveEntries();
 
-  clearForm();
-  exitEditMode();
-  addForm.classList.remove('open');
-  addToggle.style.display = 'block';
+  closeAddForm();
   render();
 });
 
 document.getElementById('dateNow').textContent = new Date().toLocaleDateString('id-ID', {
   weekday:'long', day:'2-digit', month:'long', year:'numeric'
+});
+
+/* ===================== SCAN FOTO (OCR Tesseract.js) ===================== */
+let tesseractWorker = null;
+let tesseractLoading = null;
+let lastScanParsed = null;
+
+function loadTesseractScript(){
+  if(window.Tesseract) return Promise.resolve();
+  if(tesseractLoading) return tesseractLoading;
+  tesseractLoading = new Promise((resolve, reject) => {
+    const s = document.createElement('script');
+    s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
+    s.onload = resolve;
+    s.onerror = () => reject(new Error('Gagal memuat Tesseract.js. Cek koneksi internet.'));
+    document.head.appendChild(s);
+  });
+  return tesseractLoading;
+}
+
+async function getTesseractWorker(onProgress){
+  await loadTesseractScript();
+  if(tesseractWorker) return tesseractWorker;
+  tesseractWorker = await Tesseract.createWorker('ind+eng', 1, {
+    logger: m => {
+      if(m.status === 'recognizing text' && typeof m.progress === 'number' && onProgress){
+        onProgress(Math.round(m.progress * 100));
+      } else if(m.status && onProgress){
+        // loading language data etc
+        if(m.status.indexOf('loading') >= 0) onProgress(5);
+        else if(m.status.indexOf('initializing') >= 0) onProgress(15);
+      }
+    }
+  });
+  return tesseractWorker;
+}
+
+function setScanUI(state){
+  const overlay = document.getElementById('scanOverlay');
+  const bar = document.getElementById('scanProgressBar');
+  const status = document.getElementById('scanStatus');
+  const btnRow = document.getElementById('scanBtnRow');
+  const preview = document.getElementById('scanPreview');
+  const resultPrev = document.getElementById('scanResultPreview');
+  if(state.open) overlay.classList.add('open');
+  else overlay.classList.remove('open');
+  if(typeof state.progress === 'number') bar.style.width = state.progress + '%';
+  if(state.status != null) status.textContent = state.status;
+  if(state.showButtons) btnRow.style.display = 'flex';
+  else if(state.showButtons === false) btnRow.style.display = 'none';
+  if(state.previewUrl){
+    preview.src = state.previewUrl;
+    preview.style.display = 'block';
+  }
+  if(state.resultText != null){
+    resultPrev.textContent = state.resultText;
+    resultPrev.style.display = state.resultText ? 'block' : 'none';
+  }
+}
+
+function parseScanText(raw){
+  const text = (raw || '').replace(/\r/g, '\n');
+  const lower = text.toLowerCase();
+  const result = { provider: null, amount: null, due: null, note: null, confidence: 0 };
+
+  // --- Provider ---
+  const providerHints = [
+    { keys: ['spaylater', 'shopee paylater', 'shopeepaylater', 'spay later', 'shopee later'], key: 'spaylater' },
+    { keys: ['kredivo'], key: 'kredivo' },
+    { keys: ['indodana'], key: 'indodana' },
+    { keys: ['akulaku'], key: null },
+    { keys: ['gopay later', 'gopaylater', 'go pay later'], key: null },
+    { keys: ['home credit', 'homecredit'], key: null },
+    { keys: ['atome'], key: null },
+    { keys: ['julo'], key: null }
+  ];
+  for(const h of providerHints){
+    if(h.keys.some(k => lower.includes(k))){
+      if(h.key && providers.some(p => p.key === h.key)){
+        result.provider = h.key;
+        result.confidence += 30;
+      }
+      break;
+    }
+  }
+  // fallback: match against custom provider labels
+  if(!result.provider){
+    for(const p of providers){
+      if(lower.includes(p.label.toLowerCase()) || lower.includes(p.key.toLowerCase())){
+        result.provider = p.key;
+        result.confidence += 25;
+        break;
+      }
+    }
+  }
+
+  // --- Amount (Rp) ---
+  // Prefer amounts near keywords like total, tagihan, bayar, cicilan
+  const amountRegex = /(?:rp\.?\s*|idr\s*)?(\d{1,3}(?:[.\s]\d{3})+(?:,\d+)?|\d{4,})/gi;
+  const keywordNear = /(?:total|tagihan|bayar|jumlah|cicilan|nominal|sisa|amount|due|harus\s*dibayar|pembayaran)/i;
+  let bestAmount = null;
+  let bestScore = -1;
+  let m;
+  const lines = text.split(/\n+/);
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    amountRegex.lastIndex = 0;
+    while((m = amountRegex.exec(line)) !== null){
+      const digits = m[1].replace(/[.\s]/g, '').replace(/,.*/, '');
+      const num = Number(digits);
+      if(!num || num < 1000 || num > 500000000) continue; // skip terlalu kecil/besar
+      let score = 10;
+      // bonus if line or nearby lines have amount keywords
+      const context = (lines[i-1]||'') + ' ' + line + ' ' + (lines[i+1]||'');
+      if(keywordNear.test(context)) score += 40;
+      if(/rp\.?/i.test(line)) score += 15;
+      // prefer larger amounts somewhat (total usually bigger)
+      score += Math.min(20, Math.log10(num) * 4);
+      if(score > bestScore){
+        bestScore = score;
+        bestAmount = num;
+      }
+    }
+  }
+  if(bestAmount){
+    result.amount = bestAmount;
+    result.confidence += Math.min(40, bestScore);
+  }
+
+  // --- Due date ---
+  // Formats: DD/MM/YYYY, DD-MM-YYYY, DD MMM YYYY, YYYY-MM-DD, dll
+  const monthMap = {
+    jan:1, januari:1, feb:2, februari:2, mar:3, maret:3, apr:4, april:4,
+    mei:5, jun:6, juni:6, jul:7, juli:7, agu:8, agustus:8, aug:8, august:8,
+    sep:9, september:9, okt:10, oktober:10, oct:10, october:10,
+    nov:11, november:11, des:12, desember:12, dec:12, december:12
+  };
+  const datePatterns = [
+    // DD/MM/YYYY or DD-MM-YYYY
+    /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/g,
+    // YYYY-MM-DD
+    /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/g,
+    // DD MMM YYYY / DD Bulan YYYY
+    /(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{2,4})/g
+  ];
+  const dueKeywords = /(?:jatuh\s*tempo|jatuh\s*temponya|due\s*date|tanggal\s*bayar|bayar\s*sebelum|batas\s*waktu|tenggat|deadline|dibayar\s*sebelum|pembayaran\s*sebelum)/i;
+  let bestDue = null;
+  let bestDueScore = -1;
+
+  function normalizeYear(y){
+    y = Number(y);
+    if(y < 100) y += y >= 70 ? 1900 : 2000;
+    return y;
+  }
+  function tryDate(y, m, d, score){
+    if(m < 1 || m > 12 || d < 1 || d > 31 || y < 2020 || y > 2035) return;
+    const iso = toDateStr(y, m - 1, d);
+    // validate day didn't overflow
+    const check = new Date(iso + 'T00:00:00');
+    if(check.getFullYear() !== y || check.getMonth() !== m - 1 || check.getDate() !== d) return;
+    if(score > bestDueScore){
+      bestDueScore = score;
+      bestDue = iso;
+    }
+  }
+
+  for(let i = 0; i < lines.length; i++){
+    const line = lines[i];
+    const context = (lines[i-1]||'') + ' ' + line + ' ' + (lines[i+1]||'');
+    const hasKeyword = dueKeywords.test(context);
+    const baseScore = hasKeyword ? 50 : 5;
+
+    // pattern 1: d/m/y
+    let re = /(\d{1,2})[\/\-\.](\d{1,2})[\/\-\.](\d{2,4})/g;
+    while((m = re.exec(line)) !== null){
+      const d = Number(m[1]), mo = Number(m[2]), y = normalizeYear(m[3]);
+      tryDate(y, mo, d, baseScore + (hasKeyword ? 20 : 0));
+    }
+    // pattern 2: y-m-d
+    re = /(\d{4})[\/\-\.](\d{1,2})[\/\-\.](\d{1,2})/g;
+    while((m = re.exec(line)) !== null){
+      const y = Number(m[1]), mo = Number(m[2]), d = Number(m[3]);
+      tryDate(y, mo, d, baseScore + 10);
+    }
+    // pattern 3: d Month y
+    re = /(\d{1,2})\s+([A-Za-z]{3,9})\s+(\d{2,4})/g;
+    while((m = re.exec(line)) !== null){
+      const d = Number(m[1]);
+      const monName = m[2].toLowerCase().slice(0, 3);
+      const full = m[2].toLowerCase();
+      const mo = monthMap[full] || monthMap[monName];
+      if(!mo) continue;
+      const y = normalizeYear(m[3]);
+      tryDate(y, mo, d, baseScore + 15);
+    }
+  }
+  if(bestDue){
+    result.due = bestDue;
+    result.confidence += Math.min(35, bestDueScore);
+  }
+
+  // --- Note / installment hint ---
+  const installMatch = text.match(/cicilan\s*(?:ke[- ]?)?(\d+)\s*(?:dari|\/|of)\s*(\d+)/i)
+    || text.match(/(\d+)\s*\/\s*(\d+)\s*(?:cicilan|installment)/i);
+  if(installMatch){
+    result.installNo = Number(installMatch[1]);
+    result.installTotal = Number(installMatch[2]);
+    result.confidence += 10;
+  }
+  // short note from product-ish lines
+  const noteCandidates = lines
+    .map(l => l.trim())
+    .filter(l => l.length >= 4 && l.length <= 40)
+    .filter(l => !/rp\.?\s*\d/i.test(l))
+    .filter(l => !/\d{1,2}[\/\-\.]\d{1,2}/.test(l))
+    .filter(l => !/jatuh|tempo|total|tagihan|bayar|pembayaran|due|amount/i.test(l));
+  if(noteCandidates.length){
+    // pick one that looks like item description
+    result.note = noteCandidates[0].replace(/[^\w\s\-\/\.]/g, '').trim().slice(0, 40);
+  }
+
+  return result;
+}
+
+function applyParsedToForm(parsed){
+  if(!parsed) return;
+  exitEditMode();
+  clearForm();
+  renderProviderSelect();
+  if(parsed.provider && providers.some(p => p.key === parsed.provider)){
+    document.getElementById('fProvider').value = parsed.provider;
+  }
+  if(parsed.amount){
+    document.getElementById('fAmount').value = formatThousands(String(parsed.amount));
+  }
+  if(parsed.due){
+    document.getElementById('fDue').value = parsed.due;
+  }
+  if(parsed.installNo) document.getElementById('fInstallNo').value = parsed.installNo;
+  if(parsed.installTotal) document.getElementById('fInstallTotal').value = parsed.installTotal;
+  if(parsed.note){
+    document.getElementById('fNote').value = parsed.note;
+    document.querySelectorAll('.chip').forEach(c => c.classList.toggle('chosen', c.textContent === parsed.note));
+  }
+  openAddForm();
+}
+
+async function processScanImage(file){
+  if(!file || !file.type.startsWith('image/')){
+    alert('Pilih file gambar (JPG, PNG, dll).');
+    return;
+  }
+  lastScanParsed = null;
+  const previewUrl = URL.createObjectURL(file);
+  setScanUI({
+    open: true,
+    progress: 0,
+    status: 'Memuat mesin OCR… (pertama kali bisa lebih lama)',
+    showButtons: false,
+    previewUrl,
+    resultText: ''
+  });
+
+  try{
+    const worker = await getTesseractWorker(p => {
+      setScanUI({ progress: Math.max(5, Math.min(95, p)), status: 'Membaca teks… ' + p + '%' });
+    });
+    setScanUI({ status: 'Mengenali teks dari foto…', progress: 20 });
+
+    // optional: downscale large images for speed
+    const img = await createImageBitmap(file);
+    let canvas = document.createElement('canvas');
+    const maxSide = 1600;
+    let w = img.width, h = img.height;
+    if(Math.max(w, h) > maxSide){
+      const scale = maxSide / Math.max(w, h);
+      w = Math.round(w * scale);
+      h = Math.round(h * scale);
+    }
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(img, 0, 0, w, h);
+    // slight contrast boost helps OCR on screenshots
+    try{
+      const idata = ctx.getImageData(0, 0, w, h);
+      const d = idata.data;
+      for(let i = 0; i < d.length; i += 4){
+        // simple contrast
+        for(let c = 0; c < 3; c++){
+          let v = d[i + c];
+          v = (v - 128) * 1.15 + 128;
+          d[i + c] = Math.max(0, Math.min(255, v));
+        }
+      }
+      ctx.putImageData(idata, 0, 0);
+    }catch(e){ /* ignore if tainted */ }
+
+    const { data } = await worker.recognize(canvas);
+    const rawText = (data && data.text) ? data.text.trim() : '';
+    const parsed = parseScanText(rawText);
+    lastScanParsed = parsed;
+
+    const summaryParts = [];
+    if(parsed.provider){
+      const p = providers.find(x => x.key === parsed.provider);
+      summaryParts.push('Layanan: ' + (p ? p.label : parsed.provider));
+    }
+    if(parsed.amount) summaryParts.push('Jumlah: ' + formatRupiah(parsed.amount));
+    if(parsed.due) summaryParts.push('Jatuh tempo: ' + formatDate(parsed.due));
+    if(parsed.installNo && parsed.installTotal) summaryParts.push('Cicilan: ke-' + parsed.installNo + ' dari ' + parsed.installTotal);
+    if(parsed.note) summaryParts.push('Catatan: ' + parsed.note);
+
+    const summary = summaryParts.length
+      ? 'Hasil deteksi:\n' + summaryParts.join('\n')
+      : 'Teks terbaca, tapi data tagihan kurang jelas. Anda bisa isi manual setelah ini.';
+
+    setScanUI({
+      progress: 100,
+      status: summaryParts.length ? 'Selesai. Periksa hasil lalu klik Isi Form.' : 'Selesai (deteksi lemah).',
+      showButtons: true,
+      resultText: summary + (rawText ? '\n\n— Teks mentah —\n' + rawText.slice(0, 400) : '')
+    });
+  }catch(err){
+    console.warn(err);
+    setScanUI({
+      progress: 0,
+      status: 'Gagal: ' + (err.message || 'error OCR'),
+      showButtons: true,
+      resultText: 'Coba foto yang lebih jelas, fokus ke bagian jumlah & tanggal jatuh tempo.'
+    });
+    lastScanParsed = null;
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(previewUrl), 30000);
+  }
+}
+
+document.getElementById('scanToggle').addEventListener('click', () => {
+  document.getElementById('scanFileInput').click();
+});
+document.getElementById('scanFileInput').addEventListener('change', async (e) => {
+  const file = e.target.files && e.target.files[0];
+  e.target.value = '';
+  if(file) await processScanImage(file);
+});
+document.getElementById('scanCancelBtn').addEventListener('click', () => {
+  setScanUI({ open: false, showButtons: false });
+  lastScanParsed = null;
+});
+document.getElementById('scanApplyBtn').addEventListener('click', () => {
+  if(lastScanParsed) applyParsedToForm(lastScanParsed);
+  setScanUI({ open: false, showButtons: false });
+  lastScanParsed = null;
 });
 
 Promise.all([loadState(), loadTemplates(), loadProviders()]).then(() => {
