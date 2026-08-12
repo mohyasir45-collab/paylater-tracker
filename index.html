@@ -2483,11 +2483,18 @@ function setScanUI(state){
   const btnRow = document.getElementById('scanBtnRow');
   const preview = document.getElementById('scanPreview');
   const resultPrev = document.getElementById('scanResultPreview');
-  if(state.open) overlay.classList.add('open');
-  else overlay.classList.remove('open');
+  // hanya ubah open/close kalau state.open benar-benar di-set (true/false)
+  // — update progress/status saja tidak boleh menutup overlay
+  if(state.open === true){
+    overlay.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  } else if(state.open === false){
+    overlay.classList.remove('open');
+    document.body.style.overflow = '';
+  }
   if(typeof state.progress === 'number') bar.style.width = state.progress + '%';
   if(state.status != null) status.textContent = state.status;
-  if(state.showButtons) btnRow.style.display = 'flex';
+  if(state.showButtons === true) btnRow.style.display = 'flex';
   else if(state.showButtons === false) btnRow.style.display = 'none';
   if(state.previewUrl){
     preview.src = state.previewUrl;
@@ -2686,56 +2693,121 @@ function applyParsedToForm(parsed){
   openAddForm();
 }
 
+function isImageFile(file){
+  if(!file) return false;
+  const t = (file.type || '').toLowerCase();
+  if(t.startsWith('image/')) return true;
+  // iOS kadang mengirim type kosong untuk HEIC dari Photos
+  const name = (file.name || '').toLowerCase();
+  return /\.(jpe?g|png|gif|webp|heic|heif|bmp|tif?f)$/.test(name) || t === '';
+}
+
+function loadImageToCanvas(file, maxSide){
+  return new Promise(async (resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const cleanup = () => { try{ URL.revokeObjectURL(url); }catch(e){} };
+
+    // 1) coba createImageBitmap (cepat, modern)
+    if(typeof createImageBitmap === 'function'){
+      try{
+        const bmp = await createImageBitmap(file);
+        const canvas = document.createElement('canvas');
+        let w = bmp.width, h = bmp.height;
+        if(Math.max(w, h) > maxSide){
+          const scale = maxSide / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(bmp, 0, 0, w, h);
+        if(typeof bmp.close === 'function') bmp.close();
+        cleanup();
+        resolve(canvas);
+        return;
+      }catch(e){
+        // fallback ke Image element (lebih toleran di iOS/HEIC)
+      }
+    }
+
+    // 2) fallback: HTMLImageElement
+    const img = new Image();
+    img.onload = () => {
+      try{
+        const canvas = document.createElement('canvas');
+        let w = img.naturalWidth || img.width;
+        let h = img.naturalHeight || img.height;
+        if(!w || !h){ cleanup(); reject(new Error('Ukuran gambar tidak terbaca')); return; }
+        if(Math.max(w, h) > maxSide){
+          const scale = maxSide / Math.max(w, h);
+          w = Math.round(w * scale);
+          h = Math.round(h * scale);
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+        cleanup();
+        resolve(canvas);
+      }catch(err){
+        cleanup();
+        reject(err);
+      }
+    };
+    img.onerror = () => {
+      cleanup();
+      reject(new Error('Gagal memuat gambar. Coba export ulang sebagai JPG dari Photos.'));
+    };
+    img.src = url;
+  });
+}
+
+function boostCanvasContrast(canvas){
+  try{
+    const ctx = canvas.getContext('2d');
+    const idata = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = idata.data;
+    for(let i = 0; i < d.length; i += 4){
+      for(let c = 0; c < 3; c++){
+        let v = d[i + c];
+        v = (v - 128) * 1.15 + 128;
+        d[i + c] = Math.max(0, Math.min(255, v));
+      }
+    }
+    ctx.putImageData(idata, 0, 0);
+  }catch(e){ /* ignore */ }
+}
+
 async function processScanImage(file){
-  if(!file || !file.type.startsWith('image/')){
-    alert('Pilih file gambar (JPG, PNG, dll).');
+  if(!isImageFile(file)){
+    alert('Pilih file gambar (JPG, PNG, HEIC, dll).');
     return;
   }
   lastScanParsed = null;
   const previewUrl = URL.createObjectURL(file);
   setScanUI({
     open: true,
-    progress: 0,
-    status: 'Memuat mesin OCR… (pertama kali bisa lebih lama)',
+    progress: 3,
+    status: 'Memuat mesin OCR… (pertama kali bisa 10–30 detik)',
     showButtons: false,
     previewUrl,
     resultText: ''
   });
 
   try{
+    setScanUI({ progress: 8, status: 'Mengunduh / menyiapkan Tesseract…' });
     const worker = await getTesseractWorker(p => {
-      setScanUI({ progress: Math.max(5, Math.min(95, p)), status: 'Membaca teks… ' + p + '%' });
+      setScanUI({
+        progress: Math.max(15, Math.min(90, 15 + Math.round(p * 0.75))),
+        status: 'Membaca teks… ' + p + '%'
+      });
     });
-    setScanUI({ status: 'Mengenali teks dari foto…', progress: 20 });
+    setScanUI({ status: 'Menyiapkan gambar…', progress: 12 });
 
-    // optional: downscale large images for speed
-    const img = await createImageBitmap(file);
-    let canvas = document.createElement('canvas');
-    const maxSide = 1600;
-    let w = img.width, h = img.height;
-    if(Math.max(w, h) > maxSide){
-      const scale = maxSide / Math.max(w, h);
-      w = Math.round(w * scale);
-      h = Math.round(h * scale);
-    }
-    canvas.width = w;
-    canvas.height = h;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, w, h);
-    // slight contrast boost helps OCR on screenshots
-    try{
-      const idata = ctx.getImageData(0, 0, w, h);
-      const d = idata.data;
-      for(let i = 0; i < d.length; i += 4){
-        // simple contrast
-        for(let c = 0; c < 3; c++){
-          let v = d[i + c];
-          v = (v - 128) * 1.15 + 128;
-          d[i + c] = Math.max(0, Math.min(255, v));
-        }
-      }
-      ctx.putImageData(idata, 0, 0);
-    }catch(e){ /* ignore if tainted */ }
+    const canvas = await loadImageToCanvas(file, 1600);
+    boostCanvasContrast(canvas);
+    setScanUI({ status: 'Mengenali teks dari foto…', progress: 18 });
 
     const { data } = await worker.recognize(canvas);
     const rawText = (data && data.text) ? data.text.trim() : '';
@@ -2764,15 +2836,16 @@ async function processScanImage(file){
     });
   }catch(err){
     console.warn(err);
+    const msg = (err && err.message) ? err.message : 'error OCR';
     setScanUI({
       progress: 0,
-      status: 'Gagal: ' + (err.message || 'error OCR'),
+      status: 'Gagal: ' + msg,
       showButtons: true,
-      resultText: 'Coba foto yang lebih jelas, fokus ke bagian jumlah & tanggal jatuh tempo.'
+      resultText: 'Tips iPhone:\n• Pastikan koneksi internet aktif (unduh mesin OCR)\n• Coba foto JPG/PNG, bukan HEIC\n• Di Photos: bagikan → Simpan ke File sebagai JPEG\n• Fokus ke bagian jumlah & tanggal jatuh tempo'
     });
     lastScanParsed = null;
   } finally {
-    setTimeout(() => URL.revokeObjectURL(previewUrl), 30000);
+    setTimeout(() => URL.revokeObjectURL(previewUrl), 60000);
   }
 }
 
@@ -2785,13 +2858,20 @@ document.getElementById('scanFileInput').addEventListener('change', async (e) =>
   if(file) await processScanImage(file);
 });
 document.getElementById('scanCancelBtn').addEventListener('click', () => {
-  setScanUI({ open: false, showButtons: false });
+  setScanUI({ open: false, showButtons: false, progress: 0, resultText: '' });
   lastScanParsed = null;
 });
 document.getElementById('scanApplyBtn').addEventListener('click', () => {
   if(lastScanParsed) applyParsedToForm(lastScanParsed);
-  setScanUI({ open: false, showButtons: false });
+  setScanUI({ open: false, showButtons: false, progress: 0, resultText: '' });
   lastScanParsed = null;
+});
+// tutup overlay kalau ketuk area gelap di luar modal
+document.getElementById('scanOverlay').addEventListener('click', (e) => {
+  if(e.target === document.getElementById('scanOverlay')){
+    setScanUI({ open: false, showButtons: false, progress: 0, resultText: '' });
+    lastScanParsed = null;
+  }
 });
 
 Promise.all([loadState(), loadTemplates(), loadProviders()]).then(() => {
