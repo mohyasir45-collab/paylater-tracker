@@ -1326,6 +1326,35 @@ const MODERN_PROVIDER_COLORS = {
   kredivo:   '#7B2FF7',
   indodana:  '#70E000'
 };
+
+// Daftar provider PayLater/BNPL populer di Indonesia, dipakai khusus untuk pencocokan
+// otomatis dari transkripsi suara / OCR — independen dari daftar layanan yang sudah
+// dikonfigurasi pengguna. Kalau salah satu terdeteksi dari ucapan tapi belum ada di
+// daftar layanan pengguna, provider ini otomatis ditambahkan (lihat ensurePopularProviderAdded).
+// `variants` berisi kemungkinan hasil ucapan/OCR yang sudah dinormalisasi (huruf kecil,
+// tanpa spasi/tanda baca) supaya salah-dengar umum tetap terbaca.
+const POPULAR_PROVIDERS = [
+  { key:'spaylater',    label:'SPAYLATER',      color:'#C15B34',
+    variants:['spaylater','shopeepaylater','shopeelater','espaylater','spelater','sepaylater','shopeepay','esspaylater','espeylater'] },
+  { key:'kredivo',      label:'KREDIVO',        color:'#3F5E96',
+    variants:['kredivo','kredifo','kredipo','creditivo','kreditvio','kredivio','kredivo2','kredifonet'] },
+  { key:'indodana',     label:'INDODANA',       color:'#3C7D5A',
+    variants:['indodana','indodhana','indotana','indodanaa','indodhna'] },
+  { key:'akulaku',      label:'AKULAKU',        color:'#E0575B',
+    variants:['akulaku','akulagu','akulacu','akkulaku','akulaqu'] },
+  { key:'gopaylater',   label:'GOPAYLATER',     color:'#00AA5B',
+    variants:['gopaylater','gopaylate','gopeylater','goopaylater','gopailater'] },
+  { key:'kreditpintar', label:'KREDIT PINTAR',  color:'#2E86AB',
+    variants:['kreditpintar','creditpintar','kredipintar','kreditpinter'] },
+  { key:'homecredit',   label:'HOME CREDIT',    color:'#8E44AD',
+    variants:['homecredit','homkredit','homcredit','homekredit'] },
+  { key:'atome',        label:'ATOME',          color:'#1F2937',
+    variants:['atome','athome','atomi','atom'] },
+  { key:'julo',         label:'JULO',           color:'#F2A007',
+    variants:['julo','yulo','djulo','zulo'] },
+  { key:'blibli',       label:'BLIBLI CICIL',   color:'#0072CE',
+    variants:['blibli','blibly','bliblicicil','bliblipaylater'] }
+];
 function provColor(key, baseColor){
   if(document.body.classList.contains('modern') && MODERN_PROVIDER_COLORS[key]) return MODERN_PROVIDER_COLORS[key];
   return baseColor;
@@ -2551,46 +2580,109 @@ function parseScanText(raw){
   const result = { provider: null, amount: null, due: null, note: null, confidence: 0 };
 
   // --- Provider ---
-  const providerHints = [
-    { keys: ['spaylater', 'shopee paylater', 'shopeepaylater', 'spay later', 'shopee later'], key: 'spaylater' },
-    { keys: ['kredivo'], key: 'kredivo' },
-    { keys: ['indodana'], key: 'indodana' },
-    { keys: ['akulaku'], key: null },
-    { keys: ['gopay later', 'gopaylater', 'go pay later'], key: null },
-    { keys: ['home credit', 'homecredit'], key: null },
-    { keys: ['atome'], key: null },
-    { keys: ['julo'], key: null }
-  ];
-  for(const h of providerHints){
-    if(h.keys.some(k => lower.includes(k))){
-      if(h.key && providers.some(p => p.key === h.key)){
-        result.provider = h.key;
-        result.confidence += 30;
-      }
+  // teks dari suara sering "salah dengar" nama brand (mis. "kredivo" -> "kredi vo",
+  // "spaylater" -> "es pay later"), jadi cocokkan tanpa spasi/tanda baca dulu,
+  // lalu kalau belum ketemu, coba fuzzy match (toleran typo/salah dengar kecil)
+  const normAlnum = s => (s || '').toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g, '');
+  const normFull = normAlnum(text);
+
+  // 1) prioritas: cocokkan (tanpa spasi) terhadap label/key provider yang SUDAH
+  //    dikonfigurasi pengguna (termasuk layanan custom yang mereka tambahkan sendiri)
+  for(const p of providers){
+    if(normFull.includes(normAlnum(p.label)) || normFull.includes(normAlnum(p.key))){
+      result.provider = p.key;
+      result.confidence += 30;
       break;
     }
   }
-  // fallback: match against custom provider labels
+
+  // 2) kalau belum ketemu, cocokkan terhadap daftar provider PayLater/BNPL populer
+  //    (lengkap dengan varian salah-dengar ucapan umum). Kalau provider ini belum ada
+  //    di daftar layanan pengguna, akan otomatis ditambahkan saat hasil diterapkan ke
+  //    form (lihat ensurePopularProviderAdded / applyParsedToForm) — jadi namanya tetap
+  //    terambil dengan benar walau belum pernah dipakai sebelumnya.
   if(!result.provider){
-    for(const p of providers){
-      if(lower.includes(p.label.toLowerCase()) || lower.includes(p.key.toLowerCase())){
-        result.provider = p.key;
-        result.confidence += 25;
+    for(const pp of POPULAR_PROVIDERS){
+      if(pp.variants.some(v => normFull.includes(v))){
+        result.provider = pp.key;
+        result.popularProviderMatch = pp;
+        result.confidence += 28;
         break;
       }
     }
   }
 
+  // 3) fallback fuzzy match per kata/gabungan-kata terhadap provider pengguna + daftar
+  //    populer, untuk menoleransi hasil ucapan yang meleset beberapa huruf
+  if(!result.provider){
+    function levenshtein(a, b){
+      const m = a.length, n = b.length;
+      if(!m) return n;
+      if(!n) return m;
+      const dp = new Array(n + 1);
+      for(let j = 0; j <= n; j++) dp[j] = j;
+      for(let i = 1; i <= m; i++){
+        let prev = dp[0];
+        dp[0] = i;
+        for(let j = 1; j <= n; j++){
+          const tmp = dp[j];
+          dp[j] = Math.min(dp[j] + 1, dp[j - 1] + 1, prev + (a[i - 1] === b[j - 1] ? 0 : 1));
+          prev = tmp;
+        }
+      }
+      return dp[n];
+    }
+    const words = lower.split(/[^a-z0-9]+/).filter(Boolean);
+    const candidates = [];
+    for(let i = 0; i < words.length; i++){
+      candidates.push(words[i]);
+      if(i + 1 < words.length) candidates.push(words[i] + words[i + 1]);
+      if(i + 2 < words.length) candidates.push(words[i] + words[i + 1] + words[i + 2]);
+    }
+    const searchSpace = [
+      ...providers.map(p => ({ key: p.key, popular: null, targets: [normAlnum(p.key), normAlnum(p.label)] })),
+      ...POPULAR_PROVIDERS.map(pp => ({ key: pp.key, popular: pp, targets: [normAlnum(pp.key), normAlnum(pp.label), ...pp.variants] }))
+    ];
+    let bestKey = null, bestDist = Infinity, bestPopular = null;
+    for(const entry of searchSpace){
+      const targets = entry.targets.filter(Boolean);
+      for(const cand of candidates){
+        const c = normAlnum(cand);
+        if(c.length < 4) continue; // kata terlalu pendek rawan salah cocok
+        for(const t of targets){
+          if(!t) continue;
+          const dist = levenshtein(c, t);
+          const threshold = Math.max(1, Math.floor(t.length * 0.34));
+          if(dist <= threshold && dist < bestDist){
+            bestDist = dist;
+            bestKey = entry.key;
+            bestPopular = entry.popular;
+          }
+        }
+      }
+    }
+    if(bestKey){
+      result.provider = bestKey;
+      if(bestPopular) result.popularProviderMatch = bestPopular;
+      result.confidence += 18;
+    }
+  }
+
   // --- Amount (Rp) ---
   // Prefer amounts near keywords like total, tagihan, bayar, cicilan
+  // buang dulu potongan yang berbentuk tanggal (dd/mm/yyyy dll) supaya
+  // tahunnya (mis. "2026") tidak ikut salah tertangkap sebagai nominal
+  const textForAmount = text
+    .replace(/\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/g, ' ')
+    .replace(/\d{4}[\/\-\.]\d{1,2}[\/\-\.]\d{1,2}/g, ' ');
   const amountRegex = /(?:rp\.?\s*|idr\s*)?(\d{1,3}(?:[.\s]\d{3})+(?:,\d+)?|\d{4,})/gi;
   const keywordNear = /(?:total|tagihan|bayar|jumlah|cicilan|nominal|sisa|amount|due|harus\s*dibayar|pembayaran)/i;
   let bestAmount = null;
   let bestScore = -1;
   let m;
-  const lines = text.split(/\n+/);
-  for(let i = 0; i < lines.length; i++){
-    const line = lines[i];
+  const amountLines = textForAmount.split(/\n+/);
+  for(let i = 0; i < amountLines.length; i++){
+    const line = amountLines[i];
     amountRegex.lastIndex = 0;
     while((m = amountRegex.exec(line)) !== null){
       const digits = m[1].replace(/[.\s]/g, '').replace(/,.*/, '');
@@ -2598,7 +2690,7 @@ function parseScanText(raw){
       if(!num || num < 1000 || num > 500000000) continue; // skip terlalu kecil/besar
       let score = 10;
       // bonus if line or nearby lines have amount keywords
-      const context = (lines[i-1]||'') + ' ' + line + ' ' + (lines[i+1]||'');
+      const context = (amountLines[i-1]||'') + ' ' + line + ' ' + (amountLines[i+1]||'');
       if(keywordNear.test(context)) score += 40;
       if(/rp\.?/i.test(line)) score += 15;
       // prefer larger amounts somewhat (total usually bigger)
@@ -2616,6 +2708,7 @@ function parseScanText(raw){
 
   // --- Due date ---
   // Formats: DD/MM/YYYY, DD-MM-YYYY, DD MMM YYYY, YYYY-MM-DD, dll
+  const lines = text.split(/\n+/);
   const monthMap = {
     jan:1, januari:1, feb:2, februari:2, mar:3, maret:3, apr:4, april:4,
     mei:5, jun:6, juni:6, jul:7, juli:7, agu:8, agustus:8, aug:8, august:8,
@@ -2709,10 +2802,25 @@ function parseScanText(raw){
   return result;
 }
 
-function applyParsedToForm(parsed){
+// Kalau hasil parsing (suara/OCR) cocok dengan provider populer yang belum ada
+// di daftar layanan pengguna, tambahkan otomatis supaya namanya benar-benar
+// terambil (bukan cuma terdeteksi lalu dibuang karena tidak ada di dropdown).
+async function ensurePopularProviderAdded(parsed){
+  if(!parsed || !parsed.popularProviderMatch) return;
+  const pp = parsed.popularProviderMatch;
+  if(providers.some(p => p.key === pp.key)) return;
+  providers.push({ key: pp.key, label: pp.label, color: pp.color });
+  rebuildProvidersMap();
+  await saveProviders();
+  renderProviderManage();
+  renderTabs();
+}
+
+async function applyParsedToForm(parsed){
   if(!parsed) return;
   exitEditMode();
   clearForm();
+  await ensurePopularProviderAdded(parsed);
   renderProviderSelect();
   if(parsed.provider && providers.some(p => p.key === parsed.provider)){
     document.getElementById('fProvider').value = parsed.provider;
