@@ -2936,7 +2936,10 @@ function getSpeechRecognitionCtor(){
 
 let voiceRecognition = null;
 let voiceFinalTranscript = '';
+let voiceLastInterim = '';
 let voiceActive = false;
+let voiceSilenceTimer = null;
+let voiceMaxTimer = null;
 
 function buildVoiceSummary(parsed, finalText){
   const summaryParts = [];
@@ -2956,8 +2959,14 @@ function buildVoiceSummary(parsed, finalText){
   return summary + (finalText ? '\n\n— Ucapan terekam —\n"' + finalText + '"' : '');
 }
 
+function clearVoiceTimers(){
+  if(voiceSilenceTimer){ clearTimeout(voiceSilenceTimer); voiceSilenceTimer = null; }
+  if(voiceMaxTimer){ clearTimeout(voiceMaxTimer); voiceMaxTimer = null; }
+}
+
 function stopVoiceInput(){
   voiceActive = false;
+  clearVoiceTimers();
   document.getElementById('voiceToggle').classList.remove('listening');
   if(voiceRecognition){
     try{ voiceRecognition.onresult = null; voiceRecognition.onerror = null; voiceRecognition.onend = null; }catch(e){}
@@ -2974,6 +2983,7 @@ function startVoiceInput(){
   }
   lastScanParsed = null;
   voiceFinalTranscript = '';
+  voiceLastInterim = '';
   voiceActive = true;
   document.getElementById('voiceToggle').classList.add('listening');
 
@@ -2999,11 +3009,26 @@ function startVoiceInput(){
   }
   voiceRecognition = recognition;
   recognition.lang = 'id-ID';
-  recognition.continuous = false;
+  // continuous:true + auto-stop lewat timer diam, supaya kalimat panjang
+  // (dengan jeda sesaat di tengah) tidak dipotong lebih awal oleh browser
+  recognition.continuous = true;
   recognition.interimResults = true;
   recognition.maxAlternatives = 1;
 
+  function resetSilenceTimer(){
+    if(voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
+    voiceSilenceTimer = setTimeout(() => {
+      try{ recognition.stop(); }catch(e){}
+    }, 1800);
+  }
+  resetSilenceTimer();
+  // batas maksimum merekam, jaga-jaga kalau browser tidak pernah trigger onend
+  voiceMaxTimer = setTimeout(() => {
+    try{ recognition.stop(); }catch(e){}
+  }, 20000);
+
   recognition.onresult = (e) => {
+    resetSilenceTimer();
     let interim = '';
     let final = '';
     for(let i = e.resultIndex; i < e.results.length; i++){
@@ -3012,6 +3037,7 @@ function startVoiceInput(){
       else interim += transcript;
     }
     if(final) voiceFinalTranscript += final;
+    if(interim) voiceLastInterim = interim;
     const shown = (voiceFinalTranscript + ' ' + interim).trim();
     setScanUI({
       progress: 55,
@@ -3020,10 +3046,16 @@ function startVoiceInput(){
   };
 
   recognition.onerror = (e) => {
+    // "no-speech" saat continuous:true bisa muncul walau sebenarnya sudah
+    // ada teks tertangkap — jangan langsung dianggap gagal kalau sudah ada isi
+    const hasSomething = (voiceFinalTranscript + voiceLastInterim).trim().length > 0;
+    if(e.error === 'no-speech' && hasSomething) return;
+    if(e.error === 'aborted') return;
     let msg = 'Gagal mengenali suara.';
     if(e.error === 'no-speech') msg = 'Tidak ada suara terdeteksi. Coba lagi & bicara lebih jelas.';
     else if(e.error === 'not-allowed' || e.error === 'permission-denied') msg = 'Izin mikrofon ditolak. Aktifkan akses mikrofon di pengaturan browser lalu coba lagi.';
     else if(e.error === 'network') msg = 'Masalah jaringan saat mengenali suara.';
+    clearVoiceTimers();
     setScanUI({
       progress: 0,
       status: 'Gagal: ' + msg,
@@ -3036,15 +3068,18 @@ function startVoiceInput(){
   };
 
   recognition.onend = () => {
+    clearVoiceTimers();
     document.getElementById('voiceToggle').classList.remove('listening');
     setScanUI({ mic: false });
     if(!voiceActive) return; // sudah dibatalkan / error sebelumnya
     voiceActive = false;
-    const finalText = voiceFinalTranscript.trim();
+    // fallback: kalau browser tidak pernah menandai hasil sebagai "final"
+    // (umum terjadi di beberapa versi Safari/iOS), pakai teks sementara terakhir
+    const finalText = (voiceFinalTranscript.trim() || voiceLastInterim.trim());
     if(!finalText){
       setScanUI({
         progress: 0,
-        status: 'Tidak ada teks yang terekam. Coba lagi.',
+        status: 'Tidak ada teks yang terekam. Coba lagi, atau pastikan izin mikrofon aktif.',
         showButtons: true,
         resultText: ''
       });
@@ -3065,6 +3100,7 @@ function startVoiceInput(){
   try{
     recognition.start();
   }catch(e){
+    clearVoiceTimers();
     setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, mic: false });
     voiceActive = false;
     document.getElementById('voiceToggle').classList.remove('listening');
