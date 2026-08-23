@@ -839,14 +839,14 @@
 
   /* ===== MODERN THEME: LIGHT / SOFT VARIANT ===== */
   body.modern.modern-light{
-    --modern-bg:#F5F2EA;
+    --modern-bg:#DAD5C6;
     --modern-card:rgba(250,247,239,0.6);
     --modern-card-solid:#FAF7EF;
     --modern-ink:#2E2B22;
     --modern-ink-mid:#8D8574;
     --modern-border:rgba(46,43,34,0.12);
-    --modern-accent:#4A4A4A;
-    --modern-accent2:#5E5E5E;
+    --modern-accent:#000000;
+    --modern-accent2:#000000;
     --modern-shadow:rgba(60,50,30,0.09);
   }
   body.modern.modern-light::before{
@@ -865,7 +865,7 @@
   }
   body.modern.modern-light .theme-toggle .on{
     color:#FFFFFF;
-    box-shadow:0 0 14px rgba(60,60,60,0.35), 0 0 26px rgba(60,60,60,0.18);
+    box-shadow:0 0 14px rgba(0,0,0,0.35), 0 0 26px rgba(0,0,0,0.18);
   }
   body.modern.modern-light .backup-btn,
   body.modern.modern-light .hide-toggle{
@@ -876,32 +876,32 @@
   }
   body.modern.modern-light .dash{ border-top-color:rgba(46,43,34,0.08); }
   body.modern.modern-light .summary-amount{
-    filter:drop-shadow(0 0 14px rgba(60,60,60,0.22));
+    filter:drop-shadow(0 0 14px rgba(0,0,0,0.22));
   }
   body.modern.modern-light .summary-breakdown > span{ background:rgba(46,43,34,0.035); }
   body.modern.modern-light .summary-amount.matrix-anim{
     color:var(--modern-accent) !important;
-    text-shadow:0 0 4px rgba(60,60,60,.4), 0 0 10px rgba(60,60,60,.2);
+    text-shadow:0 0 4px rgba(0,0,0,.4), 0 0 10px rgba(0,0,0,.2);
   }
   body.modern.modern-light .tab{ background:rgba(46,43,34,0.035); }
   body.modern.modern-light .tab.active{
-    color:#292929;
-    box-shadow:0 0 14px rgba(60,60,60,0.30), 0 0 26px rgba(60,60,60,0.16);
+    color:#FFFFFF;
+    box-shadow:0 0 14px rgba(0,0,0,0.30), 0 0 26px rgba(0,0,0,0.16);
   }
   body.modern.modern-light .add-toggle,
-  body.modern.modern-light .scan-toggle{ background:rgba(60,60,60,0.08); }
+  body.modern.modern-light .scan-toggle{ background:rgba(0,0,0,0.08); }
   body.modern.modern-light select,
   body.modern.modern-light input{ background:rgba(46,43,34,0.04); }
   body.modern.modern-light select:focus,
-  body.modern.modern-light input:focus{ box-shadow:0 0 10px rgba(60,60,60,0.22); }
+  body.modern.modern-light input:focus{ box-shadow:0 0 10px rgba(0,0,0,0.22); }
   body.modern.modern-light .chip{ background:rgba(46,43,34,0.035); }
   body.modern.modern-light .chip.chosen{
-    color:#292929;
-    box-shadow:0 0 12px rgba(60,60,60,0.3);
+    color:#FFFFFF;
+    box-shadow:0 0 12px rgba(0,0,0,0.3);
   }
   body.modern.modern-light .save-btn{
-    color:#292929;
-    box-shadow:0 0 16px rgba(60,60,60,0.30), 0 0 28px rgba(60,60,60,0.14);
+    color:#FFFFFF;
+    box-shadow:0 0 16px rgba(0,0,0,0.30), 0 0 28px rgba(0,0,0,0.14);
   }
   body.modern.modern-light .cancel-btn{ background:rgba(46,43,34,0.035); }
   body.modern.modern-light .item{
@@ -910,13 +910,13 @@
   body.modern.modern-light .item + .item{ border-top-color:rgba(46,43,34,0.07); }
   body.modern.modern-light .prov-tag{ box-shadow:0 0 6px rgba(46,43,34,0.15); }
   body.modern.modern-light .action-btn{ background:rgba(46,43,34,0.035); }
-  body.modern.modern-light .action-btn:hover{ box-shadow:0 0 8px rgba(60,60,60,0.22); }
+  body.modern.modern-light .action-btn:hover{ box-shadow:0 0 8px rgba(0,0,0,0.22); }
   body.modern.modern-light .sync-modal{ box-shadow:0 8px 24px var(--modern-shadow); }
   body.modern.modern-light .sync-modal textarea,
   body.modern.modern-light .sync-modal input[type=text]{ background:rgba(46,43,34,0.04); }
   body.modern.modern-light .sync-btn-row button{
-    color:#292929;
-    box-shadow:0 0 14px rgba(60,60,60,0.26);
+    color:#FFFFFF;
+    box-shadow:0 0 14px rgba(0,0,0,0.26);
   }
 
   /* ===== MOBILE: form tambah tagihan ===== */
@@ -1081,6 +1081,14 @@
   body.dark .scan-btn-row button.secondary{ color:var(--ink-dark); }
   body.modern .scan-btn-row button.secondary{
     background:transparent; color:var(--modern-accent); border:1px solid var(--modern-border); box-shadow:none;
+  }
+  .scan-btn-row button.icon-btn{
+    flex:0 0 auto; width:36px; padding:0; display:flex; align-items:center; justify-content:center;
+    background:transparent; color:var(--ink-light); border:1px solid var(--ink-mid-light);
+  }
+  body.dark .scan-btn-row button.icon-btn{ color:var(--ink-dark); border-color:var(--ink-mid-dark); }
+  body.modern .scan-btn-row button.icon-btn{
+    background:transparent; color:var(--modern-ink); border:1px solid var(--modern-border); box-shadow:none;
   }
 
   /* ===== INPUT SUARA ===== */
@@ -1310,6 +1318,7 @@
       <button class="secondary" id="scanStopBtn">⏹ Stop</button>
     </div>
     <div class="scan-btn-row" id="scanBtnRow" style="display:none">
+      <button class="icon-btn" id="scanRetryBtn" title="Ulangi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
       <button id="scanApplyBtn">Isi Form</button>
       <button class="secondary" id="scanCancelBtn">Batal</button>
     </div>
@@ -1809,7 +1818,7 @@ function applyTheme(){
   document.getElementById('lightLabel').className = subActive==='light' ? 'on' : '';
   document.getElementById('darkLabel').className = subActive==='dark' ? 'on' : '';
   document.body.classList.toggle('modern-light', theme==='modern' && modernSubTheme==='light');
-  const themeColors = { light:'#DCD7CC', dark:'#041420', modern: modernSubTheme==='light' ? '#F5F2EA' : '#020103' };
+  const themeColors = { light:'#DCD7CC', dark:'#041420', modern: modernSubTheme==='light' ? '#DAD5C6' : '#020103' };
   const metaTheme = document.querySelector('meta[name="theme-color"]');
   if(metaTheme) metaTheme.setAttribute('content', themeColors[theme] || themeColors.light);
   render();
@@ -2509,6 +2518,8 @@ document.getElementById('dateNow').textContent = new Date().toLocaleDateString('
 let tesseractWorker = null;
 let tesseractLoading = null;
 let lastScanParsed = null;
+let lastScanMode = null; // 'voice' atau 'photo' — dipakai tombol retry
+let lastScanFile = null; // file foto terakhir — dipakai tombol retry mode foto
 
 function loadTesseractScript(){
   if(window.Tesseract) return Promise.resolve();
@@ -2959,6 +2970,8 @@ async function processScanImage(file){
     return;
   }
   lastScanParsed = null;
+  lastScanMode = 'photo';
+  lastScanFile = file;
   const previewUrl = URL.createObjectURL(file);
   setScanUI({
     open: true,
@@ -3117,6 +3130,7 @@ function startVoiceInput(){
     return;
   }
   lastScanParsed = null;
+  lastScanMode = 'voice';
   voiceFinalTranscript = '';
   voiceLastInterim = '';
   voiceActive = true;
@@ -3268,6 +3282,16 @@ document.getElementById('scanFileInput').addEventListener('change', async (e) =>
 document.getElementById('scanStopBtn').addEventListener('click', () => {
   if(voiceRecognition){
     try{ voiceRecognition.stop(); }catch(e){}
+  }
+});
+
+document.getElementById('scanRetryBtn').addEventListener('click', () => {
+  stopVoiceInput();
+  lastScanParsed = null;
+  if(lastScanMode === 'voice'){
+    startVoiceInput();
+  } else if(lastScanMode === 'photo' && lastScanFile){
+    processScanImage(lastScanFile);
   }
 });
 
