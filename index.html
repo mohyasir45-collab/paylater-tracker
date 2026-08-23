@@ -1306,6 +1306,9 @@
     <div class="scan-progress-wrap"><div class="scan-progress-bar" id="scanProgressBar"></div></div>
     <div class="scan-status" id="scanStatus">Menyiapkan OCR…</div>
     <div class="scan-result-preview" id="scanResultPreview"></div>
+    <div class="scan-btn-row" id="scanStopRow" style="display:none">
+      <button class="secondary" id="scanStopBtn">⏹ Stop</button>
+    </div>
     <div class="scan-btn-row" id="scanBtnRow" style="display:none">
       <button id="scanApplyBtn">Isi Form</button>
       <button class="secondary" id="scanCancelBtn">Batal</button>
@@ -2542,6 +2545,7 @@ function setScanUI(state){
   const bar = document.getElementById('scanProgressBar');
   const status = document.getElementById('scanStatus');
   const btnRow = document.getElementById('scanBtnRow');
+  const stopRow = document.getElementById('scanStopRow');
   const preview = document.getElementById('scanPreview');
   const resultPrev = document.getElementById('scanResultPreview');
   const title = document.getElementById('scanModalTitle');
@@ -2560,6 +2564,8 @@ function setScanUI(state){
   if(state.status != null) status.textContent = state.status;
   if(state.showButtons === true) btnRow.style.display = 'flex';
   else if(state.showButtons === false) btnRow.style.display = 'none';
+  if(state.showStop === true) stopRow.style.display = 'flex';
+  else if(state.showStop === false) stopRow.style.display = 'none';
   if(state.previewUrl){
     preview.src = state.previewUrl;
     preview.style.display = 'block';
@@ -2574,7 +2580,8 @@ function setScanUI(state){
   }
 }
 
-function parseScanText(raw){
+function parseScanText(raw, opts){
+  opts = opts || {};
   const text = (raw || '').replace(/\r/g, '\n');
   const lower = text.toLowerCase();
   const result = { provider: null, amount: null, due: null, note: null, confidence: 0 };
@@ -2787,16 +2794,36 @@ function parseScanText(raw){
     result.installTotal = Number(installMatch[2]);
     result.confidence += 10;
   }
-  // short note from product-ish lines
-  const noteCandidates = lines
-    .map(l => l.trim())
-    .filter(l => l.length >= 4 && l.length <= 40)
-    .filter(l => !/rp\.?\s*\d/i.test(l))
-    .filter(l => !/\d{1,2}[\/\-\.]\d{1,2}/.test(l))
-    .filter(l => !/jatuh|tempo|total|tagihan|bayar|pembayaran|due|amount/i.test(l));
-  if(noteCandidates.length){
-    // pick one that looks like item description
-    result.note = noteCandidates[0].replace(/[^\w\s\-\/\.]/g, '').trim().slice(0, 40);
+  if(opts.isVoice){
+    // untuk hasil ucapan: catatan HANYA diisi kalau memang disebutkan dengan
+    // kata kunci "untuk" (mis. "...untuk kuota internet"), supaya tidak asal
+    // menebak potongan kalimat lain sebagai catatan
+    const untukMatch = text.match(/\buntuk\b\s+([^\n]*)/i);
+    if(untukMatch){
+      let rest = untukMatch[1];
+      // potong kalau ketemu kata kunci lain (jatuh tempo, tanggal, nama provider, dll)
+      // supaya catatan tidak ikut menelan bagian kalimat lain
+      const stopRe = /\b(jatuh\s*tempo|tempo|cicilan|tanggal|besok|lusa|minggu\s*depan|bulan\s*depan|hari\s*ini|rp\.?\s*\d|kredivo|spaylater|shopee\s*paylater|akulaku|indodana|gopaylater|kredit\s*pintar|home\s*credit|atome|julo|blibli)\b/i;
+      const stopMatch = rest.match(stopRe);
+      if(stopMatch && stopMatch.index > 0) rest = rest.slice(0, stopMatch.index);
+      rest = rest.replace(/[^\w\s\-\/\.]/g, '').trim();
+      result.note = rest ? rest.slice(0, 40) : null;
+      if(result.note) result.confidence += 8;
+    } else {
+      result.note = null;
+    }
+  } else {
+    // short note from product-ish lines (dipakai untuk hasil scan foto/OCR)
+    const noteCandidates = lines
+      .map(l => l.trim())
+      .filter(l => l.length >= 4 && l.length <= 40)
+      .filter(l => !/rp\.?\s*\d/i.test(l))
+      .filter(l => !/\d{1,2}[\/\-\.]\d{1,2}/.test(l))
+      .filter(l => !/jatuh|tempo|total|tagihan|bayar|pembayaran|due|amount/i.test(l));
+    if(noteCandidates.length){
+      // pick one that looks like item description
+      result.note = noteCandidates[0].replace(/[^\w\s\-\/\.]/g, '').trim().slice(0, 40);
+    }
   }
 
   return result;
@@ -3102,6 +3129,7 @@ function startVoiceInput(){
     progress: 0,
     status: 'Mendengarkan… contoh: "Kredivo 250 ribu jatuh tempo besok cicilan ke 3 dari 12"',
     showButtons: false,
+    showStop: true,
     resultText: '',
     previewUrl: null
   });
@@ -3110,7 +3138,7 @@ function startVoiceInput(){
   try{
     recognition = new Ctor();
   }catch(e){
-    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, mic: false });
+    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, showStop: false, mic: false });
     voiceActive = false;
     document.getElementById('voiceToggle').classList.remove('listening');
     return;
@@ -3168,6 +3196,7 @@ function startVoiceInput(){
       progress: 0,
       status: 'Gagal: ' + msg,
       showButtons: true,
+      showStop: false,
       mic: false,
       resultText: ''
     });
@@ -3178,7 +3207,7 @@ function startVoiceInput(){
   recognition.onend = () => {
     clearVoiceTimers();
     document.getElementById('voiceToggle').classList.remove('listening');
-    setScanUI({ mic: false });
+    setScanUI({ mic: false, showStop: false });
     if(!voiceActive) return; // sudah dibatalkan / error sebelumnya
     voiceActive = false;
     // fallback: kalau browser tidak pernah menandai hasil sebagai "final"
@@ -3189,18 +3218,20 @@ function startVoiceInput(){
         progress: 0,
         status: 'Tidak ada teks yang terekam. Coba lagi, atau pastikan izin mikrofon aktif.',
         showButtons: true,
+        showStop: false,
         resultText: ''
       });
       return;
     }
     const prepped = expandSpokenDates(expandSpokenAmounts(finalText));
-    const parsed = parseScanText(prepped);
+    const parsed = parseScanText(prepped, { isVoice: true });
     lastScanParsed = parsed;
     const hasData = parsed.provider || parsed.amount || parsed.due || parsed.note;
     setScanUI({
       progress: 100,
       status: hasData ? 'Selesai. Periksa hasil lalu klik Isi Form.' : 'Selesai (deteksi lemah).',
       showButtons: true,
+      showStop: false,
       resultText: buildVoiceSummary(parsed, finalText)
     });
   };
@@ -3234,6 +3265,12 @@ document.getElementById('scanFileInput').addEventListener('change', async (e) =>
   e.target.value = '';
   if(file) await processScanImage(file);
 });
+document.getElementById('scanStopBtn').addEventListener('click', () => {
+  if(voiceRecognition){
+    try{ voiceRecognition.stop(); }catch(e){}
+  }
+});
+
 document.getElementById('scanCancelBtn').addEventListener('click', () => {
   stopVoiceInput();
   setScanUI({ open: false, showButtons: false, progress: 0, resultText: '', mic: false });
