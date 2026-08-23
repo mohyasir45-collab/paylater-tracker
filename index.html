@@ -1335,7 +1335,7 @@ const MODERN_PROVIDER_COLORS = {
 // tanpa spasi/tanda baca) supaya salah-dengar umum tetap terbaca.
 const POPULAR_PROVIDERS = [
   { key:'spaylater',    label:'SPAYLATER',      color:'#C15B34',
-    variants:['spaylater','shopeepaylater','shopeelater','espaylater','spelater','sepaylater','shopeepay','esspaylater','espeylater'] },
+    variants:['spaylater','shopeepaylater','shopeelater','espaylater','spelater','sepaylater','shopeepay','esspaylater','espeylater','sblater','esbelater','sbelater','esbilater','sbilater','sbpaylater','sbeylater','sbaylater','espelater'] },
   { key:'kredivo',      label:'KREDIVO',        color:'#3F5E96',
     variants:['kredivo','kredifo','kredipo','creditivo','kreditvio','kredivio','kredivo2','kredifonet'] },
   { key:'indodana',     label:'INDODANA',       color:'#3C7D5A',
@@ -3127,13 +3127,13 @@ function startVoiceInput(){
     if(voiceSilenceTimer) clearTimeout(voiceSilenceTimer);
     voiceSilenceTimer = setTimeout(() => {
       try{ recognition.stop(); }catch(e){}
-    }, 1800);
+    }, 3500);
   }
   resetSilenceTimer();
   // batas maksimum merekam, jaga-jaga kalau browser tidak pernah trigger onend
   voiceMaxTimer = setTimeout(() => {
     try{ recognition.stop(); }catch(e){}
-  }, 20000);
+  }, 45000);
 
   recognition.onresult = (e) => {
     resetSilenceTimer();
