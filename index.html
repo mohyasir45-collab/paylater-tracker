@@ -1315,7 +1315,13 @@
     <div class="scan-status" id="scanStatus">Menyiapkan OCR…</div>
     <div class="scan-result-preview" id="scanResultPreview"></div>
     <div class="scan-btn-row" id="scanStopRow" style="display:none">
-      <button class="secondary" id="scanStopBtn">⏹ Stop</button>
+      <button class="secondary" id="scanPauseBtn">⏸ Jeda</button>
+      <button id="scanStopBtn">⏹ Selesai</button>
+    </div>
+    <div class="scan-btn-row" id="scanResumeRow" style="display:none">
+      <button class="icon-btn" id="scanCancelPausedBtn" title="Batal">✕</button>
+      <button id="scanResumeBtn">▶ Lanjutkan</button>
+      <button class="secondary" id="scanFinishPausedBtn">Selesai</button>
     </div>
     <div class="scan-btn-row" id="scanBtnRow" style="display:none">
       <button class="icon-btn" id="scanRetryBtn" title="Ulangi"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg></button>
@@ -2577,6 +2583,9 @@ function setScanUI(state){
   else if(state.showButtons === false) btnRow.style.display = 'none';
   if(state.showStop === true) stopRow.style.display = 'flex';
   else if(state.showStop === false) stopRow.style.display = 'none';
+  const resumeRow = document.getElementById('scanResumeRow');
+  if(state.showResume === true) resumeRow.style.display = 'flex';
+  else if(state.showResume === false) resumeRow.style.display = 'none';
   if(state.previewUrl){
     preview.src = state.previewUrl;
     preview.style.display = 'block';
@@ -3086,6 +3095,7 @@ let voiceRecognition = null;
 let voiceFinalTranscript = '';
 let voiceLastInterim = '';
 let voiceActive = false;
+let voicePaused = false;
 let voiceSilenceTimer = null;
 let voiceMaxTimer = null;
 
@@ -3114,6 +3124,7 @@ function clearVoiceTimers(){
 
 function stopVoiceInput(){
   voiceActive = false;
+  voicePaused = false;
   clearVoiceTimers();
   document.getElementById('voiceToggle').classList.remove('listening');
   if(voiceRecognition){
@@ -3133,6 +3144,27 @@ function startVoiceInput(){
   lastScanMode = 'voice';
   voiceFinalTranscript = '';
   voiceLastInterim = '';
+  voicePaused = false;
+  beginListening({ fresh: true });
+}
+
+// dipanggil saat tombol "Lanjutkan" ditekan setelah dijeda — teks yang
+// sudah terkumpul (voiceFinalTranscript) tetap dipertahankan, hanya
+// membuka sesi pengenalan suara baru untuk melanjutkan
+function resumeVoiceInput(){
+  const Ctor = getSpeechRecognitionCtor();
+  if(!Ctor){
+    alert('Input suara tidak didukung di browser ini. Coba pakai Chrome atau Safari terbaru (di iPhone: aplikasi Safari).');
+    return;
+  }
+  voicePaused = false;
+  voiceLastInterim = '';
+  beginListening({ fresh: false });
+}
+
+function beginListening(opts){
+  opts = opts || {};
+  const Ctor = getSpeechRecognitionCtor();
   voiceActive = true;
   document.getElementById('voiceToggle').classList.add('listening');
 
@@ -3140,10 +3172,13 @@ function startVoiceInput(){
     open: true,
     title: '🎙️ INPUT SUARA',
     mic: true,
-    progress: 0,
-    status: 'Mendengarkan… contoh: "Kredivo 250 ribu jatuh tempo besok cicilan ke 3 dari 12"',
+    progress: opts.fresh ? 0 : 55,
+    status: opts.fresh
+      ? 'Mendengarkan… contoh: "Kredivo 250 ribu jatuh tempo besok cicilan ke 3 dari 12"'
+      : ('Melanjutkan…' + (voiceFinalTranscript.trim() ? ' "' + voiceFinalTranscript.trim() + '"' : '')),
     showButtons: false,
     showStop: true,
+    showResume: false,
     resultText: '',
     previewUrl: null
   });
@@ -3152,7 +3187,7 @@ function startVoiceInput(){
   try{
     recognition = new Ctor();
   }catch(e){
-    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, showStop: false, mic: false });
+    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, showStop: false, showResume: false, mic: false });
     voiceActive = false;
     document.getElementById('voiceToggle').classList.remove('listening');
     return;
@@ -3172,7 +3207,7 @@ function startVoiceInput(){
     }, 3500);
   }
   resetSilenceTimer();
-  // batas maksimum merekam, jaga-jaga kalau browser tidak pernah trigger onend
+  // batas maksimum merekam per sesi, jaga-jaga kalau browser tidak pernah trigger onend
   voiceMaxTimer = setTimeout(() => {
     try{ recognition.stop(); }catch(e){}
   }, 45000);
@@ -3186,7 +3221,7 @@ function startVoiceInput(){
       if(e.results[i].isFinal) final += transcript;
       else interim += transcript;
     }
-    if(final) voiceFinalTranscript += final;
+    if(final) voiceFinalTranscript += (voiceFinalTranscript && !/\s$/.test(voiceFinalTranscript) ? ' ' : '') + final;
     if(interim) voiceLastInterim = interim;
     const shown = (voiceFinalTranscript + ' ' + interim).trim();
     setScanUI({
@@ -3201,6 +3236,8 @@ function startVoiceInput(){
     const hasSomething = (voiceFinalTranscript + voiceLastInterim).trim().length > 0;
     if(e.error === 'no-speech' && hasSomething) return;
     if(e.error === 'aborted') return;
+    // kalau sedang proses jeda, biarkan onend yang menangani UI dijeda
+    if(voicePaused) return;
     let msg = 'Gagal mengenali suara.';
     if(e.error === 'no-speech') msg = 'Tidak ada suara terdeteksi. Coba lagi & bicara lebih jelas.';
     else if(e.error === 'not-allowed' || e.error === 'permission-denied') msg = 'Izin mikrofon ditolak. Aktifkan akses mikrofon di pengaturan browser lalu coba lagi.';
@@ -3211,6 +3248,7 @@ function startVoiceInput(){
       status: 'Gagal: ' + msg,
       showButtons: true,
       showStop: false,
+      showResume: false,
       mic: false,
       resultText: ''
     });
@@ -3222,42 +3260,73 @@ function startVoiceInput(){
     clearVoiceTimers();
     document.getElementById('voiceToggle').classList.remove('listening');
     setScanUI({ mic: false, showStop: false });
-    if(!voiceActive) return; // sudah dibatalkan / error sebelumnya
-    voiceActive = false;
-    // fallback: kalau browser tidak pernah menandai hasil sebagai "final"
-    // (umum terjadi di beberapa versi Safari/iOS), pakai teks sementara terakhir
-    const finalText = (voiceFinalTranscript.trim() || voiceLastInterim.trim());
-    if(!finalText){
+
+    if(voicePaused){
+      // dijeda dengan sengaja: simpan sisa teks sementara ke transkrip final,
+      // lalu tampilkan tombol Lanjutkan / Selesai / Batal
+      if(voiceLastInterim && voiceLastInterim.trim()){
+        voiceFinalTranscript = (voiceFinalTranscript + (voiceFinalTranscript && !/\s$/.test(voiceFinalTranscript) ? ' ' : '') + voiceLastInterim).trim();
+        voiceLastInterim = '';
+      }
       setScanUI({
-        progress: 0,
-        status: 'Tidak ada teks yang terekam. Coba lagi, atau pastikan izin mikrofon aktif.',
-        showButtons: true,
-        showStop: false,
-        resultText: ''
+        progress: 60,
+        status: 'Dijeda. Tekan Lanjutkan untuk melanjutkan bicara, atau Selesai untuk memproses.',
+        showResume: true,
+        resultText: voiceFinalTranscript.trim() ? 'Sejauh ini: "' + voiceFinalTranscript.trim() + '"' : ''
       });
       return;
     }
-    const prepped = expandSpokenDates(expandSpokenAmounts(finalText));
-    const parsed = parseScanText(prepped, { isVoice: true });
-    lastScanParsed = parsed;
-    const hasData = parsed.provider || parsed.amount || parsed.due || parsed.note;
-    setScanUI({
-      progress: 100,
-      status: hasData ? 'Selesai. Periksa hasil lalu klik Isi Form.' : 'Selesai (deteksi lemah).',
-      showButtons: true,
-      showStop: false,
-      resultText: buildVoiceSummary(parsed, finalText)
-    });
+
+    if(!voiceActive) return; // sudah dibatalkan / error sebelumnya
+    voiceActive = false;
+    finalizeVoiceTranscript();
   };
 
   try{
     recognition.start();
   }catch(e){
     clearVoiceTimers();
-    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, mic: false });
+    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, showResume: false, mic: false });
     voiceActive = false;
     document.getElementById('voiceToggle').classList.remove('listening');
   }
+}
+
+// memproses transkrip yang terkumpul (dipakai baik saat auto-stop maupun
+// saat tombol "Selesai" ditekan ketika sedang dijeda)
+function finalizeVoiceTranscript(){
+  clearVoiceTimers();
+  voiceActive = false;
+  voicePaused = false;
+  document.getElementById('voiceToggle').classList.remove('listening');
+  // fallback: kalau browser tidak pernah menandai hasil sebagai "final"
+  // (umum terjadi di beberapa versi Safari/iOS), pakai teks sementara terakhir
+  const finalText = (voiceFinalTranscript.trim() || voiceLastInterim.trim());
+  if(!finalText){
+    setScanUI({
+      progress: 0,
+      status: 'Tidak ada teks yang terekam. Coba lagi, atau pastikan izin mikrofon aktif.',
+      showButtons: true,
+      showStop: false,
+      showResume: false,
+      mic: false,
+      resultText: ''
+    });
+    return;
+  }
+  const prepped = expandSpokenDates(expandSpokenAmounts(finalText));
+  const parsed = parseScanText(prepped, { isVoice: true });
+  lastScanParsed = parsed;
+  const hasData = parsed.provider || parsed.amount || parsed.due || parsed.note;
+  setScanUI({
+    progress: 100,
+    status: hasData ? 'Selesai. Periksa hasil lalu klik Isi Form.' : 'Selesai (deteksi lemah).',
+    showButtons: true,
+    showStop: false,
+    showResume: false,
+    mic: false,
+    resultText: buildVoiceSummary(parsed, finalText)
+  });
 }
 
 document.getElementById('voiceToggle').addEventListener('click', () => {
@@ -3269,6 +3338,33 @@ document.getElementById('voiceToggle').addEventListener('click', () => {
     return;
   }
   startVoiceInput();
+});
+
+// tombol "⏸ Jeda" — hentikan sesi dengar sementara, transkrip yang sudah
+// terkumpul tetap disimpan supaya bisa dilanjutkan
+document.getElementById('scanPauseBtn').addEventListener('click', () => {
+  if(!voiceActive || voicePaused) return;
+  voicePaused = true;
+  if(voiceRecognition){
+    try{ voiceRecognition.stop(); }catch(e){}
+  }
+});
+
+// tombol "▶ Lanjutkan" saat dijeda — buka sesi dengar baru, lanjutkan dari transkrip sebelumnya
+document.getElementById('scanResumeBtn').addEventListener('click', () => {
+  resumeVoiceInput();
+});
+
+// tombol "Selesai" saat dijeda — proses langsung transkrip yang sudah terkumpul
+document.getElementById('scanFinishPausedBtn').addEventListener('click', () => {
+  finalizeVoiceTranscript();
+});
+
+// tombol "✕" (Batal) saat dijeda — buang semuanya & tutup modal
+document.getElementById('scanCancelPausedBtn').addEventListener('click', () => {
+  stopVoiceInput();
+  setScanUI({ open: false, showButtons: false, showStop: false, showResume: false, progress: 0, resultText: '', mic: false });
+  lastScanParsed = null;
 });
 
 document.getElementById('scanToggle').addEventListener('click', () => {
