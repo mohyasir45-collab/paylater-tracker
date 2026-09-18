@@ -569,6 +569,60 @@
   body.dark .sync-help{ color:var(--ink-mid-dark); }
   .sync-help a{ color:inherit; }
 
+  /* ===== TOMBOL & MODAL LOGIN GOOGLE ===== */
+  .account-btn{
+    display:flex; align-items:center; gap:6px; cursor:pointer;
+    border:1px solid var(--ink-mid-light); background:transparent; color:inherit;
+    border-radius:20px; padding:3px 9px 3px 4px; font-size:10px; letter-spacing:.05em;
+    transition:opacity .2s ease, transform .15s ease; opacity:.8;
+  }
+  body.dark .account-btn{ border-color:var(--ink-mid-dark); }
+  .account-btn:active{ opacity:1; transform:scale(.95); }
+  .account-btn .avatar{
+    width:18px; height:18px; border-radius:50%; background:var(--ink-mid-light); flex:0 0 auto;
+    background-size:cover; background-position:center;
+  }
+  .account-btn .avatar.placeholder{ display:flex; align-items:center; justify-content:center; font-size:11px; opacity:.6; }
+  .account-btn .label{ white-space:nowrap; max-width:90px; overflow:hidden; text-overflow:ellipsis; }
+  body.modern .account-btn{
+    border-color:var(--modern-border); border-radius:999px;
+    background:rgba(255,255,255,0.04); backdrop-filter:blur(8px); color:var(--modern-accent);
+    font-family:'Plus Jakarta Sans',sans-serif; font-weight:600; padding:4px 11px 4px 4px;
+  }
+  body.modern .account-btn:hover{ border-color:var(--modern-accent); }
+  body.modern .account-btn .avatar{ border:1px solid var(--modern-border); }
+  body.modern.modern-light .account-btn{ background:rgba(46,43,34,0.045); }
+
+  .google-login-btn{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%; box-sizing:border-box;
+    padding:11px; border-radius:10px; border:1px solid var(--ink-mid-light);
+    background:var(--paper-light); color:var(--ink-light); font-family:inherit; font-size:13px; font-weight:600;
+    cursor:pointer; transition:background .15s ease, transform .12s ease;
+  }
+  body.dark .google-login-btn{ background:var(--paper-dark); color:var(--ink-dark); border-color:var(--ink-mid-dark); }
+  .google-login-btn:hover{ background:#f5f5f5; }
+  body.dark .google-login-btn:hover{ background:rgba(255,255,255,0.05); }
+  .google-login-btn:active{ transform:scale(.98); }
+  body.modern .google-login-btn{
+    border-color:var(--modern-border); background:rgba(255,255,255,0.04); color:var(--modern-ink);
+    border-radius:12px;
+  }
+  body.modern .google-login-btn:hover{ background:rgba(255,255,255,0.08); }
+  .google-login-btn svg{ width:18px; height:18px; flex:0 0 auto; }
+  .account-info-box{
+    display:flex; align-items:center; gap:12px; padding:12px; border-radius:12px;
+    background:rgba(139,131,117,.12); margin-bottom:14px;
+  }
+  body.dark .account-info-box{ background:rgba(122,132,170,.12); }
+  body.modern .account-info-box{ background:rgba(255,255,255,0.04); border:1px solid var(--modern-border); }
+  .account-info-box .avatar{ width:40px; height:40px; border-radius:50%; background:var(--ink-mid-light); flex:0 0 auto; background-size:cover; background-position:center; }
+  .account-info-box .avatar.placeholder{ display:flex; align-items:center; justify-content:center; font-size:18px; opacity:.6; }
+  .account-info-box .meta{ flex:1; min-width:0; }
+  .account-info-box .name{ font-weight:600; font-size:13px; overflow:hidden; text-overflow:ellipsis; }
+  .account-info-box .email{ font-size:11px; color:var(--ink-mid-light); overflow:hidden; text-overflow:ellipsis; }
+  body.dark .account-info-box .email{ color:var(--ink-mid-dark); }
+  body.modern .account-info-box .email{ color:var(--modern-ink-mid); }
+
   /* ===== MODERN THEME: DARK NEON GLASSMORPHISM ===== */
   body.modern{
     background:var(--modern-bg);
@@ -1126,6 +1180,10 @@
   <div class="toolbar">
     <span class="brandmark">CATATAN TAGIHAN</span>
     <div class="toolbar-actions">
+      <button class="account-btn" id="accountBtn" title="Akun Google" style="display:none">
+        <span class="avatar placeholder" id="accountBtnAvatar"></span>
+        <span class="label" id="accountBtnLabel"></span>
+      </button>
       <button class="backup-btn" id="syncBtn" title="Sinkronisasi antar perangkat"><svg class="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5L14.5 9.5"></path><path d="M11 6.5L12.5 5C14.1569 3.34315 16.8431 3.34315 18.5 5C20.1569 6.65685 20.1569 9.34315 18.5 11L17 12.5"></path><path d="M13 17.5L11.5 19C9.84315 20.6569 7.15685 20.6569 5.5 19C3.84315 17.3431 3.84315 14.6569 5.5 13L7 11.5"></path></svg><span class="sync-dot" id="syncDot"></span></button>
       <button class="backup-btn" id="dataBtn" title="Ekspor / Impor Data"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"></path><path d="M7.5 10L12 14.5L16.5 10"></path><path d="M4 17.5V19.5C4 20.6 4.9 21.5 6 21.5H18C19.1 21.5 20 20.6 20 19.5V17.5"></path></svg></button>
       <div class="theme-toggle" id="themeToggle">
@@ -1306,6 +1364,47 @@
   </div>
 </div>
 
+<div class="scan-overlay" id="scanOverlay">
+
+<div class="sync-overlay" id="accountOverlay">
+  <div class="sync-modal">
+    <span class="sync-close" id="accountClose">✕</span>
+    <h3>👤 AKUN GOOGLE</h3>
+    <div id="accountLoginArea">
+      <div class="sync-help" style="margin-top:0; margin-bottom:14px">
+        Masuk pakai akun Google untuk menyinkronkan tagihan secara otomatis
+        ke semua perangkat Anda — tanpa perlu memasukkan Kode Sinkron manual.
+        Data tersimpan aman di akun Anda.
+      </div>
+      <button class="google-login-btn" id="googleLoginBtn">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
+        Masuk dengan Google
+      </button>
+      <div class="sync-status-line" id="accountStatusLine" style="display:none"></div>
+    </div>
+    <div id="accountConnectedArea" style="display:none">
+      <div class="account-info-box">
+        <span class="avatar placeholder" id="accountModalAvatar"></span>
+        <div class="meta">
+          <div class="name" id="accountModalName"></div>
+          <div class="email" id="accountModalEmail"></div>
+        </div>
+      </div>
+      <div class="sync-help" style="margin-top:0; margin-bottom:14px">
+        Anda tersinkron otomatis. Tagihan tersimpan ke akun Google Anda dan
+        tersedia di semua perangkat yang pakai akun ini.
+      </div>
+      <div class="sync-btn-row">
+        <button class="secondary" id="accountLogoutBtn">Keluar</button>
+      </div>
+    </div>
+    <div class="sync-help">
+      Login memakai <b>Firebase Authentication</b> dari Google. Akun &amp; data
+      Anda aman — aplikasi ini tidak melihat password Google Anda. Pastikan
+      provider <b>Google</b> sudah diaktifkan di Firebase Console (Authentication → Sign-in method).
+    </div>
+  </div>
+</div>
 <div class="scan-overlay" id="scanOverlay">
   <div class="scan-modal">
     <h3 id="scanModalTitle">📷 SCAN FOTO TAGIHAN</h3>
@@ -1566,7 +1665,14 @@ function loadFirebaseScripts(){
     s1.onload = () => {
       const s2 = document.createElement('script');
       s2.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js';
-      s2.onload = resolve;
+      s2.onload = () => {
+        // muat auth setelah firestore siap
+        const s3 = document.createElement('script');
+        s3.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js';
+        s3.onload = resolve;
+        s3.onerror = () => reject(new Error('Gagal memuat firebase-auth-compat.js'));
+        document.head.appendChild(s3);
+      };
       s2.onerror = () => reject(new Error('Gagal memuat firebase-firestore-compat.js'));
       document.head.appendChild(s2);
     };
@@ -1604,7 +1710,15 @@ async function connectSync(config, code, isSilentReconnect){
       ? window.firebase.app()
       : window.firebase.initializeApp(config);
     firestoreDb = window.firebase.firestore(app);
-    syncDocRef = firestoreDb.collection('paylater-sync').doc(code);
+    // Jika user sedang login (UID tersedia), simpan ke path pribadi per-user
+    // (users/{uid}/paylater-sync/data) supaya datanya terpisah & aman per akun.
+    // Kalau tidak login, pakai mode lama: kode sinkron bersama.
+    const uid = (window.firebase.auth && window.firebase.auth().currentUser) ? window.firebase.auth().currentUser.uid : null;
+    if(uid){
+      syncDocRef = firestoreDb.collection('users').doc(uid).collection('paylater-sync').doc('data');
+    }else{
+      syncDocRef = firestoreDb.collection('paylater-sync').doc(code);
+    }
 
     if(syncUnsub) syncUnsub();
     syncUnsub = syncDocRef.onSnapshot(async (snap) => {
@@ -1681,7 +1795,25 @@ function pushToCloud(immediate){
 
 async function initSyncOnLoad(){
   await loadSyncConfig();
-  if(syncConfig && syncCode){
+  if(!syncConfig){
+    // tidak ada config: jangan muat firebase sama sekali, mode murni lokal
+    return;
+  }
+  try{
+    await loadFirebaseScripts();
+    // siapkan app & pasang listener auth (sesi login Google tersimpan otomatis oleh Firebase)
+    const app = window.firebase.apps && window.firebase.apps.length
+      ? window.firebase.app()
+      : window.firebase.initializeApp(syncConfig);
+    if(window.firebase.auth){
+      onAuthReady();
+      // auth/persistence default 'local' — onAuthStateChanged akan memulai sync bila user ada
+    }
+  }catch(err){
+    console.warn('firebase init error', err);
+  }
+  // fallback: kalau belum login (onAuthStateChanged tidak memicu connect), sambungkan mode kode lama
+  if(syncConfig && syncCode && !currentUser){
     setSyncModalConnectedView(true);
     updateSyncStatus('Menghubungkan ulang...', null);
     await connectSync(syncConfig, syncCode, true);
@@ -1724,6 +1856,139 @@ document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
   const ok = confirm('Putuskan sinkronisasi? Data di perangkat ini tetap tersimpan lokal, tapi tidak akan update otomatis lagi.');
   if(ok) disconnectSync();
 });
+
+/* ===================== LOGIN GOOGLE (Firebase Auth) ===================== */
+let googleProvider = null;
+let currentUser = null; // { uid, name, email, photoURL }
+
+function getGoogleProvider(){
+  if(googleProvider) return googleProvider;
+  googleProvider = new window.firebase.auth.GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt:'select_account' });
+  return googleProvider;
+}
+
+function setAccountStatus(msg, isError){
+  const el = document.getElementById('accountStatusLine');
+  if(!el) return;
+  el.textContent = msg || '';
+  el.style.display = msg ? 'block' : 'none';
+  el.style.color = isError ? 'var(--late)' : '';
+}
+
+function setAccountModalConnected(connected, user){
+  document.getElementById('accountLoginArea').style.display = connected ? 'none' : 'block';
+  document.getElementById('accountConnectedArea').style.display = connected ? 'block' : 'none';
+  if(connected && user){
+    const av = document.getElementById('accountModalAvatar');
+    if(user.photoURL){ av.style.backgroundImage = `url('${user.photoURL}')`; av.classList.remove('placeholder'); av.textContent=''; }
+    else { av.style.backgroundImage=''; av.classList.add('placeholder'); av.textContent = (user.name||'?').charAt(0).toUpperCase(); }
+    document.getElementById('accountModalName').textContent = user.name || 'Pengguna';
+    document.getElementById('accountModalEmail').textContent = user.email || '';
+  }
+}
+
+function updateAccountButton(user){
+  const btn = document.getElementById('accountBtn');
+  const av = document.getElementById('accountBtnAvatar');
+  const lbl = document.getElementById('accountBtnLabel');
+  if(!user){ btn.style.display = 'none'; return; }
+  btn.style.display = 'flex';
+  if(user.photoURL){ av.style.backgroundImage = `url('${user.photoURL}')`; av.classList.remove('placeholder'); av.textContent=''; }
+  else { av.style.backgroundImage=''; av.classList.add('placeholder'); av.textContent = (user.name||'?').charAt(0).toUpperCase(); }
+  lbl.textContent = (user.name||'Akun').split(' ')[0];
+  btn.title = (user.name||'Akun Google') + (user.email ? ' — ' + user.email : '');
+}
+
+async function signInWithGoogle(){
+  if(!window.firebase || !window.firebase.auth){
+    setAccountStatus('Gagal memuat pustaka. Cek koneksi internet.', true);
+    return;
+  }
+  setAccountStatus('Memuat…', false);
+  try{
+    const provider = getGoogleProvider();
+    await window.firebase.auth().signInWithPopup(provider);
+    // onAuthStateChanged akan menangani sisanya
+  }catch(err){
+    console.warn('login error', err);
+    const code = err && err.code ? err.code : '';
+    let msg = 'Gagal masuk. ' + (err.message||'');
+    if(code === 'auth/popup-closed-by-user') msg = 'Jendela login ditutup sebelum selesai.';
+    else if(code === 'auth/cancelled-popup-request') msg = '';
+    else if(code === 'auth/popup-blocked') msg = 'Popup diblokir browser. Izinkan popup lalu coba lagi.';
+    else if(code === 'auth/operation-not-supported-in-this-environment') msg = 'Login popup tidak didukung. Pastikan Firebase Config sudah benar & domain ini di-allow di Firebase Console.';
+    else if(code === 'auth/operation-not-allowed') msg = 'Login Google belum diaktifkan. Aktifkan di Firebase Console → Authentication → Sign-in method → Google.';
+    if(msg) setAccountStatus(msg, true);
+  }
+}
+
+async function signOutGoogle(){
+  try{
+    if(window.firebase && window.firebase.auth){
+      await window.firebase.auth().signOut();
+    }
+  }catch(err){ console.warn('logout error', err); }
+  currentUser = null;
+  // tutup koneksi sync berbasis UID, kembali ke mode lokal
+  if(syncUnsub){ syncUnsub(); syncUnsub = null; }
+  syncDocRef = null;
+  updateAccountButton(null);
+  setAccountModalConnected(false, null);
+  setAccountStatus('', false);
+  // Reload state lokal supaya UI kembali ke data lokal
+  await loadState();
+  renderProviderSelect();
+  renderProviderManage();
+  if(typeof renderChips === 'function') renderChips();
+  render();
+  updateSyncStatus('Tidak aktif', null);
+}
+
+function onAuthReady(){
+  // dipanggil setelah firebase siap; pasang listener perubahan status login
+  window.firebase.auth().onAuthStateChanged(async (fbUser) => {
+    if(fbUser){
+      currentUser = { uid:fbUser.uid, name:fbUser.displayName, email:fbUser.email, photoURL:fbUser.photoURL };
+      updateAccountButton(currentUser);
+      setAccountModalConnected(true, currentUser);
+      // auto-connect sync berbasis UID jika config sudah ada
+      if(syncConfig){
+        updateSyncStatus('Menyinkron ke akun Anda...', null);
+        await connectSync(syncConfig, syncCode || fbUser.uid, true);
+        updateSyncStatus('Tersinkron ke akun • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+      }
+    }else{
+      currentUser = null;
+      updateAccountButton(null);
+      setAccountModalConnected(false, null);
+    }
+  });
+}
+
+document.getElementById('accountBtn').addEventListener('click', () => {
+  document.getElementById('accountOverlay').classList.add('open');
+  setAccountStatus('', false);
+});
+document.getElementById('accountClose').addEventListener('click', () => {
+  document.getElementById('accountOverlay').classList.remove('open');
+});
+document.getElementById('accountOverlay').addEventListener('click', (e) => {
+  if(e.target === document.getElementById('accountOverlay')){
+    document.getElementById('accountOverlay').classList.remove('open');
+  }
+});
+document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+  // pastikan Firebase & config sudah ada
+  if(!syncConfig){
+    setAccountStatus('Isi Firebase Config dulu di menu Sinkronisasi (☁) sebelum login.', true);
+    // buka overlay sync biar user mudah isi config
+    document.getElementById('syncOverlay').classList.add('open');
+    return;
+  }
+  await signInWithGoogle();
+});
+document.getElementById('accountLogoutBtn').addEventListener('click', signOutGoogle);
 
 /* ===================== EKSPOR / IMPOR DATA ===================== */
 const DATA_EXPORT_VERSION = 1;
