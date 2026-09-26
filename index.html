@@ -1301,7 +1301,7 @@
 
        <div class="summary">
         <div class="summary-inner">
-          <div class="summary-label">TOTAL TAGIHAN</div>
+          <div class="summary-label" id="totalBillsLabel">TOTAL TAGIHAN</div>
           <div class="summary-amount-row">
             <div class="summary-amount" id="grandTotal">Rp0</div>
             <button class="hide-toggle" id="hideTotalToggle" title="Sembunyikan total"><svg class="eye-icon" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12C1.5 12 5.5 5 12 5C18.5 5 22.5 12 22.5 12C22.5 12 18.5 19 12 19C5.5 19 1.5 12 1.5 12Z"></path><circle cx="12" cy="12" r="3"></circle></svg></button>
@@ -1319,41 +1319,41 @@
         <button class="add-toggle" id="addToggle">+ TAMBAH</button>
         <button class="scan-toggle" id="scanToggle" title="Scan foto struk / notifikasi tagihan">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
-          SCAN
+          <span id="scanBtnLabel">SCAN</span>
         </button>
         <button class="scan-toggle voice-toggle" id="voiceToggle" title="Tambah tagihan dengan suara">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
-          SUARA
+          <span id="voiceBtnLabel">SUARA</span>
         </button>
       </div>
       <input type="file" id="scanFileInput" accept="image/*,.heic,.heif" style="display:none">
       <div class="add-form" id="addForm">
         <div class="form-grid">
           <div class="field">
-            <label>Layanan</label>
+            <label id="providerLabel">Layanan</label>
             <select id="fProvider"></select>
             <div class="prov-manage-row">
               <button type="button" class="chip-edit-toggle" id="provEditToggle">✎ atur layanan</button>
             </div>
           </div>
           <div class="field">
-            <label>Jumlah (Rp)</label>
+            <label id="amountLabel">Jumlah (Rp)</label>
             <input type="text" inputmode="numeric" id="fAmount" placeholder="150.000" autocomplete="off">
           </div>
           <div class="field">
-            <label>Jatuh tempo</label>
+            <label id="dueLabel">Jatuh tempo</label>
             <input type="date" id="fDue">
           </div>
           <div class="field">
-            <label>Cicilan (opsional)</label>
+            <label id="installmentLabel">Cicilan (opsional)</label>
             <div class="installment-row">
               <input type="number" id="fInstallNo" placeholder="ke-3" min="1">
-              <span class="installment-sep">dari</span>
+              <span class="installment-sep" id="installmentFrom">dari</span>
               <input type="number" id="fInstallTotal" placeholder="12" min="1">
             </div>
           </div>
           <div class="field full">
-            <label>Catatan</label>
+            <label id="noteLabel">Catatan</label>
             <input type="text" id="fNote" placeholder="cicilan HP, dll" maxlength="40">
             <div class="note-chips" id="noteChips"></div>
             <div class="chips-manage">
@@ -1364,13 +1364,13 @@
             <label class="checkbox-label">
               <input type="checkbox" id="fExclude">
               <span class="checkbox-box"></span>
-              <span>Jangan hitung ke total</span>
+              <span id="excludeLabel">Jangan hitung ke total</span>
             </label>
           </div>
         </div>
 
         <div class="prov-manage" id="provManageWrap">
-          <label>Kelola Layanan</label>
+          <label id="manageProvidersTitle">Kelola Layanan</label>
           <div class="prov-list" id="provList"></div>
           <div class="prov-add-row">
             <input type="text" id="provNewLabel" placeholder="Nama layanan baru" maxlength="20">
@@ -1393,7 +1393,7 @@
      </div>
 
       <div class="barcode"></div>
-      <div class="foot-note">SIMPAN STRUK INI SEBAGAI BUKTI</div>
+      <div class="foot-note" id="footNote">SIMPAN STRUK INI SEBAGAI BUKTI</div>
     </div>
     <div class="zig bottom"></div>
   </div>
@@ -1402,11 +1402,11 @@
 <div class="sync-overlay" id="syncOverlay">
   <div class="sync-modal">
     <span class="sync-close" id="syncClose">✕</span>
-    <h3>☁ SINKRONISASI ANTAR PERANGKAT</h3>
+    <h3 id="syncTitle">☁ SINKRONISASI ANTAR PERANGKAT</h3>
     <div id="syncFormArea">
-      <label for="syncConfigInput">Firebase Config (dari Firebase Console)</label>
+      <label for="syncConfigInput" id="syncConfigLabel">Firebase Config (dari Firebase Console)</label>
       <textarea id="syncConfigInput" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","storageBucket":"...","messagingSenderId":"...","appId":"..."}'></textarea>
-      <label for="syncCodeInput">Kode Sinkron (bebas, contoh: budi-cicilan-2026)</label>
+      <label for="syncCodeInput" id="syncCodeLabel">Kode Sinkron (bebas, contoh: budi-cicilan-2026)</label>
       <input type="text" id="syncCodeInput" placeholder="kode-rahasia-anda">
       <div class="sync-btn-row">
         <button id="syncConnectBtn">Hubungkan</button>
@@ -1419,7 +1419,7 @@
         <button class="secondary" id="syncDisconnectBtn">Putuskan Sinkronisasi</button>
       </div>
     </div>
-    <div class="sync-help">
+    <div class="sync-help" id="syncHelp">
       Pakai <b>Firebase Firestore</b> (gratis) dari Google sebagai penyimpanan bersama.
       Masukkan Firebase Config yang sama dan Kode Sinkron yang sama di setiap HP/browser
       agar datanya nyambung otomatis. Tanya Claude "gimana caranya" kalau butuh
@@ -1432,20 +1432,25 @@
   <div class="sync-modal" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
     <span class="sync-close" id="settingsClose" role="button" tabindex="0" aria-label="Tutup">✕</span>
     <h3 id="settingsTitle">PENGATURAN</h3>
-    <label>Pilih tampilan</label>
+    <label id="themeChoiceLabel">Pilih tampilan</label>
     <div class="theme-choice">
       <button id="classicThemeBtn" type="button">Klasik</button>
       <button id="modernThemeBtn" type="button">Modern</button>
     </div>
-    <label style="margin-top:22px">Ekspor Data</label>
-    <div class="sync-help" style="margin-top:0">
+    <label style="margin-top:22px" id="langChoiceLabel">Pilih bahasa / Language</label>
+    <div class="theme-choice">
+      <button id="langIdBtn" type="button">🇮🇩 Indonesia</button>
+      <button id="langEnBtn" type="button">🇬🇧 English</button>
+    </div>
+    <label style="margin-top:22px" id="exportLabel">Ekspor Data</label>
+    <div class="sync-help" style="margin-top:0" id="exportHelp">
       Unduh seluruh data (tagihan, layanan, template catatan) sebagai file <b>.json</b> untuk cadangan atau dipindah ke perangkat lain.
     </div>
     <div class="sync-btn-row">
       <button id="exportBtn">⬇ Unduh Backup</button>
     </div>
-    <label style="margin-top:22px">Impor Data</label>
-    <div class="sync-help" style="margin-top:0">
+    <label style="margin-top:22px" id="importLabel">Impor Data</label>
+    <div class="sync-help" style="margin-top:0" id="importHelp">
       Pilih file <b>.json</b> hasil ekspor sebelumnya. Ini akan <b>menimpa</b> semua tagihan, layanan, dan template catatan yang tersimpan saat ini di perangkat ini.
     </div>
     <input type="file" id="importFileInput" accept="application/json,.json" style="display:none">
@@ -1459,11 +1464,11 @@
 <div class="sync-overlay" id="accountOverlay">
   <div class="sync-modal">
     <span class="sync-close" id="accountClose" role="button" tabindex="0" aria-label="Tutup">✕</span>
-    <h3>AKUN</h3>
+    <h3 id="accountTitle">AKUN</h3>
     <div id="accountLoginArea">
       <button class="google-login-btn" id="googleLoginBtn">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38z"/></svg>
-        Masuk dengan Google
+        <span id="googleLoginLabel">Masuk dengan Google</span>
       </button>
       <div class="sync-status-line" id="accountStatusLine" style="display:none"></div>
     </div>
@@ -1475,7 +1480,7 @@
           <div class="email" id="accountModalEmail"></div>
         </div>
       </div>
-      <div class="sync-status-line" style="margin-bottom:12px">Tersinkron otomatis</div>
+      <div class="sync-status-line" id="syncedAutoLabel" style="margin-bottom:12px">Tersinkron otomatis</div>
       <div class="sync-btn-row">
         <button class="secondary" id="accountLogoutBtn">Keluar</button>
       </div>
@@ -1566,9 +1571,317 @@ let activeTab = 'semua';
 let hideTotal = false;
 let listVisibleCount = 1;
 let listCounterHidden = false;
+let lang = 'id'; // 'id' atau 'en' - bahasa tampilan
+
+/* ===================== I18N (Indonesia / English) ===================== */
+const I18N = {
+  // --- toolbar / header ---
+  appTitle:            { id:'PAYLATER TRACKER', en:'PAYLATER TRACKER' },
+  totalBills:          { id:'TOTAL TAGIHAN', en:'TOTAL BILLS' },
+  accountLoginTitle:   { id:'Masuk dengan Google', en:'Sign in with Google' },
+  accountLoginLabel:   { id:'Masuk', en:'Sign in' },
+  accountFallbackName: { id:'Pengguna', en:'User' },
+  accountLabel:        { id:'Akun', en:'Account' },
+  syncBtnTitle:        { id:'Sinkronisasi antar perangkat', en:'Sync across devices' },
+  settingsBtnLabel:    { id:'Buka pengaturan', en:'Open settings' },
+  settingsBtnTitle:    { id:'Pengaturan', en:'Settings' },
+  themeDarkLabel:      { id:'Aktifkan tema gelap', en:'Enable dark theme' },
+  themeLightLabel:     { id:'Aktifkan tema terang', en:'Enable light theme' },
+  themeSwitchTitle:    { id:'Ganti terang atau gelap', en:'Switch light or dark' },
+  hideTotalTitle:      { id:'Sembunyikan total', en:'Hide total' },
+  showTotalTitle:      { id:'Tampilkan total', en:'Show total' },
+  // --- tabs ---
+  tabAll:              { id:'SEMUA', en:'ALL' },
+  // --- tombol tambah / scan / suara ---
+  addBtn:              { id:'+ TAMBAH', en:'+ ADD' },
+  scanBtn:             { id:'SCAN', en:'SCAN' },
+  scanBtnTitle:        { id:'Scan foto struk / notifikasi tagihan', en:'Scan receipt photo / bill notification' },
+  voiceBtn:            { id:'SUARA', en:'VOICE' },
+  voiceBtnTitle:       { id:'Tambah tagihan dengan suara', en:'Add a bill by voice' },
+  // --- form tambah ---
+  providerLabel:       { id:'Layanan', en:'Service' },
+  manageProviders:     { id:'✎ atur layanan', en:'✎ manage services' },
+  amountLabel:         { id:'Jumlah (Rp)', en:'Amount (Rp)' },
+  amountPlaceholder:   { id:'150.000', en:'150,000' },
+  dueLabel:            { id:'Jatuh tempo', en:'Due date' },
+  installmentLabel:    { id:'Cicilan (opsional)', en:'Installment (optional)' },
+  installmentFrom:     { id:'dari', en:'of' },
+  noteLabel:           { id:'Catatan', en:'Note' },
+  notePlaceholder:     { id:'cicilan HP, dll', en:'phone installment, etc.' },
+  manageTemplates:     { id:'✎ atur template', en:'✎ manage templates' },
+  excludeLabel:        { id:'Jangan hitung ke total', en:"Don't count in total" },
+  manageProvidersTitle:{ id:'Kelola Layanan', en:'Manage Services' },
+  newProviderPlaceholder:{ id:'Nama layanan baru', en:'New service name' },
+  addChip:             { id:'+ tambah', en:'+ add' },
+  newTemplatePlaceholder:{ id:'template baru', en:'new template' },
+  saveBtn:             { id:'SIMPAN', en:'SAVE' },
+  saveChangesBtn:      { id:'SIMPAN PERUBAHAN', en:'SAVE CHANGES' },
+  cancelBtn:           { id:'BATAL', en:'CANCEL' },
+  editingHint:         { id:'Sedang mengubah tagihan', en:'Editing bill' },
+  doneEditToggle:      { id:'✓ selesai', en:'✓ done' },
+  // --- daftar tagihan ---
+  emptyList:           { id:'— belum ada tagihan tercatat —', en:'— no bills recorded yet —' },
+  noNote:              { id:'(tanpa catatan)', en:'(no note)' },
+  installmentOf:       { id:'· cicilan ke-', en:'· installment ' },
+  duePrefix:           { id:'jatuh tempo: ', en:'due: ' },
+  excludedTag:         { id:'✕ tidak dihitung ke total', en:"✕ excluded from total" },
+  markPaidBtn:         { id:'TANDAI LUNAS', en:'MARK AS PAID' },
+  unmarkPaidBtn:       { id:'BATAL LUNAS', en:'UNDO PAID' },
+  includeBtn:          { id:'MASUKKAN KE TOTAL', en:'INCLUDE IN TOTAL' },
+  excludeBtn:          { id:'KECUALIKAN', en:'EXCLUDE' },
+  editTitle:           { id:'Ubah', en:'Edit' },
+  deleteTitle:         { id:'Hapus', en:'Delete' },
+  stampPaid:           { id:'LUNAS', en:'PAID' },
+  stampLate:           { id:'TELAT', en:'OVERDUE' },
+  seeMore:             { id:'Lihat lagi', en:'Show more' },
+  seeAll:              { id:'Lihat semua', en:'Show all' },
+  hideList:            { id:'Sembunyikan', en:'Hide' },
+  footNote:            { id:'SIMPAN STRUK INI SEBAGAI BUKTI', en:'KEEP THIS RECEIPT AS PROOF' },
+  // --- countdown ---
+  lateDays:            { id:'terlambat ', en:'overdue ' },
+  daysUnit:            { id:' hari', en:' days' },
+  dueToday:            { id:'jatuh tempo hari ini', en:'due today' },
+  tomorrow:            { id:'besok', en:'tomorrow' },
+  daysLeft:            { id:' hari lagi', en:' more days' },
+  // --- modal sinkronisasi ---
+  syncTitle:           { id:'☁ SINKRONISASI ANTAR PERANGKAT', en:'☁ SYNC ACROSS DEVICES' },
+  syncConfigLabel:     { id:'Firebase Config (dari Firebase Console)', en:'Firebase Config (from Firebase Console)' },
+  syncCodeLabel:       { id:'Kode Sinkron (bebas, contoh: budi-cicilan-2026)', en:'Sync Code (free-form, e.g. budi-bills-2026)' },
+  syncCodePlaceholder: { id:'kode-rahasia-anda', en:'your-secret-code' },
+  syncConnect:         { id:'Hubungkan', en:'Connect' },
+  syncCancel:          { id:'Batal', en:'Cancel' },
+  syncConnected:       { id:'Terhubung', en:'Connected' },
+  syncDisconnect:      { id:'Putuskan Sinkronisasi', en:'Disconnect Sync' },
+  syncHelp:            { id:'Pakai <b>Firebase Firestore</b> (gratis) dari Google sebagai penyimpanan bersama. Masukkan Firebase Config yang sama dan Kode Sinkron yang sama di setiap HP/browser agar datanya nyambung otomatis. Tanya Claude "gimana caranya" kalau butuh panduan bikin akun Firebase gratis dari nol.',
+                        en:'Use <b>Firebase Firestore</b> (free) from Google as shared storage. Enter the same Firebase Config and Sync Code on every phone/browser so data syncs automatically. Ask Claude "how to" if you need a guide to create a free Firebase account from scratch.' },
+  // --- modal pengaturan ---
+  settingsTitle:       { id:'PENGATURAN', en:'SETTINGS' },
+  closeLabel:          { id:'Tutup', en:'Close' },
+  themeChoiceLabel:    { id:'Pilih tampilan', en:'Choose appearance' },
+  classicTheme:        { id:'Klasik', en:'Classic' },
+  modernTheme:         { id:'Modern', en:'Modern' },
+  langChoiceLabel:     { id:'Pilih bahasa / Language', en:'Pilih bahasa / Language' },
+  exportLabel:         { id:'Ekspor Data', en:'Export Data' },
+  exportHelp:          { id:'Unduh seluruh data (tagihan, layanan, template catatan) sebagai file <b>.json</b> untuk cadangan atau dipindah ke perangkat lain.',
+                        en:'Download all data (bills, services, note templates) as a <b>.json</b> file for backup or moving to another device.' },
+  exportBtn:           { id:'⬇ Unduh Backup', en:'⬇ Download Backup' },
+  importLabel:         { id:'Impor Data', en:'Import Data' },
+  importHelp:          { id:'Pilih file <b>.json</b> hasil ekspor sebelumnya. Ini akan <b>menimpa</b> semua tagihan, layanan, dan template catatan yang tersimpan saat ini di perangkat ini.',
+                        en:'Choose a previously exported <b>.json</b> file. This will <b>overwrite</b> all bills, services, and note templates currently stored on this device.' },
+  importBtn:           { id:'⬆ Pilih File & Impor', en:'⬆ Choose File & Import' },
+  // --- modal akun ---
+  accountTitle:        { id:'AKUN', en:'ACCOUNT' },
+  googleLogin:         { id:'Masuk dengan Google', en:'Sign in with Google' },
+  syncedAuto:          { id:'Tersinkron otomatis', en:'Auto-synced' },
+  logoutBtn:           { id:'Keluar', en:'Sign out' },
+  // --- modal scan / suara ---
+  scanPhotoTitle:      { id:'📷 SCAN FOTO TAGIHAN', en:'📷 SCAN BILL PHOTO' },
+  voiceTitle:          { id:'🎙️ INPUT SUARA', en:'🎙️ VOICE INPUT' },
+  scanPreparingOCR:    { id:'Menyiapkan OCR...', en:'Preparing OCR...' },
+  scanPause:           { id:'⏸ Jeda', en:'⏸ Pause' },
+  scanFinish:          { id:'⏹ Selesai', en:'⏹ Done' },
+  scanCancelTitle:     { id:'Batal', en:'Cancel' },
+  scanResume:          { id:'▶ Lanjutkan', en:'▶ Resume' },
+  scanDoneSmall:       { id:'Selesai', en:'Done' },
+  scanFillForm:        { id:'Isi Form', en:'Fill Form' },
+  scanRetryTitle:      { id:'Ulangi', en:'Retry' },
+  previewAlt:          { id:'Preview', en:'Preview' },
+  ocrLoadingEngine:    { id:'Memuat mesin OCR... (pertama kali bisa 10–30 detik)', en:'Loading OCR engine... (first time may take 10–30 seconds)' },
+  ocrDownloading:      { id:'Mengunduh / menyiapkan Tesseract...', en:'Downloading / preparing Tesseract...' },
+  ocrReading:          { id:'Membaca teks... ', en:'Reading text... ' },
+  ocrPreppingImage:    { id:'Menyiapkan gambar...', en:'Preparing image...' },
+  ocrRecognizing:      { id:'Mengenali teks dari foto...', en:'Recognizing text from photo...' },
+  ocrDetected:         { id:'Hasil deteksi:', en:'Detected result:' },
+  ocrWeak:             { id:'Teks terbaca, tapi data tagihan kurang jelas. Anda bisa isi manual setelah ini.', en:'Text was read, but bill data is unclear. You can fill it in manually after this.' },
+  ocrDoneCheck:        { id:'Selesai. Periksa hasil lalu klik Isi Form.', en:'Done. Check the result then click Fill Form.' },
+  ocrDoneWeak:         { id:'Selesai (deteksi lemah).', en:'Done (weak detection).' },
+  ocrRawText:          { id:'— Teks mentah —', en:'— Raw text —' },
+  ocrFailTips:         { id:'Tips iPhone:\n• Pastikan koneksi internet aktif (unduh mesin OCR)\n• Coba foto JPG/PNG, bukan HEIC\n• Di Photos: bagikan → Simpan ke File sebagai JPEG\n• Fokus ke bagian jumlah & tanggal jatuh tempo',
+                        en:'iPhone tips:\n• Make sure internet is on (downloads the OCR engine)\n• Try JPG/PNG photos, not HEIC\n• In Photos: share → Save to Files as JPEG\n• Focus on the amount & due date section' },
+  ocrProvider:         { id:'Layanan: ', en:'Service: ' },
+  ocrAmount:           { id:'Jumlah: ', en:'Amount: ' },
+  ocrDue:              { id:'Jatuh tempo: ', en:'Due date: ' },
+  ocrInstallment:      { id:'Cicilan: ke-', en:'Installment: ' },
+  ocrNote:             { id:'Catatan: ', en:'Note: ' },
+  voiceExample:        { id:'Mendengarkan... contoh: "Kredivo 250 ribu jatuh tempo besok cicilan ke 3 dari 12"', en:'Listening... e.g. "Kredivo 250 thousand due tomorrow installment 3 of 12"' },
+  voiceContinuing:     { id:'Melanjutkan...', en:'Continuing...' },
+  voiceHearing:        { id:'Mendengar: "', en:'Hearing: "' },
+  voiceListening:      { id:'Mendengarkan...', en:'Listening...' },
+  voiceMicFail:        { id:'Gagal memulai mikrofon.', en:'Failed to start microphone.' },
+  voiceNotRecognized:  { id:'Gagal mengenali suara.', en:"Couldn't recognize speech." },
+  voiceNoSpeech:       { id:'Tidak ada suara terdeteksi. Coba lagi & bicara lebih jelas.', en:'No speech detected. Try again & speak more clearly.' },
+  voiceMicDenied:      { id:'Izin mikrofon ditolak. Aktifkan akses mikrofon di pengaturan browser lalu coba lagi.', en:'Microphone permission denied. Enable microphone access in browser settings then try again.' },
+  voiceNetwork:        { id:'Masalah jaringan saat mengenali suara.', en:'Network issue while recognizing speech.' },
+  voicePaused:         { id:'Dijeda. Tekan Lanjutkan untuk melanjutkan bicara, atau Selesai untuk memproses.', en:'Paused. Press Resume to keep talking, or Done to process.' },
+  voiceSoFar:          { id:'Sejauh ini: "', en:'So far: "' },
+  voiceNoText:         { id:'Tidak ada teks yang terekam. Coba lagi, atau pastikan izin mikrofon aktif.', en:'No text was recorded. Try again, or make sure microphone permission is on.' },
+  voiceResult:         { id:'Hasil dari ucapan:', en:'Result from speech:' },
+  voiceWeak:           { id:'Suara terekam, tapi data tagihan kurang jelas. Anda bisa isi manual setelah ini.', en:'Voice was recorded, but bill data is unclear. You can fill it in manually after this.' },
+  voiceRecorded:       { id:'— Ucapan terekam —', en:'— Recorded speech —' },
+  // --- alert / confirm / status ---
+  alertFillSync:       { id:'Isi dulu Firebase Config dan Kode Sinkron.', en:'Please fill in Firebase Config and Sync Code first.' },
+  alertBadConfig:      { id:'Firebase Config harus berupa JSON yang valid. Salin persis dari Firebase Console.', en:'Firebase Config must be valid JSON. Copy it exactly from Firebase Console.' },
+  alertConnected:      { id:'Berhasil terhubung! Buka struk ini di HP/browser lain, masukkan Config dan Kode Sinkron yang sama untuk menyamakan data.', en:'Connected! Open this receipt on another phone/browser, enter the same Config and Sync Code to sync data.' },
+  confirmDisconnect:   { id:'Putuskan sinkronisasi? Data di perangkat ini tetap tersimpan lokal, tapi tidak akan update otomatis lagi.', en:'Disconnect sync? Data on this device stays saved locally, but will no longer auto-update.' },
+  alertMinProvider:    { id:'Minimal harus ada satu layanan.', en:'There must be at least one service.' },
+  confirmDelProviderA: { id:'Hapus layanan "', en:'Delete service "' },
+  confirmDelProviderB: { id:'"?', en:'"?' },
+  confirmDelProviderBills:{ id:' tagihan pada layanan ini akan ikut terhapus.', en:' bill(s) under this service will also be deleted.' },
+  alertProviderName:   { id:'Isi nama layanan terlebih dahulu.', en:'Please enter a service name first.' },
+  alertProviderExists: { id:'Layanan dengan nama itu sudah ada.', en:'A service with that name already exists.' },
+  alertFillAmountDue:  { id:'Isi jumlah dan tanggal jatuh tempo terlebih dahulu.', en:'Please fill in amount and due date first.' },
+  alertInstallBoth:    { id:'Isi cicilan "ke" dan "dari" keduanya, atau kosongkan keduanya.', en:'Fill in both installment "number" and "of total", or leave both empty.' },
+  alertInstallOrder:   { id:'Nomor cicilan "ke" tidak boleh lebih besar dari total cicilan "dari".', en:'Installment number cannot be greater than total installments.' },
+  alertPickImage:      { id:'Pilih file gambar (JPG, PNG, HEIC, dll).', en:'Choose an image file (JPG, PNG, HEIC, etc).' },
+  alertVoiceUnsupported:{ id:'Input suara tidak didukung di browser ini. Coba pakai Chrome atau Safari terbaru (di iPhone: aplikasi Safari).', en:'Voice input is not supported in this browser. Try the latest Chrome or Safari (on iPhone: the Safari app).' },
+  importReadFail:      { id:'Gagal membaca file. Pastikan file .json hasil ekspor yang valid.', en:'Failed to read file. Make sure it is a valid exported .json file.' },
+  importBadFormat:     { id:'Format file tidak dikenali. Gunakan file hasil "Unduh Backup".', en:'Unrecognized file format. Use a file from "Download Backup".' },
+  confirmImport:       { id:'Impor data ini akan MENIMPA semua tagihan, layanan, dan template catatan yang ada saat ini di perangkat ini. Lanjutkan?', en:'Importing this data will OVERWRITE all bills, services, and note templates currently on this device. Continue?' },
+  importSuccess:       { id:'Impor berhasil! Data sudah diperbarui.', en:'Import successful! Data has been updated.' },
+  syncLibFail:         { id:'Gagal memuat pustaka sinkronisasi. Cek koneksi internet.', en:'Failed to load sync library. Check your internet connection.' },
+  syncedAt:            { id:'Tersinkron • ', en:'Synced • ' },
+  syncFail:            { id:'Gagal sinkron: ', en:'Sync failed: ' },
+  syncWaiting:         { id:'Terhubung, menunggu data...', en:'Connected, waiting for data...' },
+  syncConnectFail:     { id:'Gagal terhubung: ', en:'Failed to connect: ' },
+  syncInactive:        { id:'Tidak aktif', en:'Inactive' },
+  syncReconnecting:    { id:'Menghubungkan ulang...', en:'Reconnecting...' },
+  syncConnecting:      { id:'Menghubungkan...', en:'Connecting...' },
+  syncToAccount:       { id:'Menyinkron ke akun Anda...', en:'Syncing to your account...' },
+  syncedToAccount:     { id:'Tersinkron ke akun • ', en:'Synced to account • ' },
+  syncSendFail:        { id:'Gagal mengirim data: ', en:'Failed to send data: ' },
+  accountLibFail:      { id:'Gagal memuat pustaka. Cek koneksi internet.', en:'Failed to load library. Check your internet connection.' },
+  accountLoading:      { id:'Memuat...', en:'Loading...' },
+  accountPreparing:    { id:'Menyiapkan login Google...', en:'Preparing Google sign-in...' },
+  accountPrepareFail:  { id:'Gagal menyiapkan login. Periksa koneksi internet lalu coba lagi.', en:'Failed to prepare sign-in. Check your internet connection then try again.' },
+  scanTesseractFail:   { id:'Gagal memuat Tesseract.js. Cek koneksi internet.', en:'Failed to load Tesseract.js. Check your internet connection.' },
+  firebaseAppFail:     { id:'Gagal memuat firebase-app-compat.js', en:'Failed to load firebase-app-compat.js' },
+  firebaseAuthFail:    { id:'Gagal memuat firebase-auth-compat.js', en:'Failed to load firebase-auth-compat.js' },
+  firebaseFsFail:      { id:'Gagal memuat firebase-firestore-compat.js', en:'Failed to load firebase-firestore-compat.js' },
+  signInFail:          { id:'Gagal masuk. ', en:'Sign-in failed. ' },
+  popupClosed:         { id:'Jendela login ditutup sebelum selesai.', en:'Sign-in window was closed before finishing.' },
+  popupUnsupported:    { id:'Login popup tidak didukung. Pastikan Firebase Config sudah benar & domain ini di-allow di Firebase Console.', en:'Login popup not supported. Make sure Firebase Config is correct & this domain is allowed in Firebase Console.' },
+  ocrFailPrefix:       { id:'Gagal: ', en:'Failed: ' },
+  // --- format lokal ---
+  localeTag:           { id:'id-ID', en:'en-US' },
+  currencyPrefix:      { id:'Rp', en:'Rp' },
+  speechLang:          { id:'id-ID', en:'en-US' },
+};
+
+/** Ambil string sesuai bahasa aktif. */
+function t(key){
+  const entry = I18N[key];
+  if(!entry) return key;
+  return entry[lang] !== undefined ? entry[lang] : entry.id;
+}
+/** Locale aktif untuk format tanggal/angka/waktu. */
+function activeLocale(){ return t('localeTag'); }
+
+/** Terapkan semua teks statis sesuai bahasa aktif. */
+function applyLanguage(){
+  document.documentElement.setAttribute('lang', lang);
+  const set = (id, key) => { const el = document.getElementById(id); if(el) el.textContent = t(key); };
+  const setTitle = (id, key) => { const el = document.getElementById(id); if(el) el.title = t(key); };
+  const setPH = (id, key) => { const el = document.getElementById(id); if(el) el.placeholder = t(key); };
+  const setHTML = (id, key) => { const el = document.getElementById(id); if(el) el.innerHTML = t(key); };
+  // toolbar & header
+  set('accountBtnLabel', 'accountLoginLabel');
+  setTitle('accountBtn', 'accountLoginTitle');
+  setTitle('syncBtn', 'syncBtnTitle');
+  setTitle('settingsBtn', 'settingsBtnLabel');
+  document.getElementById('settingsBtn').setAttribute('aria-label', t('settingsBtnLabel'));
+  const subToggle = document.getElementById('subThemeToggle');
+  if(subToggle) subToggle.setAttribute('aria-label', subToggle.classList.contains('is-dark') ? t('themeLightLabel') : t('themeDarkLabel'));
+  setTitle('subThemeToggle', 'themeSwitchTitle');
+  set('totalBillsLabel', 'totalBills');
+  // tombol utama
+  set('addToggle', 'addBtn');
+  set('scanBtnLabel', 'scanBtn');
+  setTitle('scanToggle', 'scanBtnTitle');
+  set('voiceBtnLabel', 'voiceBtn');
+  setTitle('voiceToggle', 'voiceBtnTitle');
+  // form
+  set('providerLabel', 'providerLabel');
+  set('provEditToggle', 'manageProviders');
+  set('amountLabel', 'amountLabel');
+  setPH('fAmount', 'amountPlaceholder');
+  set('dueLabel', 'dueLabel');
+  set('installmentLabel', 'installmentLabel');
+  set('installmentFrom', 'installmentFrom');
+  set('noteLabel', 'noteLabel');
+  setPH('fNote', 'notePlaceholder');
+  set('chipEditToggle', 'manageTemplates');
+  set('excludeLabel', 'excludeLabel');
+  set('manageProvidersTitle', 'manageProvidersTitle');
+  setPH('provNewLabel', 'newProviderPlaceholder');
+  set('provAddBtn', 'addChip');
+  set('saveBtn', editingId ? 'saveChangesBtn' : 'saveBtn');
+  set('cancelBtn', 'cancelBtn');
+  set('editHint', 'editingHint');
+  set('footNote', 'footNote');
+  // modal sinkron
+  set('syncTitle', 'syncTitle');
+  set('syncConfigLabel', 'syncConfigLabel');
+  set('syncCodeLabel', 'syncCodeLabel');
+  setPH('syncCodeInput', 'syncCodePlaceholder');
+  set('syncConnectBtn', 'syncConnect');
+  set('syncCancelBtn', 'syncCancel');
+  set('syncDisconnectBtn', 'syncDisconnect');
+  setHTML('syncHelp', 'syncHelp');
+  // modal pengaturan
+  set('settingsTitle', 'settingsTitle');
+  document.getElementById('settingsClose').setAttribute('aria-label', t('closeLabel'));
+  document.getElementById('accountClose').setAttribute('aria-label', t('closeLabel'));
+  set('themeChoiceLabel', 'themeChoiceLabel');
+  set('classicThemeBtn', 'classicTheme');
+  set('modernThemeBtn', 'modernTheme');
+  set('langChoiceLabel', 'langChoiceLabel');
+  set('exportLabel', 'exportLabel');
+  setHTML('exportHelp', 'exportHelp');
+  set('exportBtn', 'exportBtn');
+  set('importLabel', 'importLabel');
+  setHTML('importHelp', 'importHelp');
+  set('importBtn', 'importBtn');
+  const langBtnId = document.getElementById('langIdBtn');
+  const langBtnEn = document.getElementById('langEnBtn');
+  if(langBtnId) langBtnId.classList.toggle('active', lang === 'id');
+  if(langBtnEn) langBtnEn.classList.toggle('active', lang === 'en');
+  document.getElementById('importStatusLine').style.display = 'none';
+  // modal akun
+  set('accountTitle', 'accountTitle');
+  set('googleLoginLabel', 'googleLogin');
+  set('syncedAutoLabel', 'syncedAuto');
+  set('accountLogoutBtn', 'logoutBtn');
+  // modal scan / suara
+  set('scanModalTitle', 'scanPhotoTitle');
+  document.getElementById('scanPreview').setAttribute('alt', t('previewAlt'));
+  set('scanPauseBtn', 'scanPause');
+  set('scanStopBtn', 'scanFinish');
+  setTitle('scanCancelPausedBtn', 'scanCancelTitle');
+  set('scanResumeBtn', 'scanResume');
+  set('scanFinishPausedBtn', 'scanDoneSmall');
+  setTitle('scanRetryBtn', 'scanRetryTitle');
+  set('scanApplyBtn', 'scanFillForm');
+  set('scanCancelBtn', 'scanCancel');
+  // tanggal header mengikuti locale
+  renderDateNow();
+  renderChips();
+  renderProviderSelect();
+  renderProviderManage();
+  render();
+}
+
+async function saveLang(){
+  await saveWithRetry('paylater-lang', lang);
+}
+
+function renderDateNow(){
+  document.getElementById('dateNow').textContent = new Date().toLocaleDateString(activeLocale(), {
+    weekday:'long', day:'2-digit', month:'long', year:'numeric'
+  });
+}
 
 function formatRupiah(n){
-  return 'Rp' + Number(n||0).toLocaleString('id-ID');
+  return t('currencyPrefix') + Number(n||0).toLocaleString(activeLocale());
 }
 function formatRupiahCompact(n){
   n = Number(n||0);
@@ -1577,16 +1890,17 @@ function formatRupiahCompact(n){
   let out;
   if(n >= 1000){
     const v = n/1000;
-    const s = (v % 1 === 0) ? v.toString() : v.toFixed(1).replace('.', ',');
+    const decSep = (1.1).toLocaleString(activeLocale()).replace(/\d/g, '');
+    const s = (v % 1 === 0) ? v.toString() : v.toFixed(1).replace('.', decSep);
     out = s + 'K';
   } else {
-    out = n.toLocaleString('id-ID');
+    out = n.toLocaleString(activeLocale());
   }
-  return 'Rp' + (neg ? '-' : '') + out;
+  return t('currencyPrefix') + (neg ? '-' : '') + out;
 }
 function formatThousands(digitsStr){
   if(!digitsStr) return '';
-  return Number(digitsStr).toLocaleString('id-ID');
+  return Number(digitsStr).toLocaleString(activeLocale());
 }
 function parseAmountInput(str){
   const digits = String(str||'').replace(/\D/g, '');
@@ -1595,7 +1909,7 @@ function parseAmountInput(str){
 function formatDate(d){
   if(!d) return '-';
   const dt = new Date(d+'T00:00:00');
-  return dt.toLocaleDateString('id-ID', { day:'2-digit', month:'short', year:'numeric' });
+  return dt.toLocaleDateString(activeLocale(), { day:'2-digit', month:'short', year:'numeric' });
 }
 function todayStr(){
   const t = new Date();
@@ -1667,6 +1981,10 @@ async function loadState(){
     const h = await appStorage.get('paylater-hide-total');
     hideTotal = h ? h.value === '1' : false;
   }catch(err){ hideTotal = false; }
+  try{
+    const l = await appStorage.get('paylater-lang');
+    lang = (l && l.value === 'en') ? 'en' : 'id';
+  }catch(err){ lang = 'id'; }
   applyTheme();
   applyHideTotal();
 }
@@ -1752,13 +2070,13 @@ function loadFirebaseScripts(){
         const s3 = document.createElement('script');
         s3.src = 'https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js';
         s3.onload = resolve;
-        s3.onerror = () => reject(new Error('Gagal memuat firebase-auth-compat.js'));
+        s3.onerror = () => reject(new Error(t('firebaseAuthFail')));
         document.head.appendChild(s3);
       };
-      s2.onerror = () => reject(new Error('Gagal memuat firebase-firestore-compat.js'));
+      s2.onerror = () => reject(new Error(t('firebaseFsFail')));
       document.head.appendChild(s2);
     };
-    s1.onerror = () => reject(new Error('Gagal memuat firebase-app-compat.js'));
+    s1.onerror = () => reject(new Error(t('firebaseAppFail')));
     document.head.appendChild(s1);
   });
   return firebaseLoadPromise;
@@ -1784,7 +2102,7 @@ async function connectSync(config, code, isSilentReconnect){
   try{
     await loadFirebaseScripts();
   }catch(err){
-    updateSyncStatus('Gagal memuat pustaka sinkronisasi. Cek koneksi internet.', 'err');
+    updateSyncStatus(t('syncLibFail'), 'err');
     return false;
   }
   try{
@@ -1826,21 +2144,21 @@ async function connectSync(config, code, isSilentReconnect){
       await saveWithRetry('paylater-providers', JSON.stringify(providers));
       await saveWithRetry('paylater-note-templates', JSON.stringify(noteTemplates));
       suppressPush = false;
-      updateSyncStatus('Tersinkron • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+      updateSyncStatus(t('syncedAt') + new Date().toLocaleTimeString(activeLocale()), 'on');
     }, (err) => {
       console.warn('sync error', err);
-      updateSyncStatus('Gagal sinkron: ' + err.message, 'err');
+      updateSyncStatus(t('syncFail') + err.message, 'err');
     });
 
     syncConfig = config;
     syncCode = code;
     await saveSyncConfigLocal();
-    updateSyncStatus('Terhubung, menunggu data...', 'on');
+    updateSyncStatus(t('syncWaiting'), 'on');
     setSyncModalConnectedView(true);
     return true;
   }catch(err){
     console.warn(err);
-    updateSyncStatus('Gagal terhubung: ' + err.message, 'err');
+    updateSyncStatus(t('syncConnectFail') + err.message, 'err');
     return false;
   }
 }
@@ -1852,7 +2170,7 @@ function disconnectSync(){
   syncConfig = null;
   syncCode = null;
   saveSyncConfigLocal();
-  updateSyncStatus('Tidak aktif', null);
+  updateSyncStatus(t('syncInactive'), null);
   setSyncModalConnectedView(false);
 }
 
@@ -1865,10 +2183,10 @@ function pushToCloud(immediate){
         entries, theme, providers, noteTemplates,
         updatedAt: window.firebase.firestore.FieldValue.serverTimestamp()
       });
-      updateSyncStatus('Tersinkron • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+      updateSyncStatus(t('syncedAt') + new Date().toLocaleTimeString(activeLocale()), 'on');
     }catch(err){
       console.warn(err);
-      updateSyncStatus('Gagal mengirim data: ' + err.message, 'err');
+      updateSyncStatus(t('syncSendFail') + err.message, 'err');
     }
   };
   if(immediate) return doPush();
@@ -1897,7 +2215,7 @@ async function initSyncOnLoad(){
   // fallback: kalau belum login (onAuthStateChanged tidak memicu connect), sambungkan mode kode lama
   if(syncConfig && syncCode && !currentUser){
     setSyncModalConnectedView(true);
-    updateSyncStatus('Menghubungkan ulang...', null);
+    updateSyncStatus(t('syncReconnecting'), null);
     await connectSync(syncConfig, syncCode, true);
   }
 }
@@ -1920,22 +2238,22 @@ document.getElementById('syncConnectBtn').addEventListener('click', async () => 
   const raw = document.getElementById('syncConfigInput').value.trim();
   const code = document.getElementById('syncCodeInput').value.trim();
   if(!raw || !code){
-    alert('Isi dulu Firebase Config dan Kode Sinkron.');
+    alert(t('alertFillSync'));
     return;
   }
   let config;
   try{
     config = JSON.parse(raw);
   }catch(err){
-    alert('Firebase Config harus berupa JSON yang valid. Salin persis dari Firebase Console.');
+    alert(t('alertBadConfig'));
     return;
   }
-  updateSyncStatus('Menghubungkan...', null);
+  updateSyncStatus(t('syncConnecting'), null);
   const ok = await connectSync(config, code);
-  if(ok) alert('Berhasil terhubung! Buka struk ini di HP/browser lain, masukkan Config dan Kode Sinkron yang sama untuk menyamakan data.');
+  if(ok) alert(t('alertConnected'));
 });
 document.getElementById('syncDisconnectBtn').addEventListener('click', () => {
-  const ok = confirm('Putuskan sinkronisasi? Data di perangkat ini tetap tersimpan lokal, tapi tidak akan update otomatis lagi.');
+  const ok = confirm(t('confirmDisconnect'));
   if(ok) disconnectSync();
 });
 
@@ -1965,7 +2283,7 @@ function setAccountModalConnected(connected, user){
     const av = document.getElementById('accountModalAvatar');
     if(user.photoURL){ av.style.backgroundImage = `url('${user.photoURL}')`; av.classList.remove('placeholder'); av.textContent=''; }
     else { av.style.backgroundImage=''; av.classList.add('placeholder'); av.textContent = (user.name||'?').charAt(0).toUpperCase(); }
-    document.getElementById('accountModalName').textContent = user.name || 'Pengguna';
+    document.getElementById('accountModalName').textContent = user.name || t('accountFallbackName');
     document.getElementById('accountModalEmail').textContent = user.email || '';
   }
 }
@@ -1979,22 +2297,22 @@ function updateAccountButton(user){
     av.style.backgroundImage = '';
     av.classList.add('placeholder');
     av.textContent = 'G';
-    lbl.textContent = 'Masuk';
-    btn.title = 'Masuk dengan Google';
+    lbl.textContent = t('accountLoginLabel');
+    btn.title = t('accountLoginTitle');
     return;
   }
   if(user.photoURL){ av.style.backgroundImage = `url('${user.photoURL}')`; av.classList.remove('placeholder'); av.textContent=''; }
   else { av.style.backgroundImage=''; av.classList.add('placeholder'); av.textContent = (user.name||'?').charAt(0).toUpperCase(); }
-  lbl.textContent = (user.name||'Akun').split(' ')[0];
+  lbl.textContent = (user.name||t('accountLabel')).split(' ')[0];
   btn.title = (user.name||'Akun Google') + (user.email ? ' — ' + user.email : '');
 }
 
 async function signInWithGoogle(){
   if(!window.firebase || !window.firebase.auth){
-    setAccountStatus('Gagal memuat pustaka. Cek koneksi internet.', true);
+    setAccountStatus(t('accountLibFail'), true);
     return;
   }
-  setAccountStatus('Memuat…', false);
+  setAccountStatus(t('accountLoading'), false);
   try{
     const provider = getGoogleProvider();
     await window.firebase.auth().signInWithPopup(provider);
@@ -2002,11 +2320,11 @@ async function signInWithGoogle(){
   }catch(err){
     console.warn('login error', err);
     const code = err && err.code ? err.code : '';
-    let msg = 'Gagal masuk. ' + (err.message||'');
-    if(code === 'auth/popup-closed-by-user') msg = 'Jendela login ditutup sebelum selesai.';
+    let msg = t('signInFail') + (err.message||'');
+    if(code === 'auth/popup-closed-by-user') msg = t('popupClosed');
     else if(code === 'auth/cancelled-popup-request') msg = '';
     else if(code === 'auth/popup-blocked') msg = 'Popup diblokir browser. Izinkan popup lalu coba lagi.';
-    else if(code === 'auth/operation-not-supported-in-this-environment') msg = 'Login popup tidak didukung. Pastikan Firebase Config sudah benar & domain ini di-allow di Firebase Console.';
+    else if(code === 'auth/operation-not-supported-in-this-environment') msg = t('popupUnsupported');
     else if(code === 'auth/operation-not-allowed') msg = 'Login Google belum diaktifkan. Aktifkan di Firebase Console → Authentication → Sign-in method → Google.';
     if(msg) setAccountStatus(msg, true);
   }
@@ -2031,7 +2349,7 @@ async function signOutGoogle(){
   renderProviderManage();
   if(typeof renderChips === 'function') renderChips();
   render();
-  updateSyncStatus('Tidak aktif', null);
+  updateSyncStatus(t('syncInactive'), null);
 }
 
 function onAuthReady(){
@@ -2045,9 +2363,9 @@ function onAuthReady(){
         setAccountModalConnected(true, currentUser);
         // auto-connect sync berbasis UID jika config sudah ada
         if(syncConfig){
-          updateSyncStatus('Menyinkron ke akun Anda...', null);
+          updateSyncStatus(t('syncToAccount'), null);
           await connectSync(syncConfig, syncCode || fbUser.uid, true);
-          updateSyncStatus('Tersinkron ke akun • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+          updateSyncStatus(t('syncedToAccount') + new Date().toLocaleTimeString(activeLocale()), 'on');
         }
       }else{
         currentUser = null;
@@ -2086,13 +2404,13 @@ document.getElementById('googleLoginBtn').addEventListener('click', async () => 
   // pastikan Firebase & config sudah ada
   if(!syncConfig) syncConfig = { ...DEFAULT_FIREBASE_CONFIG };
   if(!window.firebase || !window.firebase.auth){
-    setAccountStatus('Menyiapkan login Google…', false);
+    setAccountStatus(t('accountPreparing'), false);
     try{
       await loadFirebaseScripts();
       if(!window.firebase.apps.length) window.firebase.initializeApp(syncConfig);
       onAuthReady();
     }catch(err){
-      setAccountStatus('Gagal menyiapkan login. Periksa koneksi internet lalu coba lagi.', true);
+      setAccountStatus(t('accountPrepareFail'), true);
       return;
     }
   }
@@ -2137,14 +2455,14 @@ async function importDataFromFile(file){
     const text = await file.text();
     parsed = JSON.parse(text);
   }catch(err){
-    setImportStatus('Gagal membaca file. Pastikan file .json hasil ekspor yang valid.', true);
+    setImportStatus(t('importReadFail'), true);
     return;
   }
   if(!parsed || typeof parsed !== 'object' || !Array.isArray(parsed.entries)){
-    setImportStatus('Format file tidak dikenali. Gunakan file hasil "Unduh Backup".', true);
+    setImportStatus(t('importBadFormat'), true);
     return;
   }
-  const ok = confirm('Impor data ini akan MENIMPA semua tagihan, layanan, dan template catatan yang ada saat ini di perangkat ini. Lanjutkan?');
+  const ok = confirm(t('confirmImport'));
   if(!ok){ setImportStatus(''); return; }
 
   entries = parsed.entries;
@@ -2161,7 +2479,7 @@ async function importDataFromFile(file){
   renderProviderManage();
   render();
 
-  setImportStatus('Impor berhasil! Data sudah diperbarui.', false);
+  setImportStatus(t('importSuccess'), false);
 }
 
 const settingsOverlayEl = document.getElementById('settingsOverlay');
@@ -2181,6 +2499,12 @@ document.getElementById('modernThemeBtn').addEventListener('click', () => {
   applyTheme(); saveTheme(); closeSettings();
 });
 document.getElementById('exportBtn').addEventListener('click', exportData);
+document.getElementById('langIdBtn').addEventListener('click', async () => {
+  if(lang !== 'id'){ lang = 'id'; await saveLang(); applyLanguage(); }
+});
+document.getElementById('langEnBtn').addEventListener('click', async () => {
+  if(lang !== 'en'){ lang = 'en'; await saveLang(); applyLanguage(); }
+});
 document.getElementById('importBtn').addEventListener('click', () => {
   document.getElementById('importFileInput').click();
 });
@@ -2204,12 +2528,16 @@ function applyTheme(){
   document.body.classList.toggle('modern', theme === 'modern');
   document.getElementById('classicThemeBtn').classList.toggle('active', theme!=='modern');
   document.getElementById('modernThemeBtn').classList.toggle('active', theme==='modern');
+  const langBtnId = document.getElementById('langIdBtn');
+  const langBtnEn = document.getElementById('langEnBtn');
+  if(langBtnId) langBtnId.classList.toggle('active', lang === 'id');
+  if(langBtnEn) langBtnEn.classList.toggle('active', lang === 'en');
   const subActive = theme==='modern' ? modernSubTheme : theme;
   const subThemeToggle = document.getElementById('subThemeToggle');
   const isDarkTheme = subActive === 'dark';
   subThemeToggle.classList.toggle('is-dark', isDarkTheme);
   subThemeToggle.setAttribute('aria-checked', String(isDarkTheme));
-  subThemeToggle.setAttribute('aria-label', isDarkTheme ? 'Aktifkan tema terang' : 'Aktifkan tema gelap');
+  subThemeToggle.setAttribute('aria-label', isDarkTheme ? t('themeLightLabel') : t('themeDarkLabel'));
   document.body.classList.toggle('modern-light', theme==='modern' && modernSubTheme==='light');
   const themeColors = { light:'#DCD7CC', dark:'#041420', modern: modernSubTheme==='light' ? '#EEF2ED' : '#020103' };
   const metaTheme = document.querySelector('meta[name="theme-color"]');
@@ -2254,7 +2582,7 @@ function applyHideTotal(){
   const btn = document.getElementById('hideTotalToggle');
   if(btn){
     btn.classList.toggle('is-hidden', hideTotal);
-    btn.title = hideTotal ? 'Tampilkan total' : 'Sembunyikan total';
+    btn.title = hideTotal ? t('showTotalTitle') : t('hideTotalTitle');
   }
 }
 
@@ -2305,7 +2633,7 @@ function clearForm(){
 }
 function exitEditMode(){
   editingId = null;
-  document.getElementById('saveBtn').textContent = 'SIMPAN';
+  document.getElementById('saveBtn').textContent = t('saveBtn');
   document.getElementById('editHint').style.display = 'none';
 }
 function startEditEntry(id){
@@ -2320,7 +2648,7 @@ function startEditEntry(id){
   document.getElementById('fInstallTotal').value = e.installTotal || '';
   document.getElementById('fNote').value = e.note || '';
   document.getElementById('fExclude').checked = !!e.excluded;
-  document.getElementById('saveBtn').textContent = 'SIMPAN PERUBAHAN';
+  document.getElementById('saveBtn').textContent = t('saveChangesBtn');
   document.getElementById('editHint').style.display = 'block';
   openAddForm();
 }
@@ -2419,12 +2747,12 @@ function renderChips(){
     const addInput = document.createElement('input');
     addInput.type = 'text';
     addInput.id = 'newTplInput';
-    addInput.placeholder = 'template baru';
+    addInput.placeholder = t('newTemplatePlaceholder');
     addInput.maxLength = 40;
     const addBtn = document.createElement('button');
     addBtn.type = 'button';
     addBtn.className = 'chip add-chip';
-    addBtn.textContent = '+ tambah';
+    addBtn.textContent = t('addChip');
     const doAdd = async () => {
       const trimmed = addInput.value.trim();
       if(!trimmed) return;
@@ -2445,7 +2773,7 @@ function renderChips(){
 
 chipEditToggle.addEventListener('click', () => {
   chipsEditMode = !chipsEditMode;
-  chipEditToggle.textContent = chipsEditMode ? '✓ selesai' : '✎ atur template';
+  chipEditToggle.textContent = chipsEditMode ? t('doneEditToggle') : t('manageTemplates');
   renderChips();
 });
 
@@ -2455,7 +2783,7 @@ fNoteEl.addEventListener('input', () => {
 
 function renderTabs(){
   const tabsEl = document.getElementById('tabs');
-  const defs = [['semua','SEMUA'], ...providers.map(p => [p.key, p.label])];
+  const defs = [['semua',t('tabAll')], ...providers.map(p => [p.key, p.label])];
   tabsEl.innerHTML = '';
   defs.forEach(([key,label]) => {
     const b = document.createElement('button');
@@ -2515,10 +2843,10 @@ function renderProviderManage(){
 async function removeProvider(idx){
   const p = providers[idx];
   if(!p) return;
-  if(providers.length <= 1){ alert('Minimal harus ada satu layanan.'); return; }
+  if(providers.length <= 1){ alert(t('alertMinProvider')); return; }
   const count = entries.filter(e => e.provider === p.key).length;
-  let msg = 'Hapus layanan "' + p.label + '"?';
-  if(count > 0) msg += ' ' + count + ' tagihan pada layanan ini akan ikut terhapus.';
+  let msg = t('confirmDelProviderA') + p.label + t('confirmDelProviderB');
+  if(count > 0) msg += ' ' + count + t('confirmDelProviderBills');
   if(!confirm(msg)) return;
   providers.splice(idx, 1);
   entries = entries.filter(e => e.provider !== p.key);
@@ -2539,9 +2867,9 @@ document.getElementById('provAddBtn').addEventListener('click', async () => {
   const labelInput = document.getElementById('provNewLabel');
   const colorInput = document.getElementById('provNewColor');
   const label = labelInput.value.trim();
-  if(!label){ alert('Isi nama layanan terlebih dahulu.'); return; }
+  if(!label){ alert(t('alertProviderName')); return; }
   if(providers.some(p => p.label.toLowerCase() === label.toLowerCase())){
-    alert('Layanan dengan nama itu sudah ada.');
+    alert(t('alertProviderExists'));
     return;
   }
   const key = 'prov_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
@@ -2561,11 +2889,11 @@ function daysDiff(dueStr, todayStr){
   return Math.round((due - now) / 86400000);
 }
 function countdownLabel(diff){
-  if(diff < 0) return { text: 'terlambat ' + Math.abs(diff) + ' hari', cls:'soon' };
-  if(diff === 0) return { text: 'jatuh tempo hari ini', cls:'soon' };
-  if(diff === 1) return { text: 'besok', cls:'warn' };
-  if(diff <= 3) return { text: diff + ' hari lagi', cls:'warn' };
-  return { text: diff + ' hari lagi', cls:'ok' };
+  if(diff < 0) return { text: t('lateDays') + Math.abs(diff) + t('daysUnit'), cls:'soon' };
+  if(diff === 0) return { text: t('dueToday'), cls:'soon' };
+  if(diff === 1) return { text: t('tomorrow'), cls:'warn' };
+  if(diff <= 3) return { text: diff + t('daysLeft'), cls:'warn' };
+  return { text: diff + t('daysLeft'), cls:'ok' };
 }
 
 function renderList(){
@@ -2577,7 +2905,7 @@ function renderList(){
   });
 
   if(items.length===0){
-    listEl.innerHTML = '<div class="empty">— belum ada tagihan tercatat —</div>';
+    listEl.innerHTML = '<div class="empty">' + t('emptyList') + '</div>';
     return;
   }
 
@@ -2600,14 +2928,14 @@ function renderList(){
       const cd = countdownLabel(daysDiff(e.due, today));
       countdownHtml = '<span class="countdown ' + cd.cls + '">' + cd.text + '</span>';
     }
-    const stampHtml = e.paid ? '<div class="stamp lunas">LUNAS</div>' : (overdue ? '<div class="stamp telat">TELAT</div>' : '');
+    const stampHtml = e.paid ? '<div class="stamp lunas">' + t('stampPaid') + '</div>' : (overdue ? '<div class="stamp telat">' + t('stampLate') + '</div>' : '');
     div.innerHTML = `
       <div class="item-row">
         <div class="item-main">
           <span class="prov-tag" style="background:${provDisplayColor}">${prov.label}</span>
-          <div class="item-note">${e.note ? escapeHtml(e.note) : '(tanpa catatan)'}${(e.installNo && e.installTotal) ? ' <span class="item-installment">· cicilan ke-' + e.installNo + ' dari ' + e.installTotal + '</span>' : ''}</div>
-          <div class="item-due">jatuh tempo: ${formatDate(e.due)}</div>
-          ${e.excluded ? '<div class="item-excluded-tag">✕ tidak dihitung ke total</div>' : ''}
+          <div class="item-note">${e.note ? escapeHtml(e.note) : t('noNote')}${(e.installNo && e.installTotal) ? ' <span class="item-installment">' + t('installmentOf') + e.installNo + ' ' + t('installmentFrom') + ' ' + e.installTotal + '</span>' : ''}</div>
+          <div class="item-due">${t('duePrefix')}${formatDate(e.due)}</div>
+          ${e.excluded ? '<div class="item-excluded-tag">' + t('excludedTag') + '</div>' : ''}
         </div>
         <div class="item-right">
           <div class="item-amount">${formatRupiah(e.amount)}</div>
@@ -2616,10 +2944,10 @@ function renderList(){
         </div>
       </div>
       <div class="item-actions">
-        <button class="action-btn" data-act="paid" data-id="${e.id}">${e.paid ? 'BATAL LUNAS' : 'TANDAI LUNAS'}</button>
-        <button class="action-btn" data-act="exclude" data-id="${e.id}">${e.excluded ? 'MASUKKAN KE TOTAL' : 'KECUALIKAN'}</button>
-        <button class="action-btn action-btn-icon" data-act="edit" data-id="${e.id}" title="Ubah"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
-        <button class="action-btn action-btn-icon" data-act="del" data-id="${e.id}" title="Hapus"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
+        <button class="action-btn" data-act="paid" data-id="${e.id}">${e.paid ? t('unmarkPaidBtn') : t('markPaidBtn')}</button>
+        <button class="action-btn" data-act="exclude" data-id="${e.id}">${e.excluded ? t('includeBtn') : t('excludeBtn')}</button>
+        <button class="action-btn action-btn-icon" data-act="edit" data-id="${e.id}" title="${t('editTitle')}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></button>
+        <button class="action-btn action-btn-icon" data-act="del" data-id="${e.id}" title="${t('deleteTitle')}"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"></path><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path></svg></button>
       </div>
     `;
     listEl.appendChild(div);
@@ -2649,11 +2977,11 @@ function renderList(){
 
     let html = '';
     if(remaining > 0){
-      html += `<button class="list-more-btn list-more-icon-btn" id="listMoreBtn" title="Lihat lagi" aria-label="Lihat lagi"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button>`;
-      html += `<button class="list-more-btn" id="listAllBtn">Lihat semua</button>`;
+      html += `<button class="list-more-btn list-more-icon-btn" id="listMoreBtn" title="${t('seeMore')}" aria-label="${t('seeMore')}"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"></path></svg></button>`;
+      html += `<button class="list-more-btn" id="listAllBtn">${t('seeAll')}</button>`;
     }
     if(listVisibleCount > 1){
-      html += `<button class="list-more-btn hide-btn" id="listHideBtn">Sembunyikan</button>`;
+      html += `<button class="list-more-btn hide-btn" id="listHideBtn">${t('hideList')}</button>`;
     }
     moreRow.innerHTML = html;
     listEl.appendChild(moreRow);
@@ -2834,18 +3162,18 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   const excluded = document.getElementById('fExclude').checked;
 
   if(!amount || amount <= 0 || !due){
-    alert('Isi jumlah dan tanggal jatuh tempo terlebih dahulu.');
+    alert(t('alertFillAmountDue'));
     return;
   }
 
   const installNo = installNoRaw ? Number(installNoRaw) : null;
   const installTotal = installTotalRaw ? Number(installTotalRaw) : null;
   if((installNo && !installTotal) || (!installNo && installTotal)){
-    alert('Isi cicilan "ke" dan "dari" keduanya, atau kosongkan keduanya.');
+    alert(t('alertInstallBoth'));
     return;
   }
   if(installNo && installTotal && installNo > installTotal){
-    alert('Nomor cicilan "ke" tidak boleh lebih besar dari total cicilan "dari".');
+    alert(t('alertInstallOrder'));
     return;
   }
 
@@ -2876,9 +3204,7 @@ document.getElementById('saveBtn').addEventListener('click', async () => {
   render();
 });
 
-document.getElementById('dateNow').textContent = new Date().toLocaleDateString('id-ID', {
-  weekday:'long', day:'2-digit', month:'long', year:'numeric'
-});
+renderDateNow();
 
 /* ===================== SCAN FOTO (OCR Tesseract.js) ===================== */
 let tesseractWorker = null;
@@ -2894,7 +3220,7 @@ function loadTesseractScript(){
     const s = document.createElement('script');
     s.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js';
     s.onload = resolve;
-    s.onerror = () => reject(new Error('Gagal memuat Tesseract.js. Cek koneksi internet.'));
+    s.onerror = () => reject(new Error(t('scanTesseractFail')));
     document.head.appendChild(s);
   });
   return tesseractLoading;
@@ -3335,7 +3661,7 @@ function boostCanvasContrast(canvas){
 
 async function processScanImage(file){
   if(!isImageFile(file)){
-    alert('Pilih file gambar (JPG, PNG, HEIC, dll).');
+    alert(t('alertPickImage'));
     return;
   }
   lastScanParsed = null;
@@ -3344,28 +3670,28 @@ async function processScanImage(file){
   const previewUrl = URL.createObjectURL(file);
   setScanUI({
     open: true,
-    title: '📷 SCAN FOTO TAGIHAN',
+    title: t('scanPhotoTitle'),
     mic: false,
     progress: 3,
-    status: 'Memuat mesin OCR… (pertama kali bisa 10–30 detik)',
+    status: t('ocrLoadingEngine'),
     showButtons: false,
     previewUrl,
     resultText: ''
   });
 
   try{
-    setScanUI({ progress: 8, status: 'Mengunduh / menyiapkan Tesseract…' });
+    setScanUI({ progress: 8, status: t('ocrDownloading') });
     const worker = await getTesseractWorker(p => {
       setScanUI({
         progress: Math.max(15, Math.min(90, 15 + Math.round(p * 0.75))),
-        status: 'Membaca teks… ' + p + '%'
+        status: t('ocrReading') + p + '%'
       });
     });
-    setScanUI({ status: 'Menyiapkan gambar…', progress: 12 });
+    setScanUI({ status: t('ocrPreppingImage'), progress: 12 });
 
     const canvas = await loadImageToCanvas(file, 1600);
     boostCanvasContrast(canvas);
-    setScanUI({ status: 'Mengenali teks dari foto…', progress: 18 });
+    setScanUI({ status: t('ocrRecognizing'), progress: 18 });
 
     const { data } = await worker.recognize(canvas);
     const rawText = (data && data.text) ? data.text.trim() : '';
@@ -3375,31 +3701,31 @@ async function processScanImage(file){
     const summaryParts = [];
     if(parsed.provider){
       const p = providers.find(x => x.key === parsed.provider);
-      summaryParts.push('Layanan: ' + (p ? p.label : parsed.provider));
+      summaryParts.push(t('ocrProvider') + (p ? p.label : parsed.provider));
     }
-    if(parsed.amount) summaryParts.push('Jumlah: ' + formatRupiah(parsed.amount));
-    if(parsed.due) summaryParts.push('Jatuh tempo: ' + formatDate(parsed.due));
-    if(parsed.installNo && parsed.installTotal) summaryParts.push('Cicilan: ke-' + parsed.installNo + ' dari ' + parsed.installTotal);
-    if(parsed.note) summaryParts.push('Catatan: ' + parsed.note);
+    if(parsed.amount) summaryParts.push(t('ocrAmount') + formatRupiah(parsed.amount));
+    if(parsed.due) summaryParts.push(t('ocrDue') + formatDate(parsed.due));
+    if(parsed.installNo && parsed.installTotal) summaryParts.push(t('ocrInstallment') + parsed.installNo + ' ' + t('installmentFrom') + ' ' + parsed.installTotal);
+    if(parsed.note) summaryParts.push(t('ocrNote') + parsed.note);
 
     const summary = summaryParts.length
-      ? 'Hasil deteksi:\n' + summaryParts.join('\n')
-      : 'Teks terbaca, tapi data tagihan kurang jelas. Anda bisa isi manual setelah ini.';
+      ? t('ocrDetected') + '\n' + summaryParts.join('\n')
+      : t('ocrWeak');
 
     setScanUI({
       progress: 100,
-      status: summaryParts.length ? 'Selesai. Periksa hasil lalu klik Isi Form.' : 'Selesai (deteksi lemah).',
+      status: summaryParts.length ? t('ocrDoneCheck') : t('ocrDoneWeak'),
       showButtons: true,
-      resultText: summary + (rawText ? '\n\n— Teks mentah —\n' + rawText.slice(0, 400) : '')
+      resultText: summary + (rawText ? '\n\n' + t('ocrRawText') + '\n' + rawText.slice(0, 400) : '')
     });
   }catch(err){
     console.warn(err);
     const msg = (err && err.message) ? err.message : 'error OCR';
     setScanUI({
       progress: 0,
-      status: 'Gagal: ' + msg,
+      status: t('ocrFailPrefix') + msg,
       showButtons: true,
-      resultText: 'Tips iPhone:\n• Pastikan koneksi internet aktif (unduh mesin OCR)\n• Coba foto JPG/PNG, bukan HEIC\n• Di Photos: bagikan → Simpan ke File sebagai JPEG\n• Fokus ke bagian jumlah & tanggal jatuh tempo'
+      resultText: t('ocrFailTips')
     });
     lastScanParsed = null;
   } finally {
@@ -3463,18 +3789,18 @@ function buildVoiceSummary(parsed, finalText){
   const summaryParts = [];
   if(parsed.provider){
     const p = providers.find(x => x.key === parsed.provider);
-    summaryParts.push('Layanan: ' + (p ? p.label : parsed.provider));
+    summaryParts.push(t('ocrProvider') + (p ? p.label : parsed.provider));
   }
-  if(parsed.amount) summaryParts.push('Jumlah: ' + formatRupiah(parsed.amount));
-  if(parsed.due) summaryParts.push('Jatuh tempo: ' + formatDate(parsed.due));
-  if(parsed.installNo && parsed.installTotal) summaryParts.push('Cicilan: ke-' + parsed.installNo + ' dari ' + parsed.installTotal);
-  if(parsed.note) summaryParts.push('Catatan: ' + parsed.note);
+  if(parsed.amount) summaryParts.push(t('ocrAmount') + formatRupiah(parsed.amount));
+  if(parsed.due) summaryParts.push(t('ocrDue') + formatDate(parsed.due));
+  if(parsed.installNo && parsed.installTotal) summaryParts.push(t('ocrInstallment') + parsed.installNo + ' ' + t('installmentFrom') + ' ' + parsed.installTotal);
+  if(parsed.note) summaryParts.push(t('ocrNote') + parsed.note);
 
   const summary = summaryParts.length
-    ? 'Hasil dari ucapan:\n' + summaryParts.join('\n')
-    : 'Suara terekam, tapi data tagihan kurang jelas. Anda bisa isi manual setelah ini.';
+    ? t('voiceResult') + '\n' + summaryParts.join('\n')
+    : t('voiceWeak');
 
-  return summary + (finalText ? '\n\n— Ucapan terekam —\n"' + finalText + '"' : '');
+  return summary + (finalText ? '\n\n' + t('voiceRecorded') + '\n"' + finalText + '"' : '');
 }
 
 function clearVoiceTimers(){
@@ -3497,7 +3823,7 @@ function stopVoiceInput(){
 function startVoiceInput(){
   const Ctor = getSpeechRecognitionCtor();
   if(!Ctor){
-    alert('Input suara tidak didukung di browser ini. Coba pakai Chrome atau Safari terbaru (di iPhone: aplikasi Safari).');
+    alert(t('alertVoiceUnsupported'));
     return;
   }
   lastScanParsed = null;
@@ -3514,7 +3840,7 @@ function startVoiceInput(){
 function resumeVoiceInput(){
   const Ctor = getSpeechRecognitionCtor();
   if(!Ctor){
-    alert('Input suara tidak didukung di browser ini. Coba pakai Chrome atau Safari terbaru (di iPhone: aplikasi Safari).');
+    alert(t('alertVoiceUnsupported'));
     return;
   }
   voicePaused = false;
@@ -3530,12 +3856,12 @@ function beginListening(opts){
 
   setScanUI({
     open: true,
-    title: '🎙️ INPUT SUARA',
+    title: t('voiceTitle'),
     mic: true,
     progress: opts.fresh ? 0 : 55,
     status: opts.fresh
-      ? 'Mendengarkan… contoh: "Kredivo 250 ribu jatuh tempo besok cicilan ke 3 dari 12"'
-      : ('Melanjutkan…' + (voiceFinalTranscript.trim() ? ' "' + voiceFinalTranscript.trim() + '"' : '')),
+      ? t('voiceExample')
+      : (t('voiceContinuing') + (voiceFinalTranscript.trim() ? ' "' + voiceFinalTranscript.trim() + '"' : '')),
     showButtons: false,
     showStop: true,
     showResume: false,
@@ -3547,13 +3873,13 @@ function beginListening(opts){
   try{
     recognition = new Ctor();
   }catch(e){
-    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, showStop: false, showResume: false, mic: false });
+    setScanUI({ status: t('voiceMicFail'), showButtons: true, showStop: false, showResume: false, mic: false });
     voiceActive = false;
     document.getElementById('voiceToggle').classList.remove('listening');
     return;
   }
   voiceRecognition = recognition;
-  recognition.lang = 'id-ID';
+  recognition.lang = t('speechLang');
   // continuous:true + auto-stop lewat timer diam, supaya kalimat panjang
   // (dengan jeda sesaat di tengah) tidak dipotong lebih awal oleh browser
   recognition.continuous = true;
@@ -3586,7 +3912,7 @@ function beginListening(opts){
     const shown = (voiceFinalTranscript + ' ' + interim).trim();
     setScanUI({
       progress: 55,
-      status: shown ? ('Mendengar: "' + shown + '"') : 'Mendengarkan…'
+      status: shown ? (t('voiceHearing') + shown + '"') : t('voiceListening')
     });
   };
 
@@ -3598,14 +3924,14 @@ function beginListening(opts){
     if(e.error === 'aborted') return;
     // kalau sedang proses jeda, biarkan onend yang menangani UI dijeda
     if(voicePaused) return;
-    let msg = 'Gagal mengenali suara.';
-    if(e.error === 'no-speech') msg = 'Tidak ada suara terdeteksi. Coba lagi & bicara lebih jelas.';
-    else if(e.error === 'not-allowed' || e.error === 'permission-denied') msg = 'Izin mikrofon ditolak. Aktifkan akses mikrofon di pengaturan browser lalu coba lagi.';
-    else if(e.error === 'network') msg = 'Masalah jaringan saat mengenali suara.';
+    let msg = t('voiceNotRecognized');
+    if(e.error === 'no-speech') msg = t('voiceNoSpeech');
+    else if(e.error === 'not-allowed' || e.error === 'permission-denied') msg = t('voiceMicDenied');
+    else if(e.error === 'network') msg = t('voiceNetwork');
     clearVoiceTimers();
     setScanUI({
       progress: 0,
-      status: 'Gagal: ' + msg,
+      status: t('ocrFailPrefix') + msg,
       showButtons: true,
       showStop: false,
       showResume: false,
@@ -3630,9 +3956,9 @@ function beginListening(opts){
       }
       setScanUI({
         progress: 60,
-        status: 'Dijeda. Tekan Lanjutkan untuk melanjutkan bicara, atau Selesai untuk memproses.',
+        status: t('voicePaused'),
         showResume: true,
-        resultText: voiceFinalTranscript.trim() ? 'Sejauh ini: "' + voiceFinalTranscript.trim() + '"' : ''
+        resultText: voiceFinalTranscript.trim() ? t('voiceSoFar') + voiceFinalTranscript.trim() + '"' : ''
       });
       return;
     }
@@ -3646,7 +3972,7 @@ function beginListening(opts){
     recognition.start();
   }catch(e){
     clearVoiceTimers();
-    setScanUI({ status: 'Gagal memulai mikrofon.', showButtons: true, showResume: false, mic: false });
+    setScanUI({ status: t('voiceMicFail'), showButtons: true, showResume: false, mic: false });
     voiceActive = false;
     document.getElementById('voiceToggle').classList.remove('listening');
   }
@@ -3665,7 +3991,7 @@ function finalizeVoiceTranscript(){
   if(!finalText){
     setScanUI({
       progress: 0,
-      status: 'Tidak ada teks yang terekam. Coba lagi, atau pastikan izin mikrofon aktif.',
+      status: t('voiceNoText'),
       showButtons: true,
       showStop: false,
       showResume: false,
@@ -3680,7 +4006,7 @@ function finalizeVoiceTranscript(){
   const hasData = parsed.provider || parsed.amount || parsed.due || parsed.note;
   setScanUI({
     progress: 100,
-    status: hasData ? 'Selesai. Periksa hasil lalu klik Isi Form.' : 'Selesai (deteksi lemah).',
+    status: hasData ? t('ocrDoneCheck') : t('ocrDoneWeak'),
     showButtons: true,
     showStop: false,
     showResume: false,
@@ -3772,6 +4098,7 @@ document.getElementById('scanOverlay').addEventListener('click', (e) => {
 });
 
 Promise.all([loadState(), loadTemplates(), loadProviders()]).then(() => {
+  applyLanguage();
   renderChips();
   renderProviderSelect();
   renderProviderManage();
