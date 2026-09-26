@@ -1647,12 +1647,13 @@ async function loadSyncConfig(){
     const s = await appStorage.get('paylater-sync-config');
     if(s && s.value){
       const parsed = JSON.parse(s.value);
-      syncConfig = parsed.config || null;
       syncCode = parsed.code || null;
     }
-  }catch(err){ syncConfig = null; syncCode = null; }
-  // Pakai project bawaan agar login Google langsung tersedia di perangkat baru.
-  if(!syncConfig) syncConfig = { ...DEFAULT_FIREBASE_CONFIG };
+  }catch(err){ syncCode = null; }
+  // Selalu pakai project resmi. Ini juga memigrasikan config manual/placeholder
+  // yang pernah tersimpan oleh versi lama di browser atau HP pengguna.
+  syncConfig = { ...DEFAULT_FIREBASE_CONFIG };
+  await saveSyncConfigLocal();
 }
 async function saveSyncConfigLocal(){
   await saveWithRetry('paylater-sync-config', JSON.stringify({ config:syncConfig, code:syncCode }));
