@@ -1180,9 +1180,9 @@
   <div class="toolbar">
     <span class="brandmark">CATATAN TAGIHAN</span>
     <div class="toolbar-actions">
-      <button class="account-btn" id="accountBtn" title="Akun Google" style="display:none">
-        <span class="avatar placeholder" id="accountBtnAvatar"></span>
-        <span class="label" id="accountBtnLabel"></span>
+      <button class="account-btn" id="accountBtn" title="Masuk dengan Google">
+        <span class="avatar placeholder" id="accountBtnAvatar">G</span>
+        <span class="label" id="accountBtnLabel">Masuk</span>
       </button>
       <button class="backup-btn" id="syncBtn" title="Sinkronisasi antar perangkat"><svg class="sync-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 14.5L14.5 9.5"></path><path d="M11 6.5L12.5 5C14.1569 3.34315 16.8431 3.34315 18.5 5C20.1569 6.65685 20.1569 9.34315 18.5 11L17 12.5"></path><path d="M13 17.5L11.5 19C9.84315 20.6569 7.15685 20.6569 5.5 19C3.84315 17.3431 3.84315 14.6569 5.5 13L7 11.5"></path></svg><span class="sync-dot" id="syncDot"></span></button>
       <button class="backup-btn" id="dataBtn" title="Ekspor / Impor Data"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v11"></path><path d="M7.5 10L12 14.5L16.5 10"></path><path d="M4 17.5V19.5C4 20.6 4.9 21.5 6 21.5H18C19.1 21.5 20 20.6 20 19.5V17.5"></path></svg></button>
@@ -1363,8 +1363,6 @@
     <div class="sync-status-line" id="importStatusLine" style="display:none"></div>
   </div>
 </div>
-
-<div class="scan-overlay" id="scanOverlay">
 
 <div class="sync-overlay" id="accountOverlay">
   <div class="sync-modal">
@@ -1633,6 +1631,8 @@ async function saveProviders(){
 }
 
 /* ===================== SINKRONISASI (Firebase Firestore, gratis) ===================== */
+// Firebase Web config memang bersifat publik; keamanan data dijaga oleh Auth + Firestore Rules.
+const DEFAULT_FIREBASE_CONFIG = Object.freeze({"apiKey":"AIzaSyAycxOWdjUjDWjoW_t1IdpL9C_3AXb6_Xk","authDomain":"paylater-tracker.firebaseapp.com","projectId":"paylater-tracker","storageBucket":"paylater-tracker.firebasestorage.app","messagingSenderId":"1087787412584","appId":"1:1087787412584:web:38af34635bca33e3675fdd"});
 let syncConfig = null;
 let syncCode = null;
 let firestoreDb = null;
@@ -1651,6 +1651,8 @@ async function loadSyncConfig(){
       syncCode = parsed.code || null;
     }
   }catch(err){ syncConfig = null; syncCode = null; }
+  // Pakai project bawaan agar login Google langsung tersedia di perangkat baru.
+  if(!syncConfig) syncConfig = { ...DEFAULT_FIREBASE_CONFIG };
 }
 async function saveSyncConfigLocal(){
   await saveWithRetry('paylater-sync-config', JSON.stringify({ config:syncConfig, code:syncCode }));
@@ -1806,8 +1808,8 @@ async function initSyncOnLoad(){
       ? window.firebase.app()
       : window.firebase.initializeApp(syncConfig);
     if(window.firebase.auth){
-      onAuthReady();
-      // auth/persistence default 'local' — onAuthStateChanged akan memulai sync bila user ada
+      await onAuthReady();
+      // auth/persistence default 'local' — status awal sudah diketahui sebelum fallback.
     }
   }catch(err){
     console.warn('firebase init error', err);
@@ -1892,8 +1894,15 @@ function updateAccountButton(user){
   const btn = document.getElementById('accountBtn');
   const av = document.getElementById('accountBtnAvatar');
   const lbl = document.getElementById('accountBtnLabel');
-  if(!user){ btn.style.display = 'none'; return; }
   btn.style.display = 'flex';
+  if(!user){
+    av.style.backgroundImage = '';
+    av.classList.add('placeholder');
+    av.textContent = 'G';
+    lbl.textContent = 'Masuk';
+    btn.title = 'Masuk dengan Google';
+    return;
+  }
   if(user.photoURL){ av.style.backgroundImage = `url('${user.photoURL}')`; av.classList.remove('placeholder'); av.textContent=''; }
   else { av.style.backgroundImage=''; av.classList.add('placeholder'); av.textContent = (user.name||'?').charAt(0).toUpperCase(); }
   lbl.textContent = (user.name||'Akun').split(' ')[0];
@@ -1946,23 +1955,30 @@ async function signOutGoogle(){
 }
 
 function onAuthReady(){
-  // dipanggil setelah firebase siap; pasang listener perubahan status login
-  window.firebase.auth().onAuthStateChanged(async (fbUser) => {
-    if(fbUser){
-      currentUser = { uid:fbUser.uid, name:fbUser.displayName, email:fbUser.email, photoURL:fbUser.photoURL };
-      updateAccountButton(currentUser);
-      setAccountModalConnected(true, currentUser);
-      // auto-connect sync berbasis UID jika config sudah ada
-      if(syncConfig){
-        updateSyncStatus('Menyinkron ke akun Anda...', null);
-        await connectSync(syncConfig, syncCode || fbUser.uid, true);
-        updateSyncStatus('Tersinkron ke akun • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+  // Selesaikan promise setelah status awal diketahui agar fallback sync tidak balapan dengan pemulihan sesi.
+  return new Promise((resolve) => {
+    let initialStatePending = true;
+    window.firebase.auth().onAuthStateChanged(async (fbUser) => {
+      if(fbUser){
+        currentUser = { uid:fbUser.uid, name:fbUser.displayName, email:fbUser.email, photoURL:fbUser.photoURL };
+        updateAccountButton(currentUser);
+        setAccountModalConnected(true, currentUser);
+        // auto-connect sync berbasis UID jika config sudah ada
+        if(syncConfig){
+          updateSyncStatus('Menyinkron ke akun Anda...', null);
+          await connectSync(syncConfig, syncCode || fbUser.uid, true);
+          updateSyncStatus('Tersinkron ke akun • ' + new Date().toLocaleTimeString('id-ID'), 'on');
+        }
+      }else{
+        currentUser = null;
+        updateAccountButton(null);
+        setAccountModalConnected(false, null);
       }
-    }else{
-      currentUser = null;
-      updateAccountButton(null);
-      setAccountModalConnected(false, null);
-    }
+      if(initialStatePending){
+        initialStatePending = false;
+        resolve(fbUser);
+      }
+    });
   });
 }
 
@@ -1980,11 +1996,17 @@ document.getElementById('accountOverlay').addEventListener('click', (e) => {
 });
 document.getElementById('googleLoginBtn').addEventListener('click', async () => {
   // pastikan Firebase & config sudah ada
-  if(!syncConfig){
-    setAccountStatus('Isi Firebase Config dulu di menu Sinkronisasi (☁) sebelum login.', true);
-    // buka overlay sync biar user mudah isi config
-    document.getElementById('syncOverlay').classList.add('open');
-    return;
+  if(!syncConfig) syncConfig = { ...DEFAULT_FIREBASE_CONFIG };
+  if(!window.firebase || !window.firebase.auth){
+    setAccountStatus('Menyiapkan login Google…', false);
+    try{
+      await loadFirebaseScripts();
+      if(!window.firebase.apps.length) window.firebase.initializeApp(syncConfig);
+      onAuthReady();
+    }catch(err){
+      setAccountStatus('Gagal menyiapkan login. Periksa koneksi internet lalu coba lagi.', true);
+      return;
+    }
   }
   await signInWithGoogle();
 });
