@@ -225,7 +225,6 @@
 
   .center{ text-align:center; }
   .paper{ position:relative; }
-  .bento-hero .center{ padding-top:34px; }
   .title{ font-family:'Space Mono',monospace; font-weight:700; font-size:19px; letter-spacing:.12em; }
   .subtitle{ font-size:10.5px; color:var(--ink-mid-light); margin-top:4px; letter-spacing:.05em; }
   body.dark .subtitle{ color:var(--ink-mid-dark); }
@@ -783,9 +782,8 @@
     position:relative;
     grid-column:1/-1;
     border-radius:28px;
-    padding:26px 22px 20px;
+    padding:22px 22px;
   }
-  body.modern .bento-hero .center{ padding-top:34px; }
   body.modern .bento-hero .dash{ display:none; }
   body.modern .bento-hero .summary{ padding-top:18px; }
   body.modern .tabs{
@@ -1065,7 +1063,7 @@
       padding-bottom:calc(28px + env(safe-area-inset-bottom));
     }
     .paper{ padding:20px 14px 6px; }
-    body.modern .bento-hero{ padding:20px 16px 16px; border-radius:22px; }
+    body.modern .bento-hero{ padding:18px 16px; border-radius:22px; }
     body.modern .add-form.open{ padding:16px 14px 12px; border-radius:18px; }
     .toolbar{ min-width:0; }
     .toolbar-actions{ min-width:0; }
@@ -1562,8 +1560,8 @@ function rebuildProvidersMap(){
 rebuildProvidersMap();
 
 let entries = [];
-let theme = 'light';
-let modernSubTheme = 'dark'; // 'dark' atau 'light' - subtema untuk tema modern
+let theme = 'modern';
+let modernSubTheme = 'light'; // 'dark' atau 'light' - subtema untuk tema modern
 let activeTab = 'semua';
 let hideTotal = false;
 let listVisibleCount = 1;
@@ -1658,13 +1656,13 @@ async function loadState(){
   }catch(err){ entries = []; }
   try{
     const t = await appStorage.get('paylater-theme');
-    theme = t ? t.value : 'light';
-  }catch(err){ theme = 'light'; }
+    theme = t ? t.value : 'modern';
+  }catch(err){ theme = 'modern'; }
   if(theme === 'light' || theme === 'dark') lastKlasikTheme = theme;
   try{
     const ms = await appStorage.get('paylater-modern-subtheme');
-    modernSubTheme = (ms && ms.value === 'light') ? 'light' : 'dark';
-  }catch(err){ modernSubTheme = 'dark'; }
+    modernSubTheme = (ms && ms.value === 'dark') ? 'dark' : 'light';
+  }catch(err){ modernSubTheme = 'light'; }
   try{
     const h = await appStorage.get('paylater-hide-total');
     hideTotal = h ? h.value === '1' : false;
