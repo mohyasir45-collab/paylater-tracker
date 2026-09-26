@@ -147,6 +147,8 @@
   }
   .subtheme-switch.is-dark .sun-icon{ opacity:.48; transform:rotate(-35deg) scale(.84); }
   .subtheme-switch.is-dark .moon-icon{ color:#F2F5FF; opacity:1; transform:rotate(8deg); }
+  .subtheme-switch .sun-icon svg{ transform:translateX(2px); }
+  .subtheme-switch .moon-icon svg{ transform:translateX(-4px); }
   body.dark .subtheme-switch{ border-color:var(--ink-mid-dark); background:rgba(255,255,255,.06); }
   body.modern .subtheme-switch{ border-color:var(--modern-border); background:rgba(255,255,255,.06); color:var(--modern-ink); }
   body.modern.modern-light .subtheme-switch{
@@ -1785,6 +1787,7 @@ function applyLanguage(){
   const setHTML = (id, key) => { const el = document.getElementById(id); if(el) el.innerHTML = t(key); };
   // toolbar & header
   set('accountBtnLabel', 'accountLoginLabel');
+  updateAccountButton(currentUser);
   setTitle('accountBtn', 'accountLoginTitle');
   setTitle('syncBtn', 'syncBtnTitle');
   setTitle('settingsBtn', 'settingsBtnLabel');
