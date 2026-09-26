@@ -120,12 +120,53 @@
     max-height:0; opacity:0; margin-top:-4px; margin-bottom:0;
     pointer-events:none;
   }
-  .subtheme-toggle{ opacity:.85; }
-  .subtheme-toggle span{
-    display:flex; align-items:center; justify-content:center;
-    padding:6px 9px;
+  .subtheme-switch{
+    position:relative; width:74px; height:44px; padding:0; border:1px solid var(--ink-mid-light);
+    border-radius:999px; background:rgba(255,255,255,.28); color:var(--ink-light);
+    cursor:pointer; overflow:hidden; appearance:none; -webkit-appearance:none;
+    transition:background .35s ease, border-color .35s ease, box-shadow .35s ease;
   }
-  .subtheme-toggle svg{ display:block; }
+  .subtheme-switch:focus-visible{
+    outline:3px solid rgba(63,94,150,.28); outline-offset:3px;
+  }
+  .subtheme-switch .theme-icon{
+    position:absolute; top:4px; width:36px; height:34px;
+    display:flex; align-items:center; justify-content:center;
+    z-index:1; transition:color .3s ease, opacity .3s ease, transform .35s ease;
+  }
+  .subtheme-switch .sun-icon{ left:0; color:#7B5417; }
+  .subtheme-switch .moon-icon{ right:0; color:var(--ink-mid-light); opacity:.56; }
+  .subtheme-switch .switch-knob{
+    position:absolute; z-index:0; top:5px; left:4px; width:32px; height:32px;
+    border-radius:50%; background:#FFF9E8;
+    box-shadow:0 3px 9px rgba(42,38,32,.20), inset 0 1px 0 rgba(255,255,255,.9);
+    transition:transform .42s cubic-bezier(.2,.8,.2,1), background .35s ease, box-shadow .35s ease;
+  }
+  .subtheme-switch.is-dark .switch-knob{
+    transform:translateX(32px); background:#26374A;
+    box-shadow:0 3px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .subtheme-switch.is-dark .sun-icon{ opacity:.48; transform:rotate(-35deg) scale(.84); }
+  .subtheme-switch.is-dark .moon-icon{ color:#F2F5FF; opacity:1; transform:rotate(8deg); }
+  body.dark .subtheme-switch{ border-color:var(--ink-mid-dark); background:rgba(255,255,255,.06); }
+  body.modern .subtheme-switch{ border-color:var(--modern-border); background:rgba(255,255,255,.06); color:var(--modern-ink); }
+  body.modern.modern-light .subtheme-switch{
+    border-color:rgba(23,107,74,.25); background:rgba(255,255,255,.60);
+    box-shadow:0 5px 15px rgba(25,48,37,.08);
+  }
+  .subtheme-switch svg{ display:block; }
+  body.theme-switching .subtheme-switch{
+    transition:background .35s ease, border-color .35s ease, box-shadow .35s ease !important;
+  }
+  body.theme-switching .subtheme-switch .theme-icon{
+    transition:color .3s ease, opacity .3s ease, transform .35s ease !important;
+  }
+  body.theme-switching .subtheme-switch .switch-knob{
+    transition:transform .42s cubic-bezier(.2,.8,.2,1), background .35s ease, box-shadow .35s ease !important;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .subtheme-switch, .subtheme-switch *, body.modern{ transition:none !important; }
+  }
 
   .receipt-shadow{
     filter: drop-shadow(0 18px 30px var(--paper-shadow-light));
@@ -1216,9 +1257,11 @@
   </div>
 
   <div class="subtheme-row" id="subThemeRow">
-    <div class="theme-toggle subtheme-toggle" id="subThemeToggle">
-      <span id="lightLabel" title="Terang"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5V5"></path><path d="M12 19V21.5"></path><path d="M4.2 4.2L6 6"></path><path d="M18 18L19.8 19.8"></path><path d="M2.5 12H5"></path><path d="M19 12H21.5"></path><path d="M4.2 19.8L6 18"></path><path d="M18 6L19.8 4.2"></path></svg></span><span id="darkLabel" title="Gelap"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7Z"></path></svg></span>
-    </div>
+    <button class="subtheme-switch" id="subThemeToggle" type="button" role="switch" aria-checked="false" aria-label="Aktifkan tema gelap" title="Ganti terang atau gelap">
+      <span class="theme-icon sun-icon" id="lightLabel" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.2"></circle><path d="M12 2.5V5"></path><path d="M12 19V21.5"></path><path d="M4.2 4.2L6 6"></path><path d="M18 18L19.8 19.8"></path><path d="M2.5 12H5"></path><path d="M19 12H21.5"></path><path d="M4.2 19.8L6 18"></path><path d="M18 6L19.8 4.2"></path></svg></span>
+      <span class="theme-icon moon-icon" id="darkLabel" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7Z"></path></svg></span>
+      <span class="switch-knob" aria-hidden="true"></span>
+    </button>
   </div>
 
   <div class="receipt-shadow">
@@ -2127,8 +2170,11 @@ function applyTheme(){
   document.getElementById('klasikLabel').className = theme!=='modern' ? 'on' : '';
   document.getElementById('modernLabel').className = theme==='modern' ? 'on' : '';
   const subActive = theme==='modern' ? modernSubTheme : theme;
-  document.getElementById('lightLabel').className = subActive==='light' ? 'on' : '';
-  document.getElementById('darkLabel').className = subActive==='dark' ? 'on' : '';
+  const subThemeToggle = document.getElementById('subThemeToggle');
+  const isDarkTheme = subActive === 'dark';
+  subThemeToggle.classList.toggle('is-dark', isDarkTheme);
+  subThemeToggle.setAttribute('aria-checked', String(isDarkTheme));
+  subThemeToggle.setAttribute('aria-label', isDarkTheme ? 'Aktifkan tema terang' : 'Aktifkan tema gelap');
   document.body.classList.toggle('modern-light', theme==='modern' && modernSubTheme==='light');
   const themeColors = { light:'#DCD7CC', dark:'#041420', modern: modernSubTheme==='light' ? '#EEF2ED' : '#020103' };
   const metaTheme = document.querySelector('meta[name="theme-color"]');
@@ -2171,27 +2217,15 @@ document.getElementById('modernLabel').addEventListener('click', () => {
     saveTheme();
   }
 });
-document.getElementById('lightLabel').addEventListener('click', () => {
+document.getElementById('subThemeToggle').addEventListener('click', () => {
   if(theme === 'modern'){
-    modernSubTheme = 'light';
+    modernSubTheme = modernSubTheme === 'dark' ? 'light' : 'dark';
     applyTheme();
     saveModernSubTheme();
     return;
   }
-  lastKlasikTheme = 'light';
-  theme = 'light';
-  applyTheme();
-  saveTheme();
-});
-document.getElementById('darkLabel').addEventListener('click', () => {
-  if(theme === 'modern'){
-    modernSubTheme = 'dark';
-    applyTheme();
-    saveModernSubTheme();
-    return;
-  }
-  lastKlasikTheme = 'dark';
-  theme = 'dark';
+  theme = theme === 'dark' ? 'light' : 'dark';
+  lastKlasikTheme = theme;
   applyTheme();
   saveTheme();
 });
