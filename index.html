@@ -918,6 +918,21 @@
   body.modern .countdown{ border-radius:6px; font-family:'Plus Jakarta Sans',sans-serif; }
   body.modern .countdown.ok{ background:#0F3A28; color:#71BF47; box-shadow:0 0 10px rgba(113,191,71,0.4); }
   body.modern .countdown.soon, body.modern .countdown.warn{ background:#3A0F1E; color:#EE2724; box-shadow:0 0 10px rgba(238,39,36,0.4); }
+  body.modern.modern-light .countdown.ok,
+  body.modern.modern-light .countdown.soon,
+  body.modern.modern-light .countdown.warn{
+    box-shadow:none;
+    opacity:1;
+  }
+  body.modern.modern-light .countdown.ok{
+    background:var(--countdown-ok-bg);
+    color:var(--countdown-ok-ink);
+  }
+  body.modern.modern-light .countdown.soon,
+  body.modern.modern-light .countdown.warn{
+    background:var(--countdown-alert-bg);
+    color:var(--countdown-alert-ink);
+  }
 
   body.modern .action-btn{
     border-radius:999px; border-color:var(--modern-border); font-family:'Plus Jakarta Sans',sans-serif;
@@ -963,6 +978,10 @@
     --modern-accent:#176B4A;
     --modern-accent2:#176B4A;
     --modern-shadow:rgba(25,48,37,0.12);
+    --countdown-ok-bg:#E1F3E8;
+    --countdown-ok-ink:#176B4A;
+    --countdown-alert-bg:#FCE8E6;
+    --countdown-alert-ink:#A33632;
     background-color:var(--modern-bg);
     background-image:none;
   }
@@ -1978,7 +1997,7 @@ async function loadState(){
   if(theme === 'light' || theme === 'dark') lastKlasikTheme = theme;
   try{
     const ms = await appStorage.get('paylater-modern-subtheme');
-    modernSubTheme = (ms && ms.value === 'dark') ? 'dark' : 'light';
+    modernSubTheme = (theme === 'modern') ? 'light' : ((ms && ms.value === 'dark') ? 'dark' : 'light');
   }catch(err){ modernSubTheme = 'light'; }
   try{
     const h = await appStorage.get('paylater-hide-total');
