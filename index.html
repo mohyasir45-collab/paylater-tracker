@@ -112,13 +112,13 @@
   .subtheme-row{
     display:flex; justify-content:flex-start;
     margin:-4px 6px 12px;
-    overflow:hidden;
-    max-height:40px; opacity:1;
+    overflow:visible;
+    max-height:48px; opacity:1;
     transition:max-height .25s ease, opacity .2s ease, margin .25s ease;
   }
   .subtheme-row.hidden{
     max-height:0; opacity:0; margin-top:-4px; margin-bottom:0;
-    pointer-events:none;
+    overflow:hidden; pointer-events:none;
   }
   .subtheme-switch{
     position:relative; width:74px; height:44px; padding:0; border:1px solid var(--ink-mid-light);
@@ -1047,6 +1047,8 @@
     .paper{ padding:20px 14px 6px; }
     body.modern .bento-hero{ padding:20px 16px 16px; border-radius:22px; }
     body.modern .add-form.open{ padding:16px 14px 12px; border-radius:18px; }
+    .toolbar{ min-width:0; }
+    .toolbar-actions{ min-width:0; }
 
     /* form: prioritas field penting full-width di layar sempit */
     .form-grid{
@@ -1141,6 +1143,19 @@
       pointer-events:none;
       transition:opacity .25s ease;
     }
+  }
+
+  @media (max-width: 380px){
+    .toolbar{
+      flex-wrap:wrap; gap:8px 6px; padding:8px 10px;
+      border-radius:18px;
+    }
+    .toolbar .brandmark{ flex:1 0 100%; }
+    .toolbar-actions{
+      width:100%; justify-content:space-between; gap:5px;
+    }
+    .account-btn .label{ max-width:72px; }
+    .subtheme-row{ margin-top:0; }
   }
 
   /* ===== SCAN FOTO OCR ===== */
